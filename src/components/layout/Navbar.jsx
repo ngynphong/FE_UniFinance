@@ -3,10 +3,11 @@
 import { Menu, Button } from "antd"
 import { DollarSign } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-
+import { useAuth } from "../auth/useAuth" // Assuming you have a useAuth hook to check authentication status
 const Header = () => {
   const navigate = useNavigate()
-  
+  const { isAuthenticated, logout } = useAuth();// Assuming you have a useAuth hook to check authentication status
+
   const menuItems = [
     { key: "home", label: "Trang chủ", path: "/" },
     { key: "services", label: "Dịch vụ", path: "/services" },
@@ -42,14 +43,26 @@ const Header = () => {
           />
 
           {/* CTA Button */}
-          <Button
-            type="primary"
-            size="large"
-            className="bg-blue-600 hover:bg-blue-700"
-            onClick={() => navigate("/contact-with-us")}
-          >
-            Login
-          </Button>
+          {!isAuthenticated ? (
+            <Button
+              type="primary"
+              size="large"
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              size="large"
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => logout()}
+            >
+              Logout
+            </Button>
+          )}
+
         </div>
       </div>
     </header>
