@@ -54,7 +54,7 @@ const GoalTarget = () => {
             key: 'actions',
             render: (_, record) => (
                 <div className="flex gap-2">
-                    <Button size="small" onClick={() => handleEdit(record)}><FaEdit /></Button>
+                    <Button size="small" className='text-blue-500' onClick={() => handleEdit(record)}><FaEdit /></Button>
                     <Popconfirm title="Delete this goal?" onConfirm={() => handleDelete(record.id)}>
                         <Button size="small" danger><FaTrash /></Button>
                     </Popconfirm>
@@ -64,18 +64,20 @@ const GoalTarget = () => {
     ];
 
     return (
-        <div className="bg-white rounded-xl p-6 shadow">
-            <div className="flex justify-between items-center mb-4">
+        <div className="w-full">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                 <h2 className="text-lg font-semibold">Goal Target</h2>
                 <Button type="primary" onClick={handleAdd}>Add Goal Target</Button>
             </div>
-            <Table
-                columns={columns}
-                dataSource={goals}
-                rowKey="id"
-                pagination={false}
-                className="bg-white rounded"
-            />
+            <div className="overflow-x-auto">
+                <Table
+                    columns={columns}
+                    dataSource={goals}
+                    rowKey="id"
+                    pagination={false}
+                    className="bg-white rounded min-w-[500px]"
+                />
+            </div>
             <GoalTargetModal
                 open={modalOpen}
                 goal={editingGoal}

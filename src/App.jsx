@@ -33,9 +33,10 @@ import TransactionsPage from "./pages/Transactions/TransactionsPage"
 import ResourcePage from "./pages/generic/resource/ResourcePage";
 import ServicesPage from "./pages/generic/services/ServicesPage";
 
-// Optional: Private pages (if needed)
-// import Dashboard from "./pages/dashboard/Dashboard"
-// import ProfilePage from "./pages/profile/ProfilePage"
+// Dashboard Pages
+import Dashboard from "./pages/Dashboard/Dashboard";
+import Profile from "./pages/Dashboard/Profile";
+import GoalTargetPage from "./pages/Dashboard/GoalTarget";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -53,65 +54,82 @@ function App() {
 
   return (
     <AuthProvider>
-
-
-    <Router>
-      <ScrollToTop />
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Routes>
-          {/* Public routes without layout */}
-
-          {/* Routes using main layout */}
-          <Route element={<Layout onScrollToSection={handleScrollToSection} />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about-us" element={<AboutPage />} />
-            <Route path="/contact-with-us" element={<ContactUsPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-            <Route path="/term-conditions" element={<TermConditionPage />} />
-            <Route path="/resources" element={<ResourcePage/>} />
-            <Route path="/services" element={<ServicesPage/>} />
-              {/* Protected route  */}
-
-              {/* 404 - Not Found */}
-              <Route
-                path="*"
-                element={
-                  <div className="text-center py-16 text-2xl">
-                    404 - Page Not Found
-                  </div>
-                }
-              />
-            </Route>
-            {/* Auth route */}
+      <Router>
+        <ScrollToTop />
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+          <Routes>
+            {/* Public routes without layout */}
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
             <Route path='/forgot-password' element={<ForgotPassword />} />
-            {/* User route */}
-            <Route path="/budget-management"
-              element={
-                <ProtectedRoute roles={["user"]}>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<BudgetManagement />} />
+
+            {/* Routes using main layout */}
+            <Route element={<Layout onScrollToSection={handleScrollToSection} />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about-us" element={<AboutPage />} />
+              <Route path="/contact-with-us" element={<ContactUsPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/term-conditions" element={<TermConditionPage />} />
+              <Route path="/resources" element={<ResourcePage />} />
+              <Route path="/services" element={<ServicesPage />} />
             </Route>
 
-            <Route path="/transactions"
+            {/* Dashboard routes */}
+            <Route
+              path="/dashboard"
               element={
                 <ProtectedRoute roles={["user"]}>
-                  <Layout />
+                  <Dashboard />
                 </ProtectedRoute>
               }
-            >
-              <Route index element={<TransactionsPage />} />
-            </Route>
+            />
+            <Route
+              path="/dashboard/profile"
+              element={
+                <ProtectedRoute roles={["user"]}>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/budget-management"
+              element={
+                <ProtectedRoute roles={["user"]}>
+                  <BudgetManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/transactions"
+              element={
+                <ProtectedRoute roles={["user"]}>
+                  <TransactionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/goals"
+              element={
+                <ProtectedRoute roles={["user"]}>
+                  <GoalTargetPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 404 - Not Found */}
+            <Route
+              path="*"
+              element={
+                <div className="text-center py-16 text-2xl">
+                  404 - Page Not Found
+                </div>
+              }
+            />
           </Routes>
         </div>
       </Router>
     </AuthProvider>
-  )
-
+  );
 }
 
 export default App;

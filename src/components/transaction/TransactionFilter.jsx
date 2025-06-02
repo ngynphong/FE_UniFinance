@@ -9,7 +9,7 @@ const TransactionFilter = ({ filter, setFilter }) => {
     const monthValue = dayjs(filter.month + "-01");
 
     return (
-        <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
             <div>
                 <Select
                     value={filter.type}

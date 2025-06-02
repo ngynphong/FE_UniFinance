@@ -34,19 +34,23 @@ const GoalTargetModal = ({ open, goal, onClose, onSave }) => {
             onCancel={onClose}
             onOk={handleOk}
             okText="Save"
+            bodyStyle={{ padding: '16px 8px' }}
         >
-            <Form form={form} layout="vertical">
-                <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-                    <Input />
+            <Form form={form} layout="vertical" className="space-y-2">
+                <Form.Item name="name" label="Name" rules={[{ required: true }]}
+                    className="mb-2">
+                    <Input className="py-2" />
                 </Form.Item>
-                <Form.Item name="amount" label="Target Amount" rules={[{ required: true }]}>
-                    <InputNumber min={0} className="w-full" />
+                <Form.Item name="amount" label="Target Amount" rules={[{ required: true }]}
+                    className="mb-2">
+                    <InputNumber min={0} className="w-full py-2" />
                 </Form.Item>
-                <Form.Item name="current" label="Current">
-                    <InputNumber min={0} className="w-full" />
+                <Form.Item name="current" label="Current" className="mb-2">
+                    <InputNumber min={0} className="w-full py-2" />
                 </Form.Item>
-                <Form.Item name="deadline" label="Deadline" rules={[{ required: true }]}>
-                    <DatePicker className="w-full" />
+                <Form.Item name="deadline" label="Deadline" rules={[{ required: true }]}
+                    className="mb-2">
+                    <DatePicker className="w-full py-2" />
                 </Form.Item>
             </Form>
         </Modal>

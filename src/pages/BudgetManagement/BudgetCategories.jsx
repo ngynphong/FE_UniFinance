@@ -13,9 +13,9 @@ const categories = [
 const BudgetCategories = ({ onAddCategory }) => {
     return (
         <div className="bg-gray-50 rounded-lg p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-4">
                 <h4 className="font-semibold text-gray-700">Budget Categories</h4>
-                <Button type="primary" icon={<PlusOutlined />} onClick={onAddCategory}>
+                <Button type="primary" className="" icon={<PlusOutlined />} onClick={onAddCategory}>
                     Add New Budget Category
                 </Button>
             </div>
