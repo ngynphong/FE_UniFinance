@@ -11,7 +11,7 @@ const remainPercent = 100 - spentPercent;
 
 const BudgetSummary = () => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6 px-2 md:px-0">
             <Card className="text-center border-blue-500 border-t-4">
                 <div className="text-gray-500 text-sm mb-1">Monthly Budget</div>
                 <div className="text-2xl font-bold text-blue-600 mb-2">${budgetData.total.toLocaleString()}</div>

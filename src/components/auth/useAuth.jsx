@@ -8,15 +8,15 @@ export function AuthProvider({ children }) {
     const [isLoading, setIsLoading] = useState(true);
     // Load user from sessionStorage on mount
     useEffect(() => {
-        const stored = sessionStorage.getItem("authUser");
+        const stored = localStorage.getItem("authUser");
         if (stored) setUser(JSON.parse(stored));
         setIsLoading(false);
     }, []);
 
     // Save user to sessionStorage
     useEffect(() => {
-        if (user) sessionStorage.setItem("authUser", JSON.stringify(user));
-        else sessionStorage.removeItem("authUser");
+        if (user) localStorage.setItem("authUser", JSON.stringify(user));
+        else localStorage.removeItem("authUser");
     }, [user]);
 
     // Login with fake data

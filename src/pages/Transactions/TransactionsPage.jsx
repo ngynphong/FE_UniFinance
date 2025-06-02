@@ -5,6 +5,7 @@ import TransactionModal from "../../components/transaction/TransactionModal";
 import TransactionItem from "../../components/transaction/TransactionItem";
 import { Button, Pagination } from "antd";
 import GoalTarget from "../../components/transaction/GoalTarget";
+import DashboardLayout from '../../components/layout/user/DashboardLayout';
 
 // Fake data mẫu
 const initialTransactions = [
@@ -64,45 +65,44 @@ const TransactionsPage = () => {
     }, [filter]);
 
     return (
-        <div className="max-w-8xl mx-auto p-6 mt-6 mb-10 flex flex-row gap-10">
-            {/* Goal Target Section */}
-            <div className="">
-                <GoalTarget />
-            </div>
-            <div className="w-full mx-auto bg-white shadow-lg rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold">Transactions</h2>
-                    <Button
-                        type="primary"
-                        onClick={() => { setModalOpen(true); setEditData(null); }}
-                    >
-                        + Add Transaction
-                    </Button>
-                </div>
-                <TransactionFilter filter={filter} setFilter={setFilter} />
-                <TransactionList
-                    transactions={pagedTransactions}
-                    onEdit={tran => { setEditData(tran); setModalOpen(true); }}
-                    onDelete={handleDelete}
-                />
-                <div className="flex justify-center mt-4">
-                    <Pagination
-                        current={currentPage}
-                        pageSize={pageSize}
-                        total={filteredTransactions.length}
-                        onChange={setCurrentPage}
-                        showSizeChanger={false}
+        <DashboardLayout>
+            <div className="space-y-6 px-2 md:px-0">
+                <h1 className="text-2xl font-bold text-gray-800">Transactions</h1>
+                <div className="mx-auto p-4 md:p-6 bg-white rounded-lg shadow-md mt-6 mb-10">
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+                        <Button
+                            type="primary"
+                            onClick={() => { setModalOpen(true); setEditData(null); }}
+                        >
+                            + Add Transaction
+                        </Button>
+                    </div>
+                    <TransactionFilter filter={filter} setFilter={setFilter} />
+                    <TransactionList
+                        transactions={pagedTransactions}
+                        onEdit={tran => { setEditData(tran); setModalOpen(true); }}
+                        onDelete={handleDelete}
+                    />
+                    <div className="flex justify-center mt-4">
+                        <Pagination
+                            current={currentPage}
+                            pageSize={pageSize}
+                            total={filteredTransactions.length}
+                            onChange={setCurrentPage}
+                            showSizeChanger={false}
+                        />
+                    </div>
+
+                    <TransactionModal
+                        open={modalOpen}
+                        onClose={() => { setModalOpen(false); setEditData(null); }}
+                        onSave={handleSave}
+                        editData={editData}
                     />
                 </div>
             </div>
-            <TransactionModal
-                open={modalOpen}
-                onClose={() => { setModalOpen(false); setEditData(null); }}
-                onSave={handleSave}
-                editData={editData}
-            />
-
-        </div>
+        </DashboardLayout>
     );
 };
 

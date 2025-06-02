@@ -1,12 +1,13 @@
 "use client"
 
-import { Menu, Button } from "antd"
+import { Menu, Button, Avatar } from "antd"
 import { DollarSign } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../auth/useAuth" // Assuming you have a useAuth hook to check authentication status
+import { UserOutlined } from "@ant-design/icons";
 const Header = () => {
   const navigate = useNavigate()
-  const { isAuthenticated, logout } = useAuth();// Assuming you have a useAuth hook to check authentication status
+  const { isAuthenticated, user } = useAuth();// Assuming you have a useAuth hook to check authentication status
 
   const menuItems = [
     { key: "home", label: "Trang chủ", path: "/" },
@@ -53,16 +54,13 @@ const Header = () => {
               Login
             </Button>
           ) : (
-            <Button
-              type="primary"
-              size="large"
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => logout()}
-            >
-              Logout
-            </Button>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/dashboard")}>
+                <Avatar src={user.avatar} icon={<UserOutlined />} className="w-10 h-10 rounded-full" />
+                <span className="text-gray-800 text-sm font-semibold text">{user.name}</span>
+              </div>
+            </div>
           )}
-
         </div>
       </div>
     </header>
