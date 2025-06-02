@@ -20,8 +20,7 @@ import { AuthProvider } from "./components/auth/useAuth"
 import Login from "./components/Login/Login"
 import Register from "./components/Register/Register"
 import ForgotPassword from "./components/Login/ForgotPassword";
-// import Login from "./components/Login/Login"
-// import Register from "./components/Register/Register"          
+import ProtectedRoute from "./components/auth/ProtectedRoute"
 
 // Pages - Public
 import HomePage from "./pages/home/HomePage"
@@ -31,9 +30,6 @@ import PrivacyPolicyPage from "./pages/generic/privacyPolicyPage/PrivacyPolicyPa
 import TermConditionPage from "./pages/generic/termConsitionsPage/TermConditionPage"
 import BudgetManagement from "./pages/BudgetManagement/BudgetManagement"
 import TransactionsPage from "./pages/Transactions/TransactionsPage"
-import ProtectedRoute from "./components/auth/ProtectedRoute"
-
-
 import ResourcePage from "./pages/generic/resource/ResourcePage";
 import ServicesPage from "./pages/generic/services/ServicesPage";
 
