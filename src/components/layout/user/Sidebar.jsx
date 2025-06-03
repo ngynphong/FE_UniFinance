@@ -8,7 +8,7 @@ import { AiFillBank } from "react-icons/ai";
 import { GrTransaction } from "react-icons/gr";
 import { GoGoal } from "react-icons/go";
 import { useEffect } from "react";
-import { useAuth } from "../../auth/useAuth";
+import { useAuth } from "../../../contexts/useAuth";
 import { IoIosArrowBack } from "react-icons/io";
 
 

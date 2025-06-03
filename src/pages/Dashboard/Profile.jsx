@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Upload, message } from 'antd';
 import { UserOutlined, UploadOutlined } from '@ant-design/icons';
 import DashboardLayout from '../../components/layout/user/DashboardLayout';
-import { useAuth } from '../../components/auth/useAuth';
+import { useAuth } from '../../contexts/useAuth';
 
 const Profile = () => {
     const { user, updateUserProfile } = useAuth();
