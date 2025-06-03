@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../auth/useAuthHook";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-// import { IoMdHome } from "react-icons/io";
+import { GoogleLogin } from '@react-oauth/google';
+
 const Login = () => {
-    const { login } = useAuth();
+    const { login, handleGoogleLogin } = useAuth();
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -31,7 +32,7 @@ const Login = () => {
         }
         setError(newError);
         return valid;
-    }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -41,25 +42,27 @@ const Login = () => {
             setError({ email: "", password: "" });
             navigate("/");
         } else {
-            if (res.message && res.message.toLowerCase().includes("email")) {
-                setError({ email: res.message, password: "" })
-            } else if (res.message && res.message.toLowerCase.includes("password")) {
-                setError({ email: "", password: res.message })
-            } else {
-                setError({ email: "", password: res.message || "Login Failed" })
-            }
-
+            setError({ email: "", password: res.message || "Login failed" });
         }
+    };
+
+    const onGoogleSuccess = async (credentialResponse) => {
+        const res = await handleGoogleLogin(credentialResponse);
+        if (res.success) {
+            navigate("/");
+        } else {
+            setError({ email: "", password: res.message || "Google login failed" });
+        }
+    };
+
+    const onGoogleError = () => {
+        setError({ email: "", password: "Google login failed" });
     };
 
     return (
         <div className="flex min-h-screen items-center relative overflow-hidden justify-center">
-            {/* Blurred background image */}
             <img className="absolute max-h-screen w-full h-full object-cover mx-auto block top-0 left-0 z-0 scale-105" src="/background.jpg" alt="" />
-            {/* Glassmorphism login form */}
             <div className="relative z-10 w-full max-w-md mx-6 p-10 rounded-2xl shadow-2xl bg-white/30 backdrop-blur-lg border border-white/40">
-                {/* <p className="text-lg text-gray-700"><IoMdHome /></p> */}
-                {/* Accent bar */}
                 <div className="w-16 h-1.5 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full mb-6 mx-auto" />
                 <h2 className="text-3xl font-extrabold mb-2 text-gray-900 text-center drop-shadow">Welcome To UniFinance</h2>
                 <p className="text-base text-gray-700 mb-2 text-center">Enter your Email and Password</p>
@@ -80,7 +83,6 @@ const Login = () => {
                     <div>
                         <div className="flex justify-between items-center mb-1">
                             <label className="block text-sm font-semibold text-gray-800" htmlFor="password">Password</label>
-
                         </div>
                         <div className="relative">
                             <input
@@ -103,9 +105,7 @@ const Login = () => {
                         {error.password && <div className="text-red-600 text-xs mt-1">{error.password}</div>}
                     </div>
                     <div className="flex items-center justify-end">
-
-                        <Link to={"/forgot-password"} className="text-xs text-blue-600 hover:underline font-medium">Forgot password</Link>
-
+                        <Link to="/forgot-password" className="text-xs text-blue-600 hover:underline font-medium">Forgot password</Link>
                     </div>
                     <button
                         type="submit"
@@ -114,24 +114,30 @@ const Login = () => {
                         Login
                     </button>
                 </form>
+
                 <div className="flex items-center my-6">
                     <div className="flex-grow h-px bg-gray-200" />
                     <span className="mx-3 text-gray-900 text-sm">or</span>
                     <div className="flex-grow h-px bg-gray-200" />
                 </div>
-                <div className="flex space-x-3 mb-6">
-                    <button className="flex-1 flex items-center justify-center border border-gray-200 rounded-xl py-2.5 bg-white/80 hover:bg-gray-50 hover:cursor-pointer shadow-sm transition">
-                        <img src="google-color-svgrepo-com.svg" alt="Google" className="w-5 h-5 mr-2" />
-                        <span className="text-sm font-medium text-gray-700">Sign in with Google</span>
-                    </button>
 
+                <div className="flex justify-center mb-6">
+                    <GoogleLogin
+                        onSuccess={onGoogleSuccess}
+                        onError={onGoogleError}
+                        useOneTap
+                        theme="filled_blue"
+                        shape="pill"
+                        text="continue_with"                  
+                        className="rounded-lg shadow-lg hover:scale-[1.02] transition-transform active:scale-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
                 </div>
 
                 <p className="text-center text-sm text-gray-700">
                     Don&apos;t have an account?{' '}
-                    <Link to={"/register"} className="text-black hover:underline font-semibold">Register </Link>   <br />
-
-                    <Link to={"/"} className="text-black hover:underline font-semibold">Back Home</Link>
+                    <Link to="/register" className="text-black hover:underline font-semibold">Register</Link>
+                    <br />
+                    <Link to="/" className="text-black hover:underline font-semibold">Back Home</Link>
                 </p>
             </div>
         </div>

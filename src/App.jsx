@@ -14,7 +14,7 @@ import scrollToSection from "./components/utils/ScrollToSection";
 import ScrollToTop from "./components/utils/ScrollToTop";
 
 // Auth
-import { AuthProvider } from "./components/auth/useAuth"
+import { AuthProvider } from "./contexts/useAuth"
 
 // Pages - Auth
 import Login from "./components/Login/Login"

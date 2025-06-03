@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../auth/useAuthHook";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 

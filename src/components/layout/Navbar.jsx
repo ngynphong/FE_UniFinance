@@ -3,7 +3,7 @@
 import { Menu, Button, Avatar } from "antd"
 import { DollarSign } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../auth/useAuth" // Assuming you have a useAuth hook to check authentication status
+import { useAuth } from "../../contexts/useAuth" // Assuming you have a useAuth hook to check authentication status
 import { UserOutlined } from "@ant-design/icons";
 const Header = () => {
   const navigate = useNavigate()
