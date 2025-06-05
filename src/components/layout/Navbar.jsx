@@ -25,6 +25,14 @@ const Header = () => {
     }
   }
 
+  const handleLogoClick = () => {
+    if (user && user.role === "admin") {
+      navigate("/admin/dashboard")
+    } else {
+      navigate("/dashboard")
+    }
+  }
+
   return (
     <header className="fixed w-full z-50 bg-white shadow-lg">
       <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -55,7 +63,7 @@ const Header = () => {
             </Button>
           ) : (
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/dashboard")}>
+              <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleLogoClick()}>
                 <Avatar src={user.avatar} icon={<UserOutlined />} className="w-10 h-10 rounded-full" />
                 <span className="text-gray-800 text-sm font-semibold text">{user.name}</span>
               </div>

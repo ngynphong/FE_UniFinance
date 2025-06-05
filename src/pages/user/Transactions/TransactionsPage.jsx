@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import TransactionList from "../../components/transaction/TransactionList";
-import TransactionFilter from "../../components/transaction/TransactionFilter";
-import TransactionModal from "../../components/transaction/TransactionModal";
-import TransactionItem from "../../components/transaction/TransactionItem";
+import TransactionList from "../../../components/transaction/TransactionList";
+import TransactionFilter from "../../../components/transaction/TransactionFilter";
+import TransactionModal from "../../../components/transaction/TransactionModal";
+import TransactionItem from "../../../components/transaction/TransactionItem";
 import { Button, Pagination } from "antd";
-import GoalTarget from "../../components/transaction/GoalTarget";
-import DashboardLayout from '../../components/layout/user/DashboardLayout';
+import GoalTarget from "../../../components/transaction/GoalTarget";
+import DashboardLayout from '../../../components/layout/user/DashboardLayout';
 
 // Fake data mẫu
 const initialTransactions = [

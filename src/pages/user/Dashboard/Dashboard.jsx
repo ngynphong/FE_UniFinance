@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Card, Statistic, Progress, List, Tag } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
-import DashboardLayout from '../../components/layout/user/DashboardLayout';
+import DashboardLayout from '../../../components/layout/user/DashboardLayout';
 
 // Fake data
 const transactions = [
