@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import BudgetSummary from "../../components/budget/BudgetSummary";
+import BudgetSummary from "../../../components/budget/BudgetSummary";
 import BudgetCategories from "./BudgetCategories";
-import BudgetNotifications from "../../components/budget/BudgetNotifications";
-import UpdateBudgetModal from "../../components/budget/UpdateBudgetModal";
-import CreateCategoryModal from "../../components/budget/CreateCategoryModal";
-import DashboardLayout from '../../components/layout/user/DashboardLayout';
+import BudgetNotifications from "../../../components/budget/BudgetNotifications";
+import UpdateBudgetModal from "../../../components/budget/UpdateBudgetModal";
+import CreateCategoryModal from "../../../components/budget/CreateCategoryModal";
+import DashboardLayout from '../../../components/layout/user/DashboardLayout';
 import { Button } from "antd";
 
 const BudgetManagement = () => {

@@ -1,15 +1,14 @@
 import { UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, Space } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MdLogout } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
-import { useEffect } from "react";
 import { useAuth } from "../../../contexts/useAuth";
 import { IoIosArrowBack } from "react-icons/io";
-import { menu } from "../../../data/userMenu";
+import { menu } from "../../../data/adminMenu";
 
-export default function Sidebar() {
+export default function AdminSidebar() {
     const location = useLocation();
     const [collapsed, setCollapsed] = useState(() => {
         // Lấy trạng thái từ localStorage khi khởi tạo
@@ -22,12 +21,10 @@ export default function Sidebar() {
 
     useEffect(() => {
         localStorage.setItem("sidebar-collapsed", collapsed);
-    }, [collapsed]);
-
-    const items = [
+    }, [collapsed]); const items = [
         {
             key: '1',
-            label: 'My Account',
+            label: 'Admin Account',
             disabled: true,
         },
         {
@@ -38,11 +35,9 @@ export default function Sidebar() {
             label: 'Profile',
             icon: <FaUser />,
             onClick: () => {
-                navigate("/dashboard/profile");
+                navigate("/admin/profile");
             }
-
         },
-
         {
             key: '3',
             label: 'Logout',
@@ -62,7 +57,7 @@ export default function Sidebar() {
                 <div>
                     <Button type='text' icon={<IoIosArrowBack />} onClick={() => { navigate('/') }}></Button>
                 </div>
-                {!collapsed && <div className="text-xs uppercase font-bold text-gray-500 mt-2 mb-2 px-4">User Dashboard</div>}
+                {!collapsed && <div className="text-xs uppercase font-bold text-gray-500 mt-2 mb-2 px-4">Admin Dashboard</div>}
                 <div className="flex items-center justify-end p-2">
                     <Button
                         type="text"

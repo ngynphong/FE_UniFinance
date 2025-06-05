@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { userData } from "../data/userData";
+import { userData, adminData } from "../data/userData";
 import { AuthContext } from "../components/auth/AuthContext";
 
 export const useAuth = () => {
@@ -26,11 +26,24 @@ const useAuthState = () => {
     }, [user]);
 
     const login = (email, password) => {
-        if (
-            (email === userData.email && password === userData.password) ||
-            (user && email === user.email && password === user.password)
-        ) {
-            setUser({ name: userData.name, email, role: userData.role });
+        // Check admin credentials
+        if (email === adminData.email && password === adminData.password) {
+            setUser({
+                name: adminData.name,
+                email: adminData.email,
+                role: adminData.role,
+                avatar: adminData.avatar
+            });
+            return { success: true };
+        }
+        // Check user credentials
+        if (email === userData.email && password === userData.password) {
+            setUser({
+                name: userData.name,
+                email: userData.email,
+                role: userData.role,
+                avatar: userData.avatar
+            });
             return { success: true };
         }
         return { success: false, message: "Wrong email or password" };

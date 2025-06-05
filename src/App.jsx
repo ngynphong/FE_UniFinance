@@ -28,15 +28,18 @@ import AboutPage from "./pages/generic/aboutUsPage/AboutPage"
 import ContactUsPage from "./pages/generic/contactUs/ContactUsPage"
 import PrivacyPolicyPage from "./pages/generic/privacyPolicyPage/PrivacyPolicyPage"
 import TermConditionPage from "./pages/generic/termConsitionsPage/TermConditionPage"
-import BudgetManagement from "./pages/BudgetManagement/BudgetManagement"
-import TransactionsPage from "./pages/Transactions/TransactionsPage"
+import BudgetManagement from "./pages/user/BudgetManagement/BudgetManagement"
+import TransactionsPage from "./pages/user/Transactions/TransactionsPage"
 import ResourcePage from "./pages/generic/resource/ResourcePage";
 import ServicesPage from "./pages/generic/services/ServicesPage";
 
 // Dashboard Pages
-import Dashboard from "./pages/Dashboard/Dashboard";
-import Profile from "./pages/Dashboard/Profile";
-import GoalTargetPage from "./pages/Dashboard/GoalTarget";
+import Dashboard from "./pages/user/Dashboard/Dashboard";
+import Profile from "./pages/user/profile/Profile";
+import GoalTargetPage from "./pages/user/Dashboard/GoalTarget";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProfile from "./pages/admin/AdminProfile";
+import UserManagement from "./pages/admin/UserManagement";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -74,7 +77,33 @@ function App() {
               <Route path="/services" element={<ServicesPage />} />
             </Route>
 
-            {/* Dashboard routes */}
+            {/* Admin routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/dashboard/user-management"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/profile"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* User Dashboard routes */}
             <Route
               path="/dashboard"
               element={

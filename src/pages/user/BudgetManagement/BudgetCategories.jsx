@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import BudgetCategoryItem from "../../components/budget/BudgetCategoryItem";
+import BudgetCategoryItem from "../../../components/budget/BudgetCategoryItem";
 
 const categories = [
     { name: "Food & Groceries", current: 480, budget: 600 },
