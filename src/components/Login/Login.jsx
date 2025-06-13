@@ -3,7 +3,7 @@ import { useAuth } from "../auth/useAuthHook";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { GoogleLogin } from '@react-oauth/google';
-
+import { jwtDecode } from "jwt-decode";
 const Login = () => {
     const { login, handleGoogleLogin } = useAuth();
     const navigate = useNavigate();
@@ -34,10 +34,10 @@ const Login = () => {
         return valid;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-        const res = login(email, password);
+        const res = await login(email, password);
         if (res.success) {
             setError({ email: "", password: "" });
             navigate("/");
@@ -47,14 +47,38 @@ const Login = () => {
     };
 
     const onGoogleSuccess = async (credentialResponse) => {
-        const res = await handleGoogleLogin(credentialResponse);
-        if (res.success) {
-            navigate("/");
-        } else {
-            setError({ email: "", password: res.message || "Google login failed" });
+        try {
+            if (!credentialResponse?.credential) {
+                throw new Error('No credentials received from Google');
+            }
+
+            const decoded = jwtDecode(credentialResponse.credential);
+            console.log('Decoded Google token:', decoded); // For debugging
+
+            const googleUserInfo = {
+                IdToken: credentialResponse.credential,
+                Name: decoded.name || '',
+                Email: decoded.email || '',
+                PhoneNumber: '',
+                Picture: decoded.picture || ''
+            };
+
+            console.log('Sending Google user info:', googleUserInfo); // Debug log
+
+            const res = await handleGoogleLogin(googleUserInfo);
+            if (res.success) {
+                navigate("/");
+            } else {
+                setError({ email: "", password: res.message || "Google login failed" });
+            }
+        } catch (error) {
+            console.error('Google login error:', error);
+            setError({
+                email: "",
+                password: error.message || "Failed to process Google login"
+            });
         }
     };
-
     const onGoogleError = () => {
         setError({ email: "", password: "Google login failed" });
     };
@@ -128,7 +152,7 @@ const Login = () => {
                         useOneTap
                         theme="filled_blue"
                         shape="pill"
-                        text="continue_with"                  
+                        text="continue_with"
                         className="rounded-lg shadow-lg hover:scale-[1.02] transition-transform active:scale-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>

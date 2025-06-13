@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import { userData, adminData } from "../data/userData";
+// import { userData, adminData } from "../data/userData";
 import { AuthContext } from "../components/auth/AuthContext";
+import { authService } from "../services/authService";
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
@@ -15,67 +16,111 @@ const useAuthState = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const stored = localStorage.getItem("authUser");
-        if (stored) setUser(JSON.parse(stored));
+        const stored = localStorage.getItem("token");
+        // Không nên parse token như JSON
+        if (stored) {
+            try {
+                // Lấy user từ localStorage
+                const userData = localStorage.getItem("authUser");
+                if (userData) {
+                    setUser(JSON.parse(userData));
+                }
+            } catch (error) {
+                console.error("Error parsing user data:", error);
+                localStorage.removeItem("token");
+                localStorage.removeItem("authUser");
+            }
+        }
         setIsLoading(false);
     }, []);
 
     useEffect(() => {
-        if (user) localStorage.setItem("authUser", JSON.stringify(user));
-        else localStorage.removeItem("authUser");
+        if (user) localStorage.setItem("token", JSON.stringify(user));
+        else localStorage.removeItem("token");
     }, [user]);
 
-    const login = (email, password) => {
-        // Check admin credentials
-        if (email === adminData.email && password === adminData.password) {
-            setUser({
-                name: adminData.name,
-                email: adminData.email,
-                role: adminData.role,
-                avatar: adminData.avatar
-            });
+    const login = async (email, password) => {
+        try {
+            const response = await authService.login(email, password);
+            setUser(response);
+            const token = `Bearer ${response.accessToken}`;
+            // Lưu token
+            localStorage.setItem('token', token);
+            // Lưu user info riêng
+            localStorage.setItem('authUser', JSON.stringify(response));
             return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
         }
-        // Check user credentials
-        if (email === userData.email && password === userData.password) {
-            setUser({
-                name: userData.name,
-                email: userData.email,
-                role: userData.role,
-                avatar: userData.avatar
-            });
-            return { success: true };
-        }
-        return { success: false, message: "Wrong email or password" };
     };
 
-    const handleGoogleLogin = async (credentialResponse) => {
-        if (credentialResponse.credential) {
-            const idToken = credentialResponse.credential;
-            try {
-                // For now, we'll simulate a successful login
-                const googleUser = {
-                    name: "Google User",
-                    email: "google@example.com",
-                    role: "user",
-                    idToken
-                };
-                setUser(googleUser);
-                return { success: true };
-            } catch (error) {
-                console.error("Google login error:", error);
-                return { success: false, message: "Failed to login with Google" };
+    const handleGoogleLogin = async (googleUserInfo) => {
+        try {
+            if (!googleUserInfo || !googleUserInfo.IdToken) {
+                throw new Error('No credentials received');
             }
+            const response = await authService.googleLogin(googleUserInfo);
+            setUser(response);
+            const token = `Bearer ${response.accessToken}`;
+            localStorage.setItem('token', token);
+            return { success: true };
+        } catch (error) {
+            console.error("Google login error:", error);
+            return { success: false, message: error.message || "Failed to login with Google" };
         }
-        return { success: false, message: "No credentials received" };
     };
 
-    const register = (name, email, password) => {
-        setUser({ name, email, password, role: "user" });
-        return { success: true };
+    const register = async (name, email, password, confirmPassword) => {
+        try {
+            const response = await authService.register({ name, email, password, confirmPassword });
+            setUser(response);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
     };
 
-    const logout = () => setUser(null);
+    const forgotPassword = async (email) => {
+        try {
+            const response = await authService.forgotPassword(email);
+            console.log(response);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    };
+
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('authUser');
+    };
+    const updateUserProfile = (values) => {
+        setUser((prevUser) => {
+            const updatedUser = { ...(prevUser || {}), ...values };
+            localStorage.setItem('authUser', JSON.stringify(updatedUser));
+            setUser(updatedUser)
+            return updatedUser;
+        });
+    };
+    const checkTokenValidity = () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            return false;
+        }
+        // Thêm logic kiểm tra token expiry nếu cần
+        return true;
+    };
+
+    const resetPassword = async (email, token, newPassword) => {
+        try {
+            const response = await authService.resetPassword(email, token, newPassword);
+            console.log(response);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    };
 
     return {
         user,
@@ -84,7 +129,11 @@ const useAuthState = () => {
         register,
         logout,
         handleGoogleLogin,
-        isAuthenticated: !!user
+        updateUserProfile,
+        forgotPassword,
+        resetPassword,
+        isAuthenticated: !!user,
+        checkTokenValidity
     };
 };
 

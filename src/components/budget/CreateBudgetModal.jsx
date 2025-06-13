@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import { Modal, Form, Input, InputNumber, DatePicker, Button, message } from "antd";
-import { budgetService } from "../../services/budgetService";
+import React, { useState } from 'react';
+import { Modal, Form, Input, InputNumber, DatePicker, Button, message } from 'antd';
+import { budgetService } from '../../services/budgetService';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/useAuth';
-import moment from 'moment';
+import { useAuth } from '../auth/useAuthHook';
 
-const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
+const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
 
     const handleSubmit = async (values) => {
         if (!isAuthenticated) {
-            message.error('Please login to update budget');
+            message.error('Please login to create budget');
             navigate('/login');
             return;
         }
@@ -25,21 +25,21 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
                 limitAmount: values.limitAmount,
                 startDate: values.dateRange[0].format('YYYY-MM-DDTHH:mm:ss'),
                 endDate: values.dateRange[1].format('YYYY-MM-DDTHH:mm:ss'),
-                status: budget.status || 0
+                status: 0
             };
 
-            await budgetService.updateBudget(budget.id, budgetData);
-            message.success('Budget updated successfully!');
+            await budgetService.createBudget(budgetData);
+            message.success('Budget created successfully!');
             form.resetFields();
             onSuccess?.();
             onClose();
         } catch (error) {
-            console.error('Update budget error:', error);
+            console.error('Create budget error:', error);
             if (error.message.includes('Unauthorized')) {
                 message.error('Session expired. Please login again');
                 navigate('/login');
             } else {
-                message.error(error.message || 'Failed to update budget');
+                message.error(error.message || 'Failed to create budget');
             }
         } finally {
             setLoading(false);
@@ -50,7 +50,7 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
         <Modal
             open={open}
             onCancel={onClose}
-            title="Update Budget"
+            title="Create New Budget"
             footer={null}
             width={600}
         >
@@ -58,14 +58,6 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
-                initialValues={{
-                    name: budget?.name,
-                    limitAmount: budget?.limitAmount,
-                    dateRange: budget ? [
-                        moment(budget.startDate),
-                        moment(budget.endDate)
-                    ] : undefined
-                }}
             >
                 <Form.Item
                     name="name"
@@ -107,7 +99,7 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
                         htmlType="submit"
                         loading={loading}
                     >
-                        Update Budget
+                        Create Budget
                     </Button>
                 </div>
             </Form>
@@ -115,4 +107,4 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
     );
 };
 
-export default UpdateBudgetModal;
+export default CreateBudgetModal;

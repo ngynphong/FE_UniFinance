@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../auth/useAuthHook";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const Register = () => {
     const { register } = useAuth();
@@ -31,13 +32,18 @@ const Register = () => {
             newError.email = "Invalid email address";
             valid = false;
         }
+
         if (!password) {
             newError.password = "Password is required";
             valid = false;
         } else if (password.length < 6) {
             newError.password = "Password must be at least 6 characters";
             valid = false;
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+            newError.password = "Password must contain at least one uppercase letter, one lowercase letter, and one number";
+            valid = false;
         }
+
         if (!confirmPassword) {
             newError.confirmPassword = "Confirm password is required";
             valid = false;
@@ -45,17 +51,28 @@ const Register = () => {
             newError.confirmPassword = "Passwords do not match";
             valid = false;
         }
+
         setError(newError);
         return valid;
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-        const res = register(name, email, password);
+        const res = await register(name, email, password, confirmPassword);
         if (res.success) {
             setError({ name: "", email: "", password: "", confirmPassword: "" });
-            navigate("/");
+            toast.success('Đăng ký thành công! Vui lòng đăng nhập', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);
         } else {
             if (res.message && res.message.toLowerCase().includes("name")) {
                 setError({ name: res.message, email: "", password: "", confirmPassword: "" });
@@ -162,7 +179,7 @@ const Register = () => {
                     <button className="flex-1 flex items-center justify-center border border-gray-200 rounded-xl py-2.5 bg-white/80 hover:bg-gray-50 hover:cursor-pointer shadow-sm transition">
                         <img src="google-color-svgrepo-com.svg" alt="Google" className="w-5 h-5 mr-2" />
                         <span className="text-sm font-medium text-gray-700">Sign up with Google</span>
-                    </button>                  
+                    </button>
                 </div>
                 <p className="text-center text-sm text-gray-700">
                     Already have an account?{' '}

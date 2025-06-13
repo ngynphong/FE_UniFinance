@@ -5,7 +5,6 @@ import { ArrowRight, TrendingUp, BarChart3, DollarSign, Target, Zap } from "luci
 import { useEffect, useState } from "react"
 
 const HeroSection = ({ isVisible, scrollToSection }) => {
-  console.log("HeroSection isVisible:", isVisible);
   const [currentStat, setCurrentStat] = useState(0)
   const [animatedNumbers, setAnimatedNumbers] = useState({
     clients: 0,
