@@ -1,27 +1,54 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaLock, FaArrowLeft } from "react-icons/fa";
+import { useAuth } from "../auth/useAuthHook";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
+    const { forgotPassword } = useAuth();
+    const [resetEmailSent, setResetEmailSent] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Reset states
+        setError("");
+        setSuccess(false);
+        setResetEmailSent(false);
+
+        // Validate email
         if (!email) {
             setError("Email is required");
-            setSuccess(false);
-            return;
-        } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-            setError("Invalid email address");
-            setSuccess(false);
             return;
         }
-        setError("");
-        setSuccess(true);
-        // Here you would trigger your password reset logic (API call, etc)
+
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+            setError("Invalid email address");
+            return;
+        }
+
+        try {
+            const response = await forgotPassword(email);
+            if (response.success) {
+                setResetEmailSent(true);
+                setSuccess(true);
+                setError("");
+            } else {
+                setError(response.message || "Failed to send reset email");
+                setResetEmailSent(false);
+            }
+        } catch (err) {
+            console.error('Forgot password error:', err);
+            setError(
+                err.response?.data?.message ||
+                "Unable to send reset email. Please try again later."
+            );
+            setResetEmailSent(false);
+            setSuccess(false);
+        }
     };
 
     return (
@@ -33,7 +60,7 @@ const ForgotPassword = () => {
                 <div className="hidden md:flex flex-col items-center justify-center w-1/2 bg-gradient-to-br from-blue-100 to-cyan-100 p-10 relative">
                     <div className="mb-6">
                         {/* You can replace this with an SVG or image */}
-                        <FaLock className="text-blue-500 text-7xl mx-auto mb-4" />                  
+                        <FaLock className="text-blue-500 text-7xl mx-auto mb-4" />
                     </div>
                     <div className="text-lg text-blue-700 font-semibold text-center">
                         Forgot your password?<br />
@@ -42,33 +69,49 @@ const ForgotPassword = () => {
                 </div>
                 {/* Right form */}
                 <div className="flex flex-col justify-center w-full md:w-1/2 p-8 md:p-14 ">
-                    <h2 className="text-3xl font-extrabold mb-2 text-gray-900 text-left drop-shadow">Forgot<br />Your Password?</h2>
-                    <p className="text-base text-gray-700 mb-8">Enter your email address and we'll send you a link to reset your password.</p>
+                    {resetEmailSent && (
+                        <div className="mb-4 p-3 text-center bg-green-100 text-green-700 rounded-lg text-sm">
+                            Reset password email has been sent!
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="mb-4 p-3 text-center bg-red-100 text-red-700 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
+
+                    <h2 className="text-3xl font-extrabold mb-2 text-gray-900 text-left drop-shadow">
+                        Forgot<br />Your Password?
+                    </h2>
+
                     <form className="space-y-5" onSubmit={handleSubmit}>
                         <div>
                             <input
                                 id="email"
                                 type="email"
                                 placeholder="Email Address"
-                                className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm"
+                                className={`w-full px-3 py-2 border rounded-xl bg-white/70 
+                                focus:outline-none focus:ring-2 focus:ring-blue-400 
+                                transition shadow-sm ${error ? 'border-red-500' : 'border-gray-200'}`}
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 disabled={success}
                             />
-                            {error && <div className="text-red-600 text-xs mt-1">{error}</div>}
                         </div>
+
                         <button
                             type="submit"
-                            className="w-full py-2 rounded-xl font-semibold text-lg text-white bg-gradient-to-r from-blue-600 to-cyan-400 shadow-lg hover:from-blue-700 hover:to-cyan-500 transition hover:scale-[1.02] active:scale-100 focus:outline-none focus:ring-2 focus:ring-blue-400 hover:cursor-pointer disabled:opacity-60"
+                            className="w-full py-2 rounded-xl font-semibold text-lg text-white 
+                            bg-gradient-to-r from-blue-600 to-cyan-400 shadow-lg 
+                            hover:from-blue-700 hover:to-cyan-500 transition 
+                            hover:scale-[1.02] active:scale-100 
+                            focus:outline-none focus:ring-2 focus:ring-blue-400 
+                            hover:cursor-pointer disabled:opacity-60"
                             disabled={success}
                         >
-                            Reset Password
+                            {success ? 'Email Sent' : 'Reset Password'}
                         </button>
-                        {success && (
-                            <div className="text-green-600 text-sm text-center mt-2">
-                                If this email is registered, a reset link has been sent!
-                            </div>
-                        )}
                     </form>
                     <button
                         type="button"

@@ -38,7 +38,7 @@ export default function Sidebar() {
             label: 'Profile',
             icon: <FaUser />,
             onClick: () => {
-                navigate("/dashboard/profile");
+                navigate(`/dashboard/profile/${user.userID}`);
             }
 
         },
@@ -83,7 +83,7 @@ export default function Sidebar() {
                             {!collapsed && (
                                 <div>
                                     <div className="text-sm font-semibold">{user.name}</div>
-                                    <div className="text-xs text-gray-400">{user.email}</div>
+                                    <div className="text-[10px] text-gray-400">{user.userName}</div>
                                 </div>
                             )}
                         </Space>

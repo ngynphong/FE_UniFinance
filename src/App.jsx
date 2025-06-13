@@ -40,6 +40,8 @@ import GoalTargetPage from "./pages/user/Dashboard/GoalTarget";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProfile from "./pages/admin/AdminProfile";
 import UserManagement from "./pages/admin/UserManagement";
+import { ToastContainer } from "react-toastify";
+import ResetPassword from "./components/resetPassword/ResetPassword";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -56,8 +58,9 @@ function App() {
   const handleScrollToSection = scrollToSection;
 
   return (
-    <AuthProvider>
-      <Router>
+
+    <Router>
+      <AuthProvider>
         <ScrollToTop />
         <div className="min-h-screen bg-gray-50 flex flex-col">
           <Routes>
@@ -65,6 +68,7 @@ function App() {
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
             <Route path='/forgot-password' element={<ForgotPassword />} />
+            <Route path='/reset-password' element={<ResetPassword />} />
 
             {/* Routes using main layout */}
             <Route element={<Layout onScrollToSection={handleScrollToSection} />}>
@@ -107,15 +111,15 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute roles={["user"]}>
+                <ProtectedRoute roles={["Customer"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/dashboard/profile"
+              path="/dashboard/profile/:id"
               element={
-                <ProtectedRoute roles={["user"]}>
+                <ProtectedRoute roles={["Customer"]}>
                   <Profile />
                 </ProtectedRoute>
               }
@@ -123,7 +127,7 @@ function App() {
             <Route
               path="/dashboard/budget-management"
               element={
-                <ProtectedRoute roles={["user"]}>
+                <ProtectedRoute roles={["Customer"]}>
                   <BudgetManagement />
                 </ProtectedRoute>
               }
@@ -131,7 +135,7 @@ function App() {
             <Route
               path="/dashboard/transactions"
               element={
-                <ProtectedRoute roles={["user"]}>
+                <ProtectedRoute roles={["Customer"]}>
                   <TransactionsPage />
                 </ProtectedRoute>
               }
@@ -139,7 +143,7 @@ function App() {
             <Route
               path="/dashboard/goals"
               element={
-                <ProtectedRoute roles={["user"]}>
+                <ProtectedRoute roles={["Customer"]}>
                   <GoalTargetPage />
                 </ProtectedRoute>
               }
@@ -155,9 +159,11 @@ function App() {
               }
             />
           </Routes>
+          <ToastContainer />
         </div>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
+
   );
 }
 

@@ -1,40 +1,66 @@
 import React, { useState } from "react";
-import BudgetSummary from "../../../components/budget/BudgetSummary";
-import BudgetCategories from "./BudgetCategories";
-import BudgetNotifications from "../../../components/budget/BudgetNotifications";
-import UpdateBudgetModal from "../../../components/budget/UpdateBudgetModal";
-import CreateCategoryModal from "../../../components/budget/CreateCategoryModal";
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
+import BudgetSummary from "../../../components/budget/BudgetSummary";
+import CreateBudgetModal from "../../../components/budget/CreateBudgetModal";
+import UpdateBudgetModal from "../../../components/budget/UpdateBudgetModal";
 import { Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 const BudgetManagement = () => {
-    const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [selectedBudget, setSelectedBudget] = useState(null);
+    const [budgetRefresh, setBudgetRefresh] = useState(false);
+    const handleBudgetCreated = () => {
+        setShowCreateModal(false);
+        setBudgetRefresh(prev => !prev);
+    };
+
+    const handleEditBudget = (budget) => {
+        setSelectedBudget(budget);
+        setShowUpdateModal(true);
+    };
+
+    const handleBudgetUpdated = () => {
+        setShowUpdateModal(false);
+        setSelectedBudget(null);
+        setBudgetRefresh(prev => !prev);
+    };
 
     return (
         <DashboardLayout>
-            <div className="space-y-6 sm:px-2 px-0 sm:w-full w-[95%]">
-                <h1 className="text-2xl font-bold text-gray-800">Budget Management</h1>
-                <div className="mx-auto p-4 md:p-6 bg-white rounded-lg shadow-md mt-6 mb-10">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
-                        <Button
-                            type="primary"
-                            onClick={() => setShowUpdateModal(true)}
-                        >
-                            Update Budget
-                        </Button>
-                    </div>
-                    <BudgetSummary />
-                    <div className="my-8">
-                        <BudgetCategories onAddCategory={() => setShowCreateModal(true)} />
-                    </div>
-                    <BudgetNotifications />
-                    <UpdateBudgetModal open={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
-                    <CreateCategoryModal open={showCreateModal} onClose={() => setShowCreateModal(false)} />
+            <div className="space-y-6 p-6">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-gray-800">Budget Management</h1>
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => setShowCreateModal(true)}
+                    >
+                        Create New Budget
+                    </Button>
                 </div>
+
+                <BudgetSummary
+                    onEdit={handleEditBudget}
+                    onRefresh={setBudgetRefresh}
+                    refresh={budgetRefresh} // Add this prop
+                />
+                <CreateBudgetModal
+                    open={showCreateModal}
+                    onClose={() => setShowCreateModal(false)}
+                    onSuccess={handleBudgetCreated}
+                />
+
+                <UpdateBudgetModal
+                    open={showUpdateModal}
+                    onClose={() => setShowUpdateModal(false)}
+                    budget={selectedBudget}
+                    onSuccess={handleBudgetUpdated}
+                />
             </div>
         </DashboardLayout>
     );
 };
 
-export default BudgetManagement; 
+export default BudgetManagement;

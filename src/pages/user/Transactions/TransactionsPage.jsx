@@ -1,41 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TransactionList from "../../../components/transaction/TransactionList";
 import TransactionFilter from "../../../components/transaction/TransactionFilter";
 import TransactionModal from "../../../components/transaction/TransactionModal";
-import TransactionItem from "../../../components/transaction/TransactionItem";
-import { Button, Pagination } from "antd";
-import GoalTarget from "../../../components/transaction/GoalTarget";
+import { Button, Pagination, Spin } from "antd";
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
-
-// Fake data mẫu
-const initialTransactions = [
-    { id: 1, type: "income", category: "Salary", amount: 1200, date: "2023-03-01", note: "March salary", icon: "💼" },
-    { id: 2, type: "expense", category: "Food", amount: 50, date: "2023-03-02", note: "Lunch", icon: "🍔" },
-    { id: 3, type: "expense", category: "Transport", amount: 20, date: "2023-03-03", note: "Bus ticket", icon: "🚌" },
-    { id: 4, type: "income", category: "Freelance", amount: 300, date: "2023-03-05", note: "Project", icon: "🧑‍💻" },
-    { id: 5, type: "expense", category: "Shopping", amount: 100, date: "2023-03-06", note: "Clothes", icon: "👕" },
-    { id: 6, type: "expense", category: "Food", amount: 30, date: "2023-03-07", note: "Dinner", icon: "🍔" },
-    { id: 7, type: "income", category: "Salary", amount: 1200, date: "2023-02-01", note: "Feb salary", icon: "💼" },
-    { id: 8, type: "expense", category: "Transport", amount: 15, date: "2023-03-08", note: "Taxi", icon: "🚌" },
-    { id: 9, type: "expense", category: "Shopping", amount: 80, date: "2023-03-09", note: "Shoes", icon: "👕" },
-    { id: 10, type: "income", category: "Freelance", amount: 200, date: "2023-03-10", note: "Design", icon: "🧑‍💻" },
-];
+import { transactionService } from "../../../services/transactionService";
+import { message } from "antd";
+import dayjs from "dayjs";
+import { useAuth } from "../../../contexts/useAuth";
 
 const PAGE_SIZE = 5;
 
 const TransactionsPage = () => {
-    const [transactions, setTransactions] = useState(initialTransactions);
-    const [filter, setFilter] = useState({ type: "all", month: "2023-03" });
+    const [transactions, setTransactions] = useState([]);
+    const [filter, setFilter] = useState({
+        type: "all",
+        month: dayjs().format("YYYY-MM")
+    });
     const [modalOpen, setModalOpen] = useState(false);
     const [editData, setEditData] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = PAGE_SIZE;
+    const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
 
-    // Lọc giao dịch theo filter
+    // Lọc giao dịch theo filter và userId
     const filteredTransactions = transactions.filter(tran => {
         const matchType = filter.type === "all" || tran.type === filter.type;
-        const matchMonth = tran.date.startsWith(filter.month);
-        return matchType && matchMonth;
+        const matchMonth = tran.dateCreate ? tran.dateCreate.startsWith(filter.month) : false;
+        const matchUserId = tran.userId === user?.userID;
+        return matchType && matchMonth && matchUserId;
     });
 
     // Phân trang
@@ -43,22 +37,62 @@ const TransactionsPage = () => {
     const endIdx = startIdx + pageSize;
     const pagedTransactions = filteredTransactions.slice(startIdx, endIdx);
 
-    // Thêm/sửa giao dịch
-    const handleSave = (data) => {
-        if (data.id) {
-            setTransactions(tran => tran.map(t => t.id === data.id ? data : t));
-        } else {
-            setTransactions(tran => [...tran, { ...data, id: Date.now() }]);
+    useEffect(() => {
+        fetchTransactions();
+    }, []);
+
+    const fetchTransactions = async () => {
+        try {
+            setLoading(true);
+            const data = await transactionService.getAllTransactions();
+            setTransactions(data);
+        } catch (error) {
+            console.error('Fetch transactions error:', error);
+            message.error('Failed to fetch transactions');
+        } finally {
+            setLoading(false);
         }
-        setModalOpen(false);
-        setEditData(null);
+    };
+    // Thêm/sửa giao dịch
+    const handleSave = async (data) => {
+        try {
+            if (data.id) {
+                // Update existing transaction
+                await transactionService.updateTransaction(data.id, data);
+                message.success('Transaction updated successfully');
+                setTransactions(prev =>
+                    prev.map(t => t.id === data.id ? data : t)
+                );
+            } else {
+                // Create new transaction
+                const response = await transactionService.createTransaction({
+                    ...data,
+                    dateCreate: new Date().toISOString()
+                });
+                message.success('Transaction created successfully');
+                setTransactions(prev => [...prev, response]);
+            }
+            setModalOpen(false);
+            setEditData(null);
+        } catch (error) {
+            console.error('Save transaction error:', error);
+            message.error(error.message || 'Failed to save transaction');
+        }
     };
 
     // Xóa giao dịch
-    const handleDelete = (id) => {
-        setTransactions(tran => tran.filter(t => t.id !== id));
+    const handleDelete = async (transactionId) => {
+        try {
+            await transactionService.deleteTransaction(transactionId);
+            message.success('Transaction deleted successfully');
+            setTransactions(prev => prev.filter(t => t.transactionId !== transactionId));
+        } catch (error) {
+            console.error('Delete transaction error:', error);
+            message.error('Failed to delete transaction');
+        }
     };
 
+    loading && <Spin size="large" />
     // Khi filter thay đổi, reset về trang 1
     React.useEffect(() => {
         setCurrentPage(1);
