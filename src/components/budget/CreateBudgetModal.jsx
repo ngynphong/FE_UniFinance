@@ -52,12 +52,16 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
             onCancel={onClose}
             title="Create New Budget"
             footer={null}
-            width={600}
+            width="90%"
+            maxWidth={600}
+            className="sm:w-[600px] w-full"
+            style={{ top: 20 }}
         >
             <Form
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
+                className="mt-4"
             >
                 <Form.Item
                     name="name"
@@ -92,12 +96,18 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
                     />
                 </Form.Item>
 
-                <div className="flex justify-end gap-2">
-                    <Button onClick={onClose}>Cancel</Button>
+                <div className="flex flex-col sm:flex-row justify-end gap-2 mt-6">
+                    <Button
+                        onClick={onClose}
+                        className="w-full sm:w-auto order-2 sm:order-1"
+                    >
+                        Cancel
+                    </Button>
                     <Button
                         type="primary"
                         htmlType="submit"
                         loading={loading}
+                        className="w-full sm:w-auto order-1 sm:order-2"
                     >
                         Create Budget
                     </Button>
