@@ -1,37 +1,78 @@
-import React from 'react';
-import { Row, Col, Card, Statistic, Progress, List, Tag } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Row, Col, Card, Statistic, Progress, List, Tag, Spin, message } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
-
-// Fake data
-const transactions = [
-    { id: 1, type: 'income', amount: 2500, date: '2024-06-01', note: 'Salary' },
-    { id: 2, type: 'expense', amount: 800, date: '2024-06-02', note: 'Rent' },
-    { id: 3, type: 'expense', amount: 200, date: '2024-06-03', note: 'Groceries' },
-    { id: 4, type: 'income', amount: 300, date: '2024-06-10', note: 'Freelance' },
-    { id: 5, type: 'expense', amount: 372, date: '2024-06-12', note: 'Utilities' },
-    { id: 6, type: 'expense', amount: 100, date: '2024-06-15', note: 'Transport' },
-];
-// Budget giả
-const BUDGET = 3000;
-
-// Goals giả
-const goals = [
-    { id: 1, name: 'Emergency Fund', target: 1000, current: 600 },
-    { id: 2, name: 'Buy a Laptop', target: 1500, current: 900 },
-    { id: 3, name: 'Travel', target: 2000, current: 400 },
-];
-
-// Tính toán số liệu tổng quan
-const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-const totalBalance = totalIncome - totalExpense;
-const savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 100) : 0;
-
-// Lấy 5 giao dịch gần nhất
-const recentTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+import { transactionService } from '../../../services/transactionService';
+import { goalService } from '../../../services/goalService';
+import { budgetService } from '../../../services/budgetService';
 
 const Dashboard = () => {
+    const [loading, setLoading] = useState(true);
+    const [transactions, setTransactions] = useState([]);
+    const [goals, setGoals] = useState([]);
+    const [budgets, setBudgets] = useState([]);
+
+    // Calculate totals
+    const calculateTotals = () => {
+        const totalIncome = transactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalExpense = transactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalBalance = totalIncome - totalExpense;
+        const savingsRate = totalIncome > 0
+            ? Math.round(((totalIncome - totalExpense) / totalIncome) * 100)
+            : 0;
+
+        return { totalIncome, totalExpense, totalBalance, savingsRate };
+    };
+
+    // Fetch all data
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                const [transactionsData, goalsData, budgetsData] = await Promise.all([
+                    transactionService.getAllTransactions(),
+                    goalService.getAllGoals(),
+                    budgetService.getBudgets()
+                ]);
+
+                setTransactions(transactionsData);
+                setGoals(goalsData);
+                setBudgets(budgetsData);
+            } catch (error) {
+                message.error('Failed to fetch dashboard data');
+                console.error('Dashboard data fetch error:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="flex justify-center items-center h-screen">
+                    <Spin size="large" />
+                </div>
+            </DashboardLayout>
+        );
+    }
+
+    const { totalIncome, totalExpense, totalBalance, savingsRate } = calculateTotals();
+    const recentTransactions = [...transactions]
+        .sort((a, b) => new Date(b.dateCreate) - new Date(a.dateCreate))
+        .slice(0, 5);
+
+    // Get the current month's budget if exists
+    const currentBudget = budgets.length > 0 ? budgets[0] : { limitAmount: 0 };
+
     return (
         <DashboardLayout>
             <div className="space-y-6 px-2 md:px-0">
@@ -44,7 +85,7 @@ const Dashboard = () => {
                                 title="Total Balance"
                                 value={totalBalance}
                                 precision={2}
-                                valueStyle={{ color: '#3f8600' }}
+                                valueStyle={{ color: totalBalance >= 0 ? '#3f8600' : '#cf1322' }}
                                 prefix="$"
                             />
                         </Card>
@@ -79,7 +120,7 @@ const Dashboard = () => {
                                 title="Savings Rate"
                                 value={savingsRate}
                                 suffix="%"
-                                valueStyle={{ color: '#3f8600' }}
+                                valueStyle={{ color: savingsRate >= 0 ? '#3f8600' : '#cf1322' }}
                             />
                         </Card>
                     </Col>
@@ -94,14 +135,22 @@ const Dashboard = () => {
                                 renderItem={item => (
                                     <List.Item className="flex-col sm:flex-row">
                                         <List.Item.Meta
-                                            title={<span>{item.note} <Tag color={item.type === 'income' ? 'green' : 'red'}>{item.type}</Tag></span>}
-                                            description={item.date}
+                                            title={
+                                                <span>
+                                                    {item.description}
+                                                    <Tag color={item.type === 'income' ? 'green' : 'red'}>
+                                                        {item.type}
+                                                    </Tag>
+                                                </span>
+                                            }
+                                            description={new Date(item.dateCreate).toLocaleDateString()}
                                         />
                                         <div className={item.type === 'income' ? 'text-green-600' : 'text-red-600'}>
                                             {item.type === 'income' ? '+' : '-'}${item.amount}
                                         </div>
                                     </List.Item>
                                 )}
+                                locale={{ emptyText: 'No recent transactions' }}
                             />
                         </Card>
                     </Col>
@@ -110,7 +159,7 @@ const Dashboard = () => {
                             <div className="space-y-2">
                                 <div className="flex justify-between flex-wrap">
                                     <span>Monthly Budget:</span>
-                                    <span className="font-semibold">${BUDGET}</span>
+                                    <span className="font-semibold">${currentBudget.limitAmount}</span>
                                 </div>
                                 <div className="flex justify-between flex-wrap">
                                     <span>Spent:</span>
@@ -118,9 +167,14 @@ const Dashboard = () => {
                                 </div>
                                 <div className="flex justify-between flex-wrap">
                                     <span>Remaining:</span>
-                                    <span className="font-semibold text-green-600">${BUDGET - totalExpense}</span>
+                                    <span className="font-semibold text-green-600">
+                                        ${currentBudget.limitAmount - totalExpense}
+                                    </span>
                                 </div>
-                                <Progress percent={Math.round((totalExpense / BUDGET) * 100)} status={totalExpense > BUDGET ? 'exception' : 'active'} />
+                                <Progress
+                                    percent={Math.round((totalExpense / currentBudget.limitAmount) * 100)}
+                                    status={totalExpense > currentBudget.limitAmount ? 'exception' : 'active'}
+                                />
                             </div>
                         </Card>
                     </Col>
@@ -136,19 +190,20 @@ const Dashboard = () => {
                                     <List.Item>
                                         <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-2">
                                             <div>
-                                                <div className="font-semibold">{goal.name}</div>
-                                                <div className="text-sm text-gray-500">Target: ${goal.target}</div>
+                                                <div className="font-semibold">{goal.goal}</div>
+                                                <div className="text-sm text-gray-500">Target: ${goal.amount}</div>
                                             </div>
                                             <div className="w-full md:w-1/2 mt-2 md:mt-0">
                                                 <Progress
-                                                    percent={Math.round((goal.current / goal.target) * 100)}
-                                                    status={goal.current >= goal.target ? 'success' : 'active'}
-                                                    format={() => `$${goal.current} / $${goal.target}`}
+                                                    percent={Math.round((goal.currentSpending / goal.amount) * 100)}
+                                                    status={goal.currentSpending >= goal.amount ? 'success' : 'active'}
+                                                    format={() => `$${goal.currentSpending} / $${goal.amount}`}
                                                 />
                                             </div>
                                         </div>
                                     </List.Item>
                                 )}
+                                locale={{ emptyText: 'No goals set' }}
                             />
                         </Card>
                     </Col>
@@ -158,4 +213,4 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard; 
+export default Dashboard;
