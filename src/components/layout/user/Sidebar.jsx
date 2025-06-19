@@ -2,7 +2,7 @@ import { UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/
 import { Avatar, Button, Dropdown, Space } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { MdLogout } from "react-icons/md";
+import { MdLogout, MdOutlineDashboard } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { useEffect } from "react";
 import { useAuth } from "../../../contexts/useAuth";
@@ -51,7 +51,7 @@ export default function Sidebar() {
                 logout();
             }
 
-        },
+        },       
     ];
 
     return (

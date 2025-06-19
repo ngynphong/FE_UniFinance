@@ -24,10 +24,6 @@ const ResetPassword = () => {
             const token = decodeURIComponent(queryParams.get("token")).replace(/ /g, '+');
             const email = queryParams.get("email");
 
-            console.log("Original token from URL:", queryParams.get("token"));
-            console.log("Processed token:", token);
-            console.log("Email received:", email);
-
             if (token && email) {
                 setResetToken(token);
                 setResetEmail(email);
