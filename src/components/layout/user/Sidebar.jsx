@@ -1,5 +1,5 @@
 import { UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Space } from "antd";
+import { Avatar, Button, Dropdown, Space, Spin } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { MdLogout, MdOutlineDashboard } from "react-icons/md";
@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { useAuth } from "../../../contexts/useAuth";
 import { IoIosArrowBack } from "react-icons/io";
 import { menu } from "../../../data/userMenu";
+import { authService } from "../../../services/authService";
 
 export default function Sidebar() {
     const location = useLocation();
@@ -19,10 +20,39 @@ export default function Sidebar() {
     const navigate = useNavigate();
 
     const { user, logout } = useAuth();
+    const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                setLoading(true);
+                const response = await authService.getUserProfile(user.userID);
+                setUserData(response);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user?.userID) {
+            fetchUserData();
+        }
+
+    }, [user])
+
 
     useEffect(() => {
         localStorage.setItem("sidebar-collapsed", collapsed);
     }, [collapsed]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-40">
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     const items = [
         {
@@ -51,7 +81,7 @@ export default function Sidebar() {
                 logout();
             }
 
-        },       
+        },
     ];
 
     return (
@@ -79,11 +109,11 @@ export default function Sidebar() {
                 <Dropdown menu={{ items }}>
                     <a onClick={e => e.preventDefault()}>
                         <Space>
-                            <Avatar size={collapsed ? 32 : 40} src={user.avatar} icon={<UserOutlined />} />
+                            <Avatar size={collapsed ? 32 : 40} src={userData.avatar} icon={<UserOutlined />} />
                             {!collapsed && (
                                 <div>
-                                    <div className="text-sm font-semibold">{user.name}</div>
-                                    <div className="text-[10px] text-gray-400">{user.userName}</div>
+                                    <div className="text-sm font-semibold">{userData.name}</div>
+                                    <div className="text-[10px] text-gray-400">{userData.userName}</div>
                                 </div>
                             )}
                         </Space>

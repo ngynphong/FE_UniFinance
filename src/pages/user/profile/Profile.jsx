@@ -28,20 +28,24 @@ async function uploadAvatarToFirebase(file, userId) {
 const Profile = () => {
     const { user, updateUserProfile } = useAuth();
     const [form] = Form.useForm();
+    const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [avatar, setAvatar] = useState(user?.avatar || null);
+    const [avatar, setAvatar] = useState(null);
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
                 setLoading(true);
-                console.log(user.userID)
-                const userProfile = await authService.getUserProfile(user.userID);
+
+                const userData = await authService.getUserProfile(user.userID);
+
+                setUserProfile(userData);
+                setAvatar(userData.avatar);
                 form.setFieldsValue({
-                    name: userProfile.name,
-                    email: userProfile.email,
-                    phoneNumber: userProfile.phoneNumber,
-                    address: userProfile.address,
-                    avatar: userProfile.avatar
+                    name: userData.name,
+                    email: userData.email,
+                    phoneNumber: userData.phoneNumber,
+                    address: userData.address,
+
                 });
             } catch (error) {
                 message.error('Failed to fetch profile');
@@ -64,8 +68,7 @@ const Profile = () => {
                 name: values.name,
                 phoneNumber: values.phoneNumber,
                 address: values.address || null,
-                avatar: avatar,
-
+                avatar: avatar || userProfile?.avatar,
             };
 
             await authService.updateUserProfile(user.userID, updatedData);
@@ -87,8 +90,8 @@ const Profile = () => {
                     form={form}
                     layout="vertical"
                     initialValues={{
-                        name: user?.name || '',
-                        email: user?.email || '',
+                        name: userProfile?.name || '',
+                        email: userProfile?.email || '',
                     }}
                     onFinish={onFinish}
                 >
@@ -97,18 +100,22 @@ const Profile = () => {
                             name="avatar"
                             showUploadList={false}
                             beforeUpload={async (file) => {
-                                // ...compress như cũ...
-                                // Sau khi nén xong:
-                                const url = await uploadAvatarToFirebase(file, user.userID);
-                                setAvatar(url); // Lưu URL vào state
-                                return false;
+                                try {
+                                    const url = await uploadAvatarToFirebase(file, user.userID);
+                                    setAvatar(url);
+                                    return false;
+                                } catch (error) {
+                                    message.error('Failed to upload avatar');
+                                    console.error(error);
+                                    return false;
+                                }
                             }}
                         >
                             <div className="text-center">
                                 <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-2">
-                                    {user?.avatar ? (
+                                    {(avatar || userProfile?.avatar) ? (
                                         <img
-                                            src={user.avatar}
+                                            src={avatar || userProfile?.avatar}
                                             alt="avatar"
                                             className="w-full h-full rounded-full object-cover"
                                         />
