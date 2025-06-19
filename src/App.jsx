@@ -42,6 +42,11 @@ import AdminProfile from "./pages/admin/AdminProfile";
 import UserManagement from "./pages/admin/UserManagement";
 import { ToastContainer } from "react-toastify";
 import ResetPassword from "./components/resetPassword/ResetPassword";
+import DebtManagement from "./pages/user/debt/DebtManagement";
+import DebtOverview from "./components/debt/DebtOverview";
+import AddDebt from "./components/debt/AddDebt";
+import RepaymentProgress from "./components/debt/RepaymentProgress";
+import DebtCalculator from "./components/debt/DebtCalculator";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -145,6 +150,46 @@ function App() {
               element={
                 <ProtectedRoute roles={["Customer"]}>
                   <GoalTargetPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/debt-management"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <DebtManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/debt-overview"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <DebtOverview />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/add-debt"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <AddDebt />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/repayment-progress"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <RepaymentProgress />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/debt-calculator"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <DebtCalculator />
                 </ProtectedRoute>
               }
             />
