@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Popconfirm, Progress, message } from 'antd';
+import { Button, message, Spin } from 'antd';
 import GoalTargetModal from './GoalTargetModal';
-import { FaTrash, FaEdit } from "react-icons/fa";
 import { goalService } from '../../services/goalService';
 import { useAuth } from '../auth/useAuthHook';
+import GoalCard from './GoalCard';
 
 
 const GoalTarget = () => {
@@ -70,50 +70,34 @@ const GoalTarget = () => {
         }
     };
 
-    const columns = [
-        { title: 'Name', dataIndex: 'goal', key: 'goal' },
-        { title: 'Amount', dataIndex: 'amount', key: 'amount', render: v => `$${v}` },
-        { title: 'Current', dataIndex: 'currentSpending', key: 'currentSpending', render: v => `$${v.toLocaleString()}` },
-        { title: 'Target Date', dataIndex: 'targetDate', key: 'targetDate' },
-        {
-            title: 'Progress',
-            key: 'progress',
-            render: (_, record) => {
-                // Nếu backend chưa trả về progress, tự tính:
-                const percent = record.amount > 0 ? Math.min(100, Math.round((record.currentSpending / record.amount) * 100)) : 0;
-                return <Progress percent={percent} size="small" />;
-            },
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            render: (_, record) => (
-                <div className="flex gap-2">
-                    <Button size="small" className='text-blue-500' onClick={() => handleEdit(record)}><FaEdit /></Button>
-                    <Popconfirm title="Delete this goal?" onConfirm={() => handleDelete(record.id)}>
-                        <Button size="small" danger><FaTrash /></Button>
-                    </Popconfirm>
-                </div>
-            ),
-        },
-    ];
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     return (
         <div className="w-full">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
                 <h2 className="text-lg font-semibold">Goal Target</h2>
-                <Button type="primary" onClick={handleAdd}>Add Goal Target</Button>
+                <Button type="primary" onClick={handleAdd}>
+                    Add Goal Target
+                </Button>
             </div>
-            <div className="overflow-x-auto">
-                <Table
-                    columns={columns}
-                    dataSource={goals}
-                    rowKey="id"
-                    pagination={false}
-                    loading={loading}
-                    className="bg-white rounded min-w-[500px]"
-                />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {goals.map(goal => (
+                    <GoalCard
+                        key={goal.id}
+                        goal={goal}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
+                ))}
             </div>
+
             <GoalTargetModal
                 open={modalOpen}
                 goal={editingGoal}

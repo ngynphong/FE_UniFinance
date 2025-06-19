@@ -6,15 +6,15 @@ const GoalTargetModal = ({ open, onClose, onSave, goal }) => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        if (goal) {
+        if (open && goal) {
             form.setFieldsValue({
                 ...goal,
                 targetDate: dayjs(goal.targetDate)
             });
-        } else {
+        } else if (open) {
             form.resetFields();
         }
-    }, [goal, form]);
+    }, [open, goal, form]);
 
     const handleSubmit = (values) => {
         const data = {
@@ -33,14 +33,17 @@ const GoalTargetModal = ({ open, onClose, onSave, goal }) => {
         <Modal
             open={open}
             title={goal ? 'Edit Goal' : 'New Goal'}
-            onCancel={onClose}
+            onCancel={() => {
+                form.resetFields();
+                onClose();
+            }}
             onOk={() => form.submit()}
         >
             <Form
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
-                initialValues={{ current: 0 }}
+                preserve={false}
             >
                 <Form.Item
                     name="goal"

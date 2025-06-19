@@ -45,25 +45,33 @@ const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {budgets.map((budget) => (
                 <div
                     key={budget.id}
-                    className="relative bg-white rounded-2xl shadow-xl hover:shadow-2xl border-l-8 border-blue-400 transition-all duration-200 p-6 max-w-md mx-auto flex flex-col justify-between min-h-[180px]"
+                    className="relative bg-white rounded-lg md:rounded-2xl shadow-md hover:shadow-lg md:shadow-xl 
+                    hover:md:shadow-2xl border-l-4 md:border-l-8 border-blue-400 transition-all duration-200 
+                    p-4 md:p-6 w-full max-w-sm mx-auto flex flex-col justify-between min-h-[160px] md:min-h-[180px]"
                 >
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="inline-block w-3 h-3 rounded-full bg-blue-400"></span>
-                            <span className="text-xl font-extrabold text-blue-700 tracking-tight">{budget.name}</span>
+                            <span className="inline-block w-2 h-2 md:w-3 md:h-3 rounded-full bg-blue-400"></span>
+                            <span className="text-lg md:text-xl font-bold md:font-extrabold text-blue-700 tracking-tight">
+                                {budget.name}
+                            </span>
                         </div>
-                        <div className="text-2xl font-bold text-green-500 mb-1">${budget.limitAmount?.toLocaleString()}</div>
-                        <div className="text-xs text-gray-400 mb-2">
-                            {new Date(budget.startDate).toLocaleDateString()} - {new Date(budget.endDate).toLocaleDateString()}
+                        <div className="text-xl md:text-2xl font-bold text-green-500 mb-1">
+                            ${budget.limitAmount?.toLocaleString()}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-400 mb-2">
+                            {new Date(budget.startDate).toLocaleDateString()} -
+                            {new Date(budget.endDate).toLocaleDateString()}
                         </div>
                     </div>
-                    <div className="flex gap-3 mt-4">
+                    <div className="flex gap-2 md:gap-3 mt-3 md:mt-4">
                         <button
-                            className="bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full p-2 shadow transition"
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full p-1.5 md:p-2 
+                            shadow transition text-sm md:text-base"
                             onClick={() => onEdit(budget)}
                             title="Edit"
                         >
@@ -76,7 +84,8 @@ const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
                             cancelText="No"
                         >
                             <button
-                                className="bg-red-50 hover:bg-red-100 text-red-500 rounded-full p-2 shadow transition"
+                                className="bg-red-50 hover:bg-red-100 text-red-500 rounded-full p-1.5 md:p-2 
+                                shadow transition text-sm md:text-base"
                                 title="Delete"
                             >
                                 <DeleteOutlined />

@@ -1,37 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, InputNumber, Select, DatePicker, TimePicker, Button, message, Divider } from "antd";
+import { Modal, Form, Input, InputNumber, Select, DatePicker, TimePicker, Button, message, Divider, Space } from "antd";
 import dayjs from "dayjs";
 import { useAuth } from "../../components/auth/useAuthHook"; // Add this import
 const { Option, OptGroup } = Select;
 import { categoryService } from "../../services/categoryService";
 import { PlusOutlined } from "@ant-design/icons";
 import { budgetService } from "../../services/budgetService";
-
-// const categoryOptions = [
-//     // Income
-//     { value: "Salary", label: "Salary", icon: "💼", type: "income" },
-//     { value: "Freelance", label: "Freelance", icon: "🧑‍💻", type: "income" },
-//     { value: "Bank Interest", label: "Bank Interest", icon: "🏦", type: "income" },
-//     { value: "Gift", label: "Gift", icon: "🎁", type: "income" },
-//     { value: "Investment", label: "Investment", icon: "📈", type: "income" },
-//     // Expense
-//     { value: "Food", label: "Food", icon: "🍔", type: "expense" },
-//     { value: "Transport", label: "Transport", icon: "🚌", type: "expense" },
-//     { value: "Shopping", label: "Shopping", icon: "👕", type: "expense" },
-//     { value: "Bills", label: "Bills", icon: "🧾", type: "expense" },
-//     { value: "Health", label: "Health", icon: "💊", type: "expense" },
-//     { value: "Education", label: "Education", icon: "🎓", type: "expense" },
-//     { value: "Entertainment", label: "Entertainment", icon: "🎮", type: "expense" },
-//     { value: "Travel", label: "Travel", icon: "✈️", type: "expense" },
-//     { value: "Other", label: "Other", icon: "🔖", type: "expense" },
-// ];
-
-// const accountOptions = [
-//     { value: "Wallet", label: "Wallet", icon: "👛" },
-//     { value: "Bank", label: "Bank account", icon: "🏦" },
-//     { value: "Credit Card", label: "Credit card", icon: "💳" },
-//     { value: "Cash", label: "Cash", icon: "💵" },
-// ];
 
 const TransactionModal = ({ open, onClose, onSave, editData }) => {
     const [form] = Form.useForm();
@@ -60,7 +34,6 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                 const data = await budgetService.getBudgets();
                 setBudgets(data); // data là mảng budget
             } catch (error) {
-                // Xử lý lỗi nếu cần
                 setBudgets([]);
                 console.log(error)
             }
@@ -89,17 +62,16 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
     };
 
     useEffect(() => {
-        if (editData) {
+        if (open && editData) {
             form.setFieldsValue({
                 ...editData,
                 date: dayjs(editData.date),
                 time: editData.time ? dayjs(editData.time, "HH:mm") : dayjs(),
             });
-        } else {
-            form.resetFields();
+        } else if (open) {
             form.setFieldsValue({ type: "income", date: dayjs(), time: dayjs(), account: "Wallet" });
         }
-    }, [editData, form]);
+    }, [open, editData, form]);
 
     const handleFinish = (values) => {
         // Combine date and time
@@ -127,29 +99,24 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
         onSave(data);
     };
 
-    // Lọc category theo loại
-    // const filteredCategories = categoryOptions.filter(c => c.type === form.getFieldValue("type"));
-
     return (
         <Modal
             open={open}
-            onCancel={onClose}
+            onCancel={() => {
+                form.resetFields();
+                onClose();
+            }}
             title={editData ? "Edit Transaction" : "New Transaction"}
             footer={null}
             width={600}
-            modalProps
         >
             <Form
                 layout="vertical"
                 form={form}
                 onFinish={handleFinish}
-                initialValues={{
-                    type: "expense",
-                    date: dayjs(),
-                    time: dayjs(),
-                    account: "Wallet"
-                }}
-                modalProps
+
+                preserve={false}
+                
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Form.Item
@@ -164,7 +131,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                     </Form.Item>
 
                     <Form.Item label="Category" required>
-                        <Input.Group compact>
+                        <Space.Compact block>
                             <Form.Item
                                 name="categoryId"
                                 noStyle
@@ -173,7 +140,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                                 <Select
                                     style={{ width: addingCategory ? '69%' : '100%' }}
                                     placeholder="Select category"
-                                    dropdownRender={menu => (
+                                    popupRender={menu => (
                                         <>
                                             {menu}
                                             <Divider style={{ margin: '8px 0' }} />
@@ -198,35 +165,27 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                                     }
                                 </Select>
                             </Form.Item>
-                            <br />
-                            {addingCategory && (
-                                <>
-                                    <div className="mt-2">
-                                        <Input
-
-                                            value={newCategoryName}
-                                            onChange={e => setNewCategoryName(e.target.value)}
-                                            placeholder="New category name"
-                                        />
-                                    </div>
-                                    <br />
-                                    <Button className="ml-2 mt-2" type="primary" onClick={handleAddCategory}>
-                                        Add
-                                    </Button>
-
-                                    <Button
-                                        className="ml-2 mt-2"
-                                        type="primary"
-                                        onClick={() => {
-                                            setAddingCategory(false);
-                                            setNewCategoryName('');
-                                        }}
-                                    >
-                                        Cancel
-                                    </Button>
-                                </>
-                            )}
-                        </Input.Group>
+                        </Space.Compact>
+                        {addingCategory && (
+                            <Space.Compact block className="mt-2">
+                                <Input
+                                    value={newCategoryName}
+                                    onChange={e => setNewCategoryName(e.target.value)}
+                                    placeholder="New category name"
+                                />
+                                <Button type="primary" onClick={handleAddCategory}>
+                                    Add
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        setAddingCategory(false);
+                                        setNewCategoryName('');
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                            </Space.Compact>
+                        )}
                     </Form.Item>
 
                     <Form.Item

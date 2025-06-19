@@ -1,6 +1,6 @@
 import React from 'react';
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
-import GoalTarget from '../../../components/transaction/GoalTarget';
+import GoalTarget from '../../../components/goalTarget/GoalTarget';
 
 const GoalTargetPage = () => {
     return (

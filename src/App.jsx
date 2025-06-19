@@ -36,7 +36,7 @@ import ServicesPage from "./pages/generic/services/ServicesPage";
 // Dashboard Pages
 import Dashboard from "./pages/user/Dashboard/Dashboard";
 import Profile from "./pages/user/profile/Profile";
-import GoalTargetPage from "./pages/user/Dashboard/GoalTarget";
+import GoalTargetPage from "./pages/user/goalTarget/GoalTarget";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProfile from "./pages/admin/AdminProfile";
 import UserManagement from "./pages/admin/UserManagement";

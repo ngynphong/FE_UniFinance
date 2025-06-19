@@ -7,24 +7,38 @@ import DashboardLayout from '../layout/user/DashboardLayout';
 const RepaymentProgress = () => {
 
     const [debts, setDebts] = useState([]);
-        const [loading, setLoading] = useState(true);
-    
-        useEffect(() => {
-            fetchDebts();
-        }, []);
-    
-        const fetchDebts = async () => {
-            try {
-                setLoading(true);
-                const response = await debtService.getAllDebts();
-                setDebts(response);
-            } catch (error) {
-                message.error('Failed to fetch debts data');
-                console.error('Error:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchDebts();
+    }, []);
+
+    const fetchDebts = async () => {
+        try {
+            setLoading(true);
+            const response = await debtService.getAllDebts();
+            setDebts(response);
+        } catch (error) {
+            message.error('Failed to fetch debts data');
+            console.error('Error:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    // Create timeline items from debts
+    const timelineItems = debts.map((debt) => ({
+        dot: debt.status === 'Paid'
+            ? <CheckCircleOutlined className="text-green-500" />
+            : <ClockCircleOutlined className="text-orange-500" />,
+        color: debt.status === 'Paid' ? 'green' : 'blue',
+        children: (
+            <div>
+                <p className="font-semibold">{debt.debtName}</p>
+                <p>Amount: ${debt.amount}</p>
+                <p>Due Date: {new Date(debt.dueDate).toLocaleDateString()}</p>
+            </div>
+        )
+    }));
     const columns = [
         {
             title: 'Payment Date',
@@ -64,26 +78,16 @@ const RepaymentProgress = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
                     <h3 className="text-lg font-semibold mb-4">Payment Timeline</h3>
-                    <Timeline>
-                        {debts.map((debt, index) => (
-                            <Timeline.Item
-                                key={index}
-                                dot={debt.status === 'Paid' ? <CheckCircleOutlined className="text-green-500" /> : <ClockCircleOutlined className="text-orange-500" />}
-                                color={debt.status === 'Paid' ? 'green' : 'blue'}
-                            >
-                                <p className="font-semibold">{debt.debtName}</p>
-                                <p>Amount: ${debt.amount}</p>
-                                <p>Due Date: {new Date(debt.dueDate).toLocaleDateString()}</p>
-                            </Timeline.Item>
-                        ))}
-                    </Timeline>
+                    <Timeline
+                        items={timelineItems}
+                    />
                 </Card>
 
                 <Card>
                     <h3 className="text-lg font-semibold mb-4">Payment History</h3>
                     <Table
-                        dataSource={debts.map(debt => ({
-                            key: debt.id,
+                        dataSource={debts.map((debt, index) => ({
+                            key: debt.id || index,
                             paymentDate: new Date(debt.dueDate).toLocaleDateString(),
                             amount: debt.amount,
                             status: debt.status,

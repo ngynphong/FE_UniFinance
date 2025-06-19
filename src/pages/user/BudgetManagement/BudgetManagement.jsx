@@ -29,23 +29,27 @@ const BudgetManagement = () => {
 
     return (
         <DashboardLayout>
-            <div className="space-y-6 p-6">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-800">Budget Management</h1>
+            <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+                    <h1 className="text-xl md:text-2xl font-bold text-gray-800">Budget Management</h1>
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
                         onClick={() => setShowCreateModal(true)}
+                        className="w-full sm:w-auto"
                     >
                         Create New Budget
                     </Button>
                 </div>
 
-                <BudgetSummary
-                    onEdit={handleEditBudget}
-                    onRefresh={setBudgetRefresh}
-                    refresh={budgetRefresh} // Add this prop
-                />
+                <div className="mt-4 md:mt-6">
+                    <BudgetSummary
+                        onEdit={handleEditBudget}
+                        onRefresh={setBudgetRefresh}
+                        refresh={budgetRefresh}
+                    />
+                </div>
+
                 <CreateBudgetModal
                     open={showCreateModal}
                     onClose={() => setShowCreateModal(false)}
