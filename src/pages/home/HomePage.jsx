@@ -7,6 +7,7 @@ import PremiumSection from "../../components/home/PrimeumSection"
 import AboutSection from "../../components/home/AboutSection"
 import TestimonialsSection from "../../components/home/TestimonialsSection"
 import ContactSection from "../../components/home/ContactSection"
+import FinancialChat from "../../components/home/FinancialChat"
 
 const { Content } = Layout
 
@@ -33,6 +34,7 @@ function HomePage() {
       <AboutSection />
       <TestimonialsSection />
       <ContactSection />
+      <FinancialChat />
     </Content>
   )
 }

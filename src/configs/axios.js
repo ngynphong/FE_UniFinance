@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const axiosInstance = axios.create({
     baseURL: API_URL,
     withCredentials: true, 
-    timeout: 10000,
+    timeout: 30000,
 });
 
 // Add request interceptor to automatically add token
