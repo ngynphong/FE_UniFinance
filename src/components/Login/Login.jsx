@@ -26,10 +26,10 @@ const Login = () => {
             newError.password = "Password is required";
             valid = false;
         }
-        else if (password.length < 6) {
-            newError.password = "Password must be at least 6 characters";
-            valid = false;
-        }
+        // else if (password.length < 6) {
+        //     newError.password = "Password must be at least 6 characters";
+        //     valid = false;
+        // }
         setError(newError);
         return valid;
     };

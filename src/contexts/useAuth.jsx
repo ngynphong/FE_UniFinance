@@ -63,6 +63,7 @@ const useAuthState = () => {
             setUser(response);
             const token = `Bearer ${response.accessToken}`;
             localStorage.setItem('token', token);
+            localStorage.setItem('authUser', JSON.stringify(response));
             return { success: true };
         } catch (error) {
             console.error("Google login error:", error);
