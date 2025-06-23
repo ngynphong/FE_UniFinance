@@ -6,7 +6,7 @@ import ServiceHero from "../../../components/generic/services/ServiceHero"
 import ServiceList from "../../../components/generic/services/ServiceList"
 import ServiceProcess from "../../../components/generic/services/ServiceProcess"
 import ServicePricing from "../../../components/generic/services/ServicePricing"
-import ServiceFAQ from "../../../components/generic/services/ServiceFAQ.JSX"
+import ServiceFAQ from "../../../components/generic/services/ServiceFAQ"
 import ServiceCTA from "../../../components/generic/services/ServiceCTA"
 
 export default function ServicesPage() {

@@ -311,36 +311,7 @@ const FinancialChatApp = () => {
     const closeChat = () => setIsChatOpen(false);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-            {/* Demo Content */}
-            <div className="container mx-auto px-4 py-8">
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-4">UniFinance</h1>
-                    <p className="text-xl text-gray-600">Nền tảng tư vấn tài chính thông minh</p>
-                </div>
-
-                <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Dịch vụ tư vấn tài chính cá nhân</h2>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <div className="text-center p-6 bg-blue-50 rounded-lg">
-                            <DollarSign className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                            <h3 className="font-semibold text-gray-800 mb-2">Quản lý thu chi</h3>
-                            <p className="text-gray-600">Phân tích và tối ưu hóa ngân sách cá nhân</p>
-                        </div>
-                        <div className="text-center p-6 bg-green-50 rounded-lg">
-                            <Target className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                            <h3 className="font-semibold text-gray-800 mb-2">Lập kế hoạch tài chính</h3>
-                            <p className="text-gray-600">Thiết lập và theo dõi mục tiêu tài chính</p>
-                        </div>
-                        <div className="text-center p-6 bg-purple-50 rounded-lg">
-                            <TrendingUp className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                            <h3 className="font-semibold text-gray-800 mb-2">Tư vấn đầu tư</h3>
-                            <p className="text-gray-600">Chiến lược đầu tư phù hợp với profile rủi ro</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div className="">
             {/* Chat Components */}
             <ChatBubble onClick={openChat} isOpen={isChatOpen} />
             <ChatWindow isOpen={isChatOpen} onClose={closeChat} />
