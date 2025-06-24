@@ -30,8 +30,8 @@ import PrivacyPolicyPage from "./pages/generic/privacyPolicyPage/PrivacyPolicyPa
 import TermConditionPage from "./pages/generic/termConsitionsPage/TermConditionPage"
 import BudgetManagement from "./pages/user/BudgetManagement/BudgetManagement"
 import TransactionsPage from "./pages/user/Transactions/TransactionsPage"
-import ResourcePage from "./pages/generic/resource/ResourcePage";
 import ServicesPage from "./pages/generic/services/ServicesPage";
+import BlogPage from "./pages/generic/BlogPage";
 
 // Dashboard Pages
 import Dashboard from "./pages/user/Dashboard/Dashboard";
@@ -86,7 +86,7 @@ function App() {
               <Route path="/contact-with-us" element={<ContactUsPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/term-conditions" element={<TermConditionPage />} />
-              <Route path="/resources" element={<ResourcePage />} />
+              <Route path="/blog" element={<BlogPage />} />
               <Route path="/services" element={<ServicesPage />} />
             </Route>
 

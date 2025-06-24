@@ -14,7 +14,7 @@ const Header = () => {
     { key: "services", label: "Dịch vụ", path: "/services" },
     { key: "premium", label: "Gói Premium", path: "/premium" },
     { key: "about", label: "Về chúng tôi", path: "/about-us" },
-    { key: "resources", label: "Nguồn lực", path: "/resources" },
+    { key: "blog", label: "Bài viết", path: "/blog" },
     { key: "contact", label: "Liên hệ", path: "/contact-with-us" },
   ]
 
