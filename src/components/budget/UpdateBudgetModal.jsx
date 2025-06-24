@@ -13,7 +13,7 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
 
     const handleSubmit = async (values) => {
         if (!isAuthenticated) {
-            message.error('Please login to update budget');
+            message.error('Vui lòng đăng nhập để cập nhật ngân sách');
             navigate('/login');
             return;
         }
@@ -29,17 +29,17 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
             };
 
             await budgetService.updateBudget(budget.id, budgetData);
-            message.success('Budget updated successfully!');
+            message.success('Cập nhật ngân sách thành công!');
             form.resetFields();
             onSuccess?.();
             onClose();
         } catch (error) {
             console.error('Update budget error:', error);
             if (error.message.includes('Unauthorized')) {
-                message.error('Session expired. Please login again');
+                message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
                 navigate('/login');
             } else {
-                message.error(error.message || 'Failed to update budget');
+                message.error(error.message || 'Cập nhật ngân sách thất bại');
             }
         } finally {
             setLoading(false);
@@ -50,7 +50,7 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
         <Modal
             open={open}
             onCancel={onClose}
-            title="Update Budget"
+            title="Cập nhật ngân sách"
             footer={null}
             width={600}
         >
@@ -69,45 +69,46 @@ const UpdateBudgetModal = ({ open, onClose, budget, onSuccess }) => {
             >
                 <Form.Item
                     name="name"
-                    label="Budget Name"
-                    rules={[{ required: true, message: 'Please enter budget name' }]}
+                    label="Tên ngân sách"
+                    rules={[{ required: true, message: 'Vui lòng nhập tên ngân sách' }]}
                 >
-                    <Input placeholder="Enter budget name" />
+                    <Input placeholder="Nhập tên ngân sách" />
                 </Form.Item>
 
                 <Form.Item
                     name="limitAmount"
-                    label="Limit Amount"
-                    rules={[{ required: true, message: 'Please enter limit amount' }]}
+                    label="Số tiền giới hạn"
+                    rules={[{ required: true, message: 'Vui lòng nhập số tiền giới hạn' }]}
                 >
                     <InputNumber
                         className="w-full"
                         min={0}
-                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' VNĐ'}
+                        parser={value => value.replace(/\s?VNĐ|(,*)/g, '')}
                     />
                 </Form.Item>
 
                 <Form.Item
                     name="dateRange"
-                    label="Budget Period"
-                    rules={[{ required: true, message: 'Please select date range' }]}
+                    label="Thời gian ngân sách"
+                    rules={[{ required: true, message: 'Vui lòng chọn khoảng thời gian' }]}
                 >
                     <DatePicker.RangePicker
                         className="w-full"
                         showTime
-                        format="YYYY-MM-DD HH:mm:ss"
+                        format="DD/MM/YYYY HH:mm:ss"
+                        placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
                     />
                 </Form.Item>
 
                 <div className="flex justify-end gap-2">
-                    <Button onClick={onClose}>Cancel</Button>
+                    <Button onClick={onClose}>Hủy</Button>
                     <Button
                         type="primary"
                         htmlType="submit"
                         loading={loading}
                     >
-                        Update Budget
+                        Cập nhật ngân sách
                     </Button>
                 </div>
             </Form>

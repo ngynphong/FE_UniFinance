@@ -17,17 +17,17 @@ const AddDebt = ({ onSuccess }) => {
             };
 
             await debtService.addDebt(debtData);
-            message.success("Debt added successfully");
+            message.success("Thêm khoản nợ thành công");
             form.resetFields();
             if (onSuccess) onSuccess();
         } catch (error) {
-            message.error("Failed to add debt", error.message || "Please try again later.");
+            message.error("Thêm khoản nợ thất bại", error.message || "Vui lòng thử lại sau.");
         }
     };
 
     return (
         <DashboardLayout>
-            <h2 className="text-2xl font-bold mb-6">Add New Debt</h2>
+            <h2 className="text-2xl font-bold mb-6">Thêm khoản nợ mới</h2>
             <Form
                 form={form}
                 layout="vertical"
@@ -35,46 +35,50 @@ const AddDebt = ({ onSuccess }) => {
             >
                 <Form.Item
                     name="debtName"
-                    label="Debt Name"
-                    rules={[{ required: true, message: "Please enter debt name" }]}
+                    label="Tên khoản nợ"
+                    rules={[{ required: true, message: "Vui lòng nhập tên khoản nợ" }]}
                 >
-                    <Input placeholder="Enter debt name" />
+                    <Input placeholder="Nhập tên khoản nợ" />
                 </Form.Item>
 
                 <Form.Item
                     name="description"
-                    label="Description"
+                    label="Mô tả"
                 >
-                    <Input.TextArea placeholder="Enter description" />
+                    <Input.TextArea placeholder="Nhập mô tả" />
                 </Form.Item>
 
                 <Form.Item
                     name="amount"
-                    label="Amount"
-                    rules={[{ required: true, message: "Please enter amount" }]}
+                    label="Số tiền"
+                    rules={[{ required: true, message: "Vui lòng nhập số tiền" }]}
                 >
-                    <Input type="number" placeholder="Enter amount" />
+                    <Input type="number" placeholder="Nhập số tiền" />
                 </Form.Item>
 
                 <Form.Item
                     name="interestRate"
-                    label="Interest Rate (%)"
-                    rules={[{ required: true, message: "Please enter interest rate" }]}
+                    label="Lãi suất (%)"
+                    rules={[{ required: true, message: "Vui lòng nhập lãi suất" }]}
                 >
-                    <Input type="number" placeholder="Enter interest rate" />
+                    <Input type="number" placeholder="Nhập lãi suất" />
                 </Form.Item>
 
                 <Form.Item
                     name="dueDate"
-                    label="Due Date"
-                    rules={[{ required: true, message: "Please select due date" }]}
+                    label="Ngày đến hạn"
+                    rules={[{ required: true, message: "Vui lòng chọn ngày đến hạn" }]}
                 >
-                    <DatePicker className="w-full" />
+                    <DatePicker
+                        className="w-full"
+                        placeholder="Chọn ngày đến hạn"
+                        format="DD/MM/YYYY"
+                    />
                 </Form.Item>
 
                 <Form.Item>
                     <Button type="primary" htmlType="submit" className="w-full">
-                        Add Debt
+                        Thêm khoản nợ
                     </Button>
                 </Form.Item>
             </Form>

@@ -17,7 +17,6 @@ const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
             const data = await budgetService.getBudgets();
             setBudgets(Array.isArray(data) ? data : []);
         } catch (error) {
-            console.error('Fetch budgets error:', error);
             message.error(error.message || 'Failed to fetch budgets');
             setBudgets([]);
         } finally {
@@ -28,11 +27,11 @@ const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
     const handleDelete = async (id) => {
         try {
             await budgetService.deleteBudget(id);
-            message.success('Budget deleted successfully');
+            message.success('Xóa ngân sách thành công');
             fetchBudgets();
             onRefresh?.();
         } catch (error) {
-            message.error('Failed to delete budget', error);
+            message.error('Lỗi khi xóa ngân sách', error);
         }
     };
 
@@ -80,13 +79,13 @@ const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
                         <Popconfirm
                             title="Delete this budget?"
                             onConfirm={() => handleDelete(budget.id)}
-                            okText="Yes"
-                            cancelText="No"
+                            okText="Có"
+                            cancelText="Không"
                         >
                             <button
                                 className="bg-red-50 hover:bg-red-100 text-red-500 rounded-full p-1.5 md:p-2 
                                 shadow transition text-sm md:text-base"
-                                title="Delete"
+                                title="Xóa"
                             >
                                 <DeleteOutlined />
                             </button>

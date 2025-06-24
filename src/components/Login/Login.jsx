@@ -16,14 +16,14 @@ const Login = () => {
         let valid = true;
         let newError = { email: "", password: "" };
         if (!email) {
-            newError.email = "Email is required";
+            newError.email = "Email không được để trống";
             valid = false;
         } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-            newError.email = "Invalid email address";
+            newError.email = "Sai định dạng email";
             valid = false;
         }
         if (!password) {
-            newError.password = "Password is required";
+            newError.password = "Mật khẩu không được để trống";
             valid = false;
         }
         // else if (password.length < 6) {
@@ -38,7 +38,6 @@ const Login = () => {
         e.preventDefault();
         if (!validate()) return;
         const res = await login(email, password);
-        console.log('data', res.response.role);
         if (res.success) {
             setError({ email: "", password: "" });
             if (res.response.role === "Admin") {
@@ -50,7 +49,7 @@ const Login = () => {
             }
 
         } else {
-            setError({ email: "", password: res.message || "Login failed" });
+            setError({ email: "", password: res.message || "Sai email hoặc mật khẩu" });
         }
     };
 
@@ -61,7 +60,6 @@ const Login = () => {
             }
 
             const decoded = jwtDecode(credentialResponse.credential);
-            console.log('Decoded Google token:', decoded); // For debugging
 
             const googleUserInfo = {
                 IdToken: credentialResponse.credential,
@@ -71,16 +69,13 @@ const Login = () => {
                 Picture: decoded.picture || ''
             };
 
-            console.log('Sending Google user info:', googleUserInfo); // Debug log
-
             const res = await handleGoogleLogin(googleUserInfo);
             if (res.success) {
                 navigate("/");
             } else {
-                setError({ email: "", password: res.message || "Google login failed" });
+                setError({ email: "", password: res.message || "Đăng nhập thất bại" });
             }
         } catch (error) {
-            console.error('Google login error:', error);
             setError({
                 email: "",
                 password: error.message || "Failed to process Google login"
@@ -88,7 +83,7 @@ const Login = () => {
         }
     };
     const onGoogleError = () => {
-        setError({ email: "", password: "Google login failed" });
+        setError({ email: "", password: "Đăng nhập Google thất bại" });
     };
 
     return (
@@ -96,16 +91,16 @@ const Login = () => {
             <img className="absolute max-h-screen w-full h-full object-cover mx-auto block top-0 left-0 z-0 scale-105" src="/background.jpg" alt="" />
             <div className="relative z-10 w-full max-w-md mx-6 p-10 rounded-2xl shadow-2xl bg-white/30 backdrop-blur-lg border border-white/40">
                 <div className="w-16 h-1.5 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full mb-6 mx-auto" />
-                <h2 className="text-3xl font-extrabold mb-2 text-gray-900 text-center drop-shadow">Welcome To UniFinance</h2>
-                <p className="text-base text-gray-700 mb-2 text-center">Enter your Email and Password</p>
+                <h2 className="text-3xl font-extrabold mb-2 text-gray-900 text-center drop-shadow">Chào mừng đến với UniFinance</h2>
+                <p className="text-base text-gray-700 mb-2 text-center">Vui lòng đăng nhập để truy cập</p>
 
                 <form className="space-y-5" onSubmit={handleSubmit}>
                     <div>
-                        <label className="block text-sm font-semibold mb-1 text-gray-800" htmlFor="email">Email address</label>
+                        <label className="block text-sm font-semibold mb-1 text-gray-800" htmlFor="email">Email</label>
                         <input
                             id="email"
                             type="email"
-                            placeholder="Enter your email"
+                            placeholder="Nhập email của bạn"
                             className="w-full px-2 py-2 border border-gray-200 rounded-xl bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
@@ -114,13 +109,13 @@ const Login = () => {
                     </div>
                     <div>
                         <div className="flex justify-between items-center mb-1">
-                            <label className="block text-sm font-semibold text-gray-800" htmlFor="password">Password</label>
+                            <label className="block text-sm font-semibold text-gray-800" htmlFor="password">Mật khẩu</label>
                         </div>
                         <div className="relative">
                             <input
                                 id="password"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="Password"
+                                placeholder="Mật khẩu"
                                 className="w-full px-2 py-2 border border-gray-200 rounded-xl bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm pr-10"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
@@ -137,19 +132,19 @@ const Login = () => {
                         {error.password && <div className="text-red-600 text-xs mt-1">{error.password}</div>}
                     </div>
                     <div className="flex items-center justify-end">
-                        <Link to="/forgot-password" className="text-xs text-blue-600 hover:underline font-medium">Forgot password</Link>
+                        <Link to="/forgot-password" className="text-xs text-blue-600 hover:underline font-medium">Quên mật khẩu</Link>
                     </div>
                     <button
                         type="submit"
                         className="w-full py-2 rounded-xl font-semibold text-lg text-white bg-gradient-to-r from-blue-600 to-cyan-400 shadow-lg hover:from-blue-700 hover:to-cyan-500 transition hover:scale-[1.02] active:scale-100 focus:outline-none focus:ring-2 focus:ring-blue-400 hover:cursor-pointer"
                     >
-                        Login
+                        Đăng nhập
                     </button>
                 </form>
 
                 <div className="flex items-center my-6">
                     <div className="flex-grow h-px bg-gray-200" />
-                    <span className="mx-3 text-gray-900 text-sm">or</span>
+                    <span className="mx-3 text-gray-900 text-sm">hoặc</span>
                     <div className="flex-grow h-px bg-gray-200" />
                 </div>
 
@@ -166,10 +161,10 @@ const Login = () => {
                 </div>
 
                 <p className="text-center text-sm text-gray-700">
-                    Don&apos;t have an account?{' '}
-                    <Link to="/register" className="text-black hover:underline font-semibold">Register</Link>
+                    Không có tài khoản?{' '}
+                    <Link to="/register" className="text-black hover:underline font-semibold">Đăng ký</Link>
                     <br />
-                    <Link to="/" className="text-black hover:underline font-semibold">Back Home</Link>
+                    <Link to="/" className="text-black hover:underline font-semibold">Trang chủ</Link>
                 </p>
             </div>
         </div>
