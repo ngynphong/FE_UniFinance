@@ -1,9 +1,8 @@
-"use client"
+"use client";
 
-import { Row, Col, Timeline } from "antd"
-import { Award } from "lucide-react"
-import { timelineData } from "../../data/timelineData"
-
+import { Row, Col, Timeline } from "antd";
+import { Award } from "lucide-react";
+import { timelineData } from "../../data/timelineData";
 
 const AboutSection = () => {
   return (
@@ -26,17 +25,22 @@ const AboutSection = () => {
 
           {/* Content */}
           <Col xs={24} lg={12}>
-            <h2 className="text-4xl font-bold text-gray-800 mb-6">Về Uni Finance</h2>
+            <h2 className="text-4xl font-bold text-gray-800 mb-6">
+              Về Uni Finance
+            </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Với hơn 15 năm kinh nghiệm trong lĩnh vực tư vấn tài chính, chúng tôi đã đồng hành cùng hàng nghìn khách
-              hàng xây dựng và phát triển tài sản một cách bền vững.
+              UniFinance tích hợp trí tuệ nhân tạo (AI) để cung cấp lời khuyên
+              tài chính tự động, đồng thời cung cấp các công cụ lập ngân sách dễ
+              sử dụng. Ứng dụng mang đến một trải nghiệm cá nhân hóa, giúp sinh
+              viên đạt được các mục tiêu tài chính của mình một cách dễ dàng và
+              hiệu quả.
             </p>
             <Timeline items={timelineData} />
           </Col>
         </Row>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default AboutSection
+export default AboutSection;

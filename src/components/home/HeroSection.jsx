@@ -13,9 +13,9 @@ const HeroSection = ({ isVisible, scrollToSection }) => {
   })
 
   const stats = [
-    { label: "Khách hàng tin tưởng", value: 1500, suffix: "+" },
-    { label: "Năm kinh nghiệm", value: 15, suffix: "+" },
-    { label: "Tỷ lệ thành công", value: 98, suffix: "%" },
+    { label: "Khách hàng tin tưởng", value: 50, suffix: "+" },
+    { label: "Năm kinh nghiệm", value:  5, suffix: "+" },
+    { label: "Tỷ lệ thành công", value: 65, suffix: "%" },
   ]
 
   const floatingElements = [
@@ -42,9 +42,9 @@ const HeroSection = ({ isVisible, scrollToSection }) => {
           }, 30)
         }
 
-        animateNumber(1500, "clients")
-        animateNumber(15, "experience")
-        animateNumber(98, "success")
+        animateNumber(50, "clients")
+        animateNumber(5, "experience")
+        animateNumber(65, "success")
       }, 500)
 
       return () => clearTimeout(timer)
@@ -100,19 +100,19 @@ const HeroSection = ({ isVisible, scrollToSection }) => {
                 {/* Animated badge */}
                 <div className="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full text-blue-800 text-sm font-medium mb-6 animate-bounce-subtle">
                   <Zap className="w-4 h-4 mr-2" />
-                  <span>Tư vấn tài chính #1 Việt Nam</span>
+                  <span>Lựa chọn tin cậy cho quản lý tài chính cá nhân</span>
                 </div>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-6 leading-tight">
-                  <span className="inline-block animate-slide-up">Tư vấn tài chính</span>
+                  <span className="inline-block animate-slide-up">Giải pháp tài chính cá nhân </span>
                   <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 animate-gradient-text">
-                    chuyên nghiệp
+                   sinh viên
                   </span>
                 </h1>
 
                 <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed animate-fade-in-delayed">
-                  Đồng hành cùng bạn xây dựng tương lai tài chính vững chắc với đội ngũ chuyên gia hàng đầu
+                  Đồng hành cùng bạn trên hành trình tài chính an toàn và bền vững
                 </p>
 
                 {/* Animated stats */}

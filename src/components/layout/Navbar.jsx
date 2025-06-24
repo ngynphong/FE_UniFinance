@@ -48,7 +48,8 @@ const Header = () => {
             mode="horizontal"
             items={menuItems}
             onClick={handleMenuClick}
-            className="border-none bg-transparent hidden md:flex"
+            className="border-none bg-transparent flex-grow justify-center hidden sm:flex"
+            style={{ minWidth: 0 }}
           />
 
           {/* CTA Button */}

@@ -109,28 +109,6 @@ const ServicePricing = ({ scrollToSection }) => {
             </Col>
           ))}
         </Row>
-
-        {/* Additional Services */}
-        <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-3xl p-8">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Dịch vụ bổ sung</h3>
-            <p className="text-gray-600">Các dịch vụ chuyên biệt cho nhu cầu đặc thù</p>
-          </div>
-
-          <Row gutter={[24, 24]}>
-            {/* Dịch vụ bổ sung */}
-            <Col xs={24} md={8}>
-              <div className="text-center p-6 bg-white rounded-xl shadow-sm">
-                <Crown className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
-                <h4 className="font-semibold text-gray-800 mb-2">Tư vấn VIP</h4>
-                <p className="text-gray-600 text-sm mb-3">Dịch vụ cao cấp với chuyên gia hàng đầu</p>
-                <div className="text-xl font-bold text-blue-600">Liên hệ</div>
-              </div>
-            </Col>
-            
-            {/* Thêm các dịch vụ bổ sung khác */}
-          </Row>
-        </div>
       </div>
     </section>
   )

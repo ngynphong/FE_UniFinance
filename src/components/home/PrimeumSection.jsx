@@ -1,9 +1,20 @@
-"use client"
+"use client";
 
-import { Row, Col, Card, Button, Badge } from "antd"
-import { Crown, Star, CheckCircle, ArrowRight, Zap, Users, TrendingUp, Phone, Clock, Award, Shield } from "lucide-react"
-import { premiumPackagesData } from "../../data/primeumPackagesData"
-
+import { Row, Col, Card, Button, Badge } from "antd";
+import {
+  Crown,
+  Star,
+  CheckCircle,
+  ArrowRight,
+  Zap,
+  Users,
+  TrendingUp,
+  Phone,
+  Clock,
+  Award,
+  Shield,
+} from "lucide-react";
+import { premiumPackagesData } from "../../data/primeumPackagesData";
 
 const PremiumSection = ({ scrollToSection }) => {
   const premiumFeatures = [
@@ -27,7 +38,7 @@ const PremiumSection = ({ scrollToSection }) => {
       title: "Hỗ trợ 24/7",
       description: "Tư vấn khẩn cấp mọi lúc",
     },
-  ]
+  ];
 
   return (
     <section
@@ -46,12 +57,18 @@ const PremiumSection = ({ scrollToSection }) => {
         <div className="text-center mb-16">
           <div className="flex items-center justify-center mb-4">
             <Crown className="w-12 h-12 text-yellow-400 mr-3" />
-            <Badge count="VIP" className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-0 " >Gói Premium</h2>
+            <Badge
+              count="VIP"
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-0 ">
+                Gói Premium
+              </h2>
             </Badge>
           </div>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Trải nghiệm dịch vụ tư vấn tài chính đẳng cấp với những ưu đãi độc quyền
+            Trải nghiệm dịch vụ tư vấn tài chính đẳng cấp với những ưu đãi độc
+            quyền
           </p>
         </div>
 
@@ -62,9 +79,13 @@ const PremiumSection = ({ scrollToSection }) => {
               <Col xs={24} sm={12} lg={6} key={index}>
                 <div className="h-full text-center p-6 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300">
                   <div className="mb-4 flex justify-center">
-                    <div className="p-3 bg-white/20 rounded-full">{feature.icon}</div>
+                    <div className="p-3 bg-white/20 rounded-full">
+                      {feature.icon}
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
+                  <h3 className="text-lg font-bold text-white mb-2">
+                    {feature.title}
+                  </h3>
                   <p className="text-gray-300 text-sm">{feature.description}</p>
                 </div>
               </Col>
@@ -94,15 +115,25 @@ const PremiumSection = ({ scrollToSection }) => {
                 )}
 
                 <div className="text-center mb-6">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${pkg.iconBg}`}>
+                  <div
+                    className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${pkg.iconBg}`}
+                  >
                     {pkg.icon}
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">{pkg.name}</h3>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                    {pkg.name}
+                  </h3>
                   <div className="mb-2">
-                    <span className="text-4xl font-bold text-blue-600">{pkg.price}</span>
+                    <span className="text-4xl font-bold text-blue-600">
+                      {pkg.price}
+                    </span>
                     <span className="text-gray-500 ml-1">{pkg.period}</span>
                   </div>
-                  {pkg.originalPrice && <div className="text-gray-400 line-through text-lg">{pkg.originalPrice}</div>}
+                  {pkg.originalPrice && (
+                    <div className="text-gray-400 line-through text-lg">
+                      {pkg.originalPrice}
+                    </div>
+                  )}
                   <p className="text-gray-600 mt-2">{pkg.description}</p>
                 </div>
 
@@ -119,11 +150,16 @@ const PremiumSection = ({ scrollToSection }) => {
                   <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-6 border border-blue-200">
                     <div className="flex items-center mb-2">
                       <Award className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="font-semibold text-blue-800">Ưu đãi đặc biệt</span>
+                      <span className="font-semibold text-blue-800">
+                        Ưu đãi đặc biệt
+                      </span>
                     </div>
                     <ul className="space-y-1">
                       {pkg.bonus.map((item, idx) => (
-                        <li key={idx} className="text-sm text-blue-700 flex items-center">
+                        <li
+                          key={idx}
+                          className="text-sm text-blue-700 flex items-center"
+                        >
                           <Zap className="w-3 h-3 mr-2" />
                           {item}
                         </li>
@@ -154,7 +190,9 @@ const PremiumSection = ({ scrollToSection }) => {
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20">
           <Row gutter={[48, 48]} align="middle">
             <Col xs={24} lg={12}>
-              <h3 className="text-3xl font-bold text-white mb-6">Tại sao chọn gói Premium?</h3>
+              <h3 className="text-3xl font-bold text-white mb-6">
+                Tại sao chọn gói Premium?
+              </h3>
               <div className="space-y-4">
                 <div className="flex items-center text-gray-300">
                   <Clock className="w-6 h-6 text-blue-400 mr-3" />
@@ -191,9 +229,12 @@ const PremiumSection = ({ scrollToSection }) => {
 
         {/* Call to Action */}
         <div className="text-center mt-16">
-          <h3 className="text-2xl font-bold text-white mb-4">Sẵn sàng nâng cấp trải nghiệm tài chính của bạn?</h3>
+          <h3 className="text-2xl font-bold text-white mb-4">
+            Sẵn sàng nâng cấp trải nghiệm tài chính của bạn?
+          </h3>
           <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Liên hệ ngay để được tư vấn miễn phí và nhận ưu đãi đặc biệt cho khách hàng mới
+            Liên hệ ngay để được tư vấn miễn phí và nhận ưu đãi đặc biệt cho
+            khách hàng mới
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -207,7 +248,9 @@ const PremiumSection = ({ scrollToSection }) => {
             </Button>
             <Button
               size="large"
-              className="h-12 px-8 text-lg border-white text-white hover:bg-white hover:text-gray-800 flex items-center justify-center"
+              className="h-12 px-8 text-lg bg-transparent border-2 border-orange-300 text-orange-500 
+             hover:bg-orange-200 hover:text-orange-700 hover:border-orange-400 
+             flex items-center justify-center"
               onClick={() => scrollToSection("contact")}
             >
               Tư vấn miễn phí
@@ -216,8 +259,7 @@ const PremiumSection = ({ scrollToSection }) => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default PremiumSection
-
+export default PremiumSection;

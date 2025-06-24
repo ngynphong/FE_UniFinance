@@ -49,12 +49,6 @@ const ServiceCTA = ({ scrollToSection }) => {
                   Đặt lịch tư vấn ngay
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
-                <Button
-                  size="large"
-                  className="h-14 px-8 text-lg border-white text-white hover:bg-white hover:text-gray-800"
-                >
-                  Tải brochure
-                </Button>
               </div>
             </div>
           </Col>
@@ -81,15 +75,15 @@ const ServiceCTA = ({ scrollToSection }) => {
               <div className="bg-gradient-to-r from-yellow-400/20 to-orange-500/20 backdrop-blur-lg rounded-xl p-6 border border-yellow-400/30">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-yellow-400">1500+</div>
+                    <div className="text-2xl font-bold text-yellow-400">50+</div>
                     <div className="text-xs text-gray-300">Khách hàng</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-yellow-400">98%</div>
+                    <div className="text-2xl font-bold text-yellow-400">65%</div>
                     <div className="text-xs text-gray-300">Hài lòng</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-yellow-400">15+</div>
+                    <div className="text-2xl font-bold text-yellow-400">5+</div>
                     <div className="text-xs text-gray-300">Năm kinh nghiệm</div>
                   </div>
                 </div>

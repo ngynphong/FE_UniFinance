@@ -1,15 +1,31 @@
-"use client"
+"use client";
 
-import { Row, Col, Button, Badge } from "antd"
-import { ArrowRight, Star, Shield, TrendingUp, Users } from "lucide-react"
+import { Row, Col, Button, Badge } from "antd";
+import { ArrowRight, Star, Shield, TrendingUp, Users } from "lucide-react";
 
 const ServiceHero = ({ isVisible, scrollToSection }) => {
   const highlights = [
-    { icon: <Star className="w-5 h-5" />, text: "15+ năm kinh nghiệm", color: "text-yellow-500" },
-    { icon: <Shield className="w-5 h-5" />, text: "Bảo mật tuyệt đối", color: "text-green-500" },
-    { icon: <TrendingUp className="w-5 h-5" />, text: "98% thành công", color: "text-blue-500" },
-    { icon: <Users className="w-5 h-5" />, text: "1500+ khách hàng", color: "text-purple-500" },
-  ]
+    {
+      icon: <Star className="w-5 h-5" />,
+      text: "5+ năm kinh nghiệm",
+      color: "text-yellow-500",
+    },
+    {
+      icon: <Shield className="w-5 h-5" />,
+      text: "Bảo mật tuyệt đối",
+      color: "text-green-500",
+    },
+    {
+      icon: <TrendingUp className="w-5 h-5" />,
+      text: "65% thành công",
+      color: "text-blue-500",
+    },
+    {
+      icon: <Users className="w-5 h-5" />,
+      text: "50+ khách hàng",
+      color: "text-purple-500",
+    },
+  ];
 
   return (
     <section
@@ -30,26 +46,32 @@ const ServiceHero = ({ isVisible, scrollToSection }) => {
           <Col xs={24} lg={12}>
             <div
               className={`transform transition-all duration-1000 ${
-                isVisible ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"
+                isVisible
+                  ? "translate-x-0 opacity-100"
+                  : "-translate-x-10 opacity-0"
               }`}
             >
-              <Badge count="Dịch vụ chuyên nghiệp" className="mb-6">
+              <Badge
+                count="Dịch vụ tài chính đơn giản và tiện lợi"
+                className="mb-6"
+              >
                 <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
                   <Star className="w-4 h-4 inline mr-2" />
-                  Tư vấn tài chính hàng đầu
+                  Tư vấn tài chính phù hợp với nhu cầu của bạn
                 </div>
               </Badge>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-6 leading-tight">
                 <span className="block animate-slide-up">Dịch vụ tư vấn</span>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 animate-gradient-text">
-                  tài chính toàn diện
+                 Tài chính Cá nhân
                 </span>
               </h1>
 
               <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed animate-fade-in-delayed">
-                Từ lập kế hoạch tài chính cá nhân đến tư vấn đầu tư chuyên nghiệp, chúng tôi cung cấp giải pháp tài
-                chính hoàn chỉnh cho mọi nhu cầu của bạn.
+                Chúng tôi cung cấp công cụ tài chính đơn giản giúp bạn lập ngân
+                sách, tiết kiệm và theo dõi chi tiêu, đồng thời hỗ trợ cá nhân
+                hóa để đạt mục tiêu tài chính hiệu quả.
               </p>
 
               {/* Highlights */}
@@ -61,7 +83,9 @@ const ServiceHero = ({ isVisible, scrollToSection }) => {
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <div className={`${item.color}`}>{item.icon}</div>
-                    <span className="text-gray-700 font-medium">{item.text}</span>
+                    <span className="text-gray-700 font-medium">
+                      {item.text}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -90,7 +114,9 @@ const ServiceHero = ({ isVisible, scrollToSection }) => {
           <Col xs={24} lg={12}>
             <div
               className={`transform transition-all duration-1000 delay-300 ${
-                isVisible ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"
+                isVisible
+                  ? "translate-x-0 opacity-100"
+                  : "translate-x-10 opacity-0"
               }`}
             >
               <div className="relative">
@@ -107,7 +133,7 @@ const ServiceHero = ({ isVisible, scrollToSection }) => {
         </Row>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default ServiceHero
+export default ServiceHero;
