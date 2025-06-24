@@ -1,20 +1,34 @@
-import React, { useState } from "react";
-import { Modal, Button, Select, Input, message, Popconfirm, Table, Form } from "antd";
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Select, Input, message, Popconfirm, Table, Form, Spin } from "antd";
 import { Edit, Trash2 } from "lucide-react";
+import { getBlogs, createBlog, updateBlog, deleteBlog } from "../../services/blogService";
+import BlogModal from "../../components/blog/BlogModal";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-const mockBlogs = [
-    { id: 1, title: "Bài viết 1", content: "Tôi muốn tư vấn tài chính", author: "Staff A", status: "pending", blogImages: [{ imageUrl: "https://placehold.co/100x60" }] },
-    { id: 2, title: "Bài viết 2", content: "Nội dung khác", author: "Staff B", status: "approved", blogImages: [{ imageUrl: "https://placehold.co/100x60" }] },
-];
-
 export default function BlogManagement() {
-    const [blogs, setBlogs] = useState(mockBlogs);
+    const [blogs, setBlogs] = useState([]);
     const [filter, setFilter] = useState("all");
     const [showModal, setShowModal] = useState(false);
     const [editingBlog, setEditingBlog] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    // Fetch blogs from API
+    const fetchBlogs = async () => {
+        setLoading(true);
+        try {
+            const data = await getBlogs();
+            setBlogs(data);
+        } catch (err) {
+            message.error("Không thể tải danh sách blog", err);
+        }
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchBlogs();
+    }, []);
 
     const filteredBlogs = blogs.filter(
         (b) => filter === "all" || b.status === filter
@@ -25,18 +39,29 @@ export default function BlogManagement() {
         setShowModal(true);
     };
 
-    const handleDelete = (id) => {
-        setBlogs(blogs.filter((b) => b.id !== id));
-        message.success("Đã xóa bài viết");
+    const handleDelete = async (id) => {
+        setLoading(true);
+        try {
+            await deleteBlog(id);
+            message.success("Đã xóa bài viết");
+            fetchBlogs();
+        } catch {
+            message.error("Xóa thất bại");
+        }
+        setLoading(false);
     };
 
-    const handleApprove = (id) => {
-        setBlogs(
-            blogs.map((b) =>
-                b.id === id ? { ...b, status: "approved" } : b
-            )
-        );
-        message.success("Đã duyệt bài viết");
+    const handleApprove = async (id) => {
+        setLoading(true);
+        try {
+            const blog = blogs.find((b) => b.id === id);
+            await updateBlog(id, { ...blog, status: "approved" });
+            message.success("Đã duyệt bài viết");
+            fetchBlogs();
+        } catch {
+            message.error("Duyệt thất bại");
+        }
+        setLoading(false);
     };
 
     const handleModalClose = () => {
@@ -44,19 +69,21 @@ export default function BlogManagement() {
         setEditingBlog(null);
     };
 
-    const handleModalSave = (blog) => {
-        if (blog.id) {
-            setBlogs(
-                blogs.map((b) => (b.id === blog.id ? blog : b))
-            );
-            message.success("Đã cập nhật bài viết");
-        } else {
-            setBlogs([
-                ...blogs,
-                { ...blog, id: Date.now(), status: "pending" },
-            ]);
-            message.success("Đã tạo bài viết mới");
+    const handleModalSave = async (blog) => {
+        setLoading(true);
+        try {
+            if (blog.blogId) {
+                await updateBlog(blog.blogId, blog);
+                message.success("Đã cập nhật bài viết");
+            } else {
+                await createBlog(blog);
+                message.success("Đã tạo bài viết mới");
+            }
+            fetchBlogs();
+        } catch {
+            message.error("Lưu thất bại");
         }
+        setLoading(false);
         handleModalClose();
     };
 
@@ -82,6 +109,12 @@ export default function BlogManagement() {
                 ) : (
                     <span className="text-gray-400">Không có</span>
                 ),
+        },
+        {
+            title: "Ngày tạo",
+            dataIndex: "uploadDate",
+            key: "uploadDate",
+            render: (date) => new Date(date).toLocaleDateString("vi-VN"),
         },
         {
             title: "Trạng thái",
@@ -113,7 +146,7 @@ export default function BlogManagement() {
                     </Button>
                     <Popconfirm
                         title="Bạn chắc chắn muốn xóa?"
-                        onConfirm={() => handleDelete(blog.id)}
+                        onConfirm={() => handleDelete(blog.blogId)}
                         okText="Xóa"
                         cancelText="Hủy"
                     >
@@ -163,13 +196,15 @@ export default function BlogManagement() {
                     <Option value="approved">Đã duyệt</Option>
                 </Select>
             </div>
-            <Table
-                columns={columns}
-                dataSource={filteredBlogs}
-                rowKey="id"
-                pagination={{ pageSize: 5 }}
-                className="bg-white shadow rounded"
-            />
+            <Spin spinning={loading}>
+                <Table
+                    columns={columns}
+                    dataSource={filteredBlogs}
+                    rowKey={record => record.blogId || record._id}
+                    pagination={{ pageSize: 5 }}
+                    className="bg-white shadow rounded"
+                />
+            </Spin>
             <BlogModal
                 open={showModal}
                 blog={editingBlog}
@@ -180,84 +215,3 @@ export default function BlogManagement() {
     );
 }
 
-function BlogModal({ open, blog, onClose, onSave }) {
-    const [form] = Form.useForm();
-
-    React.useEffect(() => {
-        if (blog) {
-            form.setFieldsValue({
-                title: blog.title || "",
-                content: blog.content || "",
-                author: blog.author || "",
-                imageUrl: blog.blogImages?.[0]?.imageUrl || "",
-            });
-        } else {
-            form.resetFields();
-        }
-    }, [blog, form]);
-
-    const handleOk = () => {
-        form.validateFields().then(values => {
-            const blogData = {
-                ...blog,
-                title: values.title,
-                content: values.content,
-                author: values.author,
-                blogImages: values.imageUrl ? [{ imageUrl: values.imageUrl }] : [],
-            };
-            onSave(blogData);
-        }).catch(() => { });
-    };
-
-    return (
-        <Modal
-            open={open}
-            title={blog ? "Sửa bài viết" : "Tạo bài viết"}
-            onCancel={onClose}
-            onOk={handleOk}
-            okText="Lưu"
-            cancelText="Hủy"
-            destroyOnClose
-        >
-            <Form
-                form={form}
-                layout="vertical"
-                initialValues={{
-                    title: "",
-                    content: "",
-                    author: "",
-                    imageUrl: "",
-                }}
-            >
-                <Form.Item
-                    label="Tiêu đề"
-                    name="title"
-                    rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
-                >
-                    <Input placeholder="Nhập tiêu đề" />
-                </Form.Item>
-                <Form.Item
-                    label="Nội dung"
-                    name="content"
-                    rules={[{ required: true, message: "Vui lòng nhập nội dung" }]}
-                >
-                    <TextArea rows={4} placeholder="Nhập nội dung bài viết" />
-                </Form.Item>
-                <Form.Item
-                    label="Tác giả"
-                    name="author"
-                    rules={[{ required: true, message: "Vui lòng nhập tên tác giả" }]}
-                >
-                    <Input placeholder="Nhập tên tác giả" />
-                </Form.Item>
-                <Form.Item
-                    label="Ảnh blog (URL)"
-                    name="imageUrl"
-                    rules={[{ required: false }]}
-                >
-                    <Input placeholder="Dán link ảnh (nếu có)" />
-                </Form.Item>
-            </Form>
-        </Modal>
-    );
-}
