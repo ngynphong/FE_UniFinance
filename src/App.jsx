@@ -47,6 +47,10 @@ import DebtOverview from "./components/debt/DebtOverview";
 import AddDebt from "./components/debt/AddDebt";
 import RepaymentProgress from "./components/debt/RepaymentProgress";
 import DebtCalculator from "./components/debt/DebtCalculator";
+import StaffLayout from "./components/layout/staff/StaffLayout";
+import BlogManagement from "./pages/staff/BlogManagement";
+import ConsultationManagement from "./pages/staff/ConsultationManagement";
+import SupportDashboard from "./pages/staff/SupportDashboard";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -194,6 +198,19 @@ function App() {
               }
             />
 
+            {/* Staff routes */}
+
+            <Route path="/staff/dashboard" element={
+              <ProtectedRoute roles={["Consultant"]}><StaffLayout /> </ProtectedRoute>
+            }>
+
+              <Route path="blogs"
+                element={<BlogManagement />}
+              />
+              <Route path="consultations" element={<ConsultationManagement />} />
+              <Route path="support" element={<SupportDashboard />} />
+            </Route>
+
             {/* 404 - Not Found */}
             <Route
               path="*"
@@ -207,7 +224,7 @@ function App() {
           <ToastContainer />
         </div>
       </AuthProvider>
-    </Router>
+    </Router >
 
   );
 }

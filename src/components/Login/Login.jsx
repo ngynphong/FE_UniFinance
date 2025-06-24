@@ -38,9 +38,17 @@ const Login = () => {
         e.preventDefault();
         if (!validate()) return;
         const res = await login(email, password);
+        console.log('data', res.response.role);
         if (res.success) {
             setError({ email: "", password: "" });
-            navigate("/");
+            if (res.response.role === "Admin") {
+                navigate("/admin/dashboard");
+            } else if (res.response.role === "Consultant") {
+                navigate("/staff/dashboard");
+            } else {
+                navigate("/");
+            }
+
         } else {
             setError({ email: "", password: res.message || "Login failed" });
         }
