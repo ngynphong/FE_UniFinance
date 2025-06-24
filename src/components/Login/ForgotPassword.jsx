@@ -21,12 +21,12 @@ const ForgotPassword = () => {
 
         // Validate email
         if (!email) {
-            setError("Email is required");
+            setError("Email không được để trống");
             return;
         }
 
         if (!/^\S+@\S+\.\S+$/.test(email)) {
-            setError("Invalid email address");
+            setError("Sai định dạng email");
             return;
         }
 
@@ -37,14 +37,13 @@ const ForgotPassword = () => {
                 setSuccess(true);
                 setError("");
             } else {
-                setError(response.message || "Failed to send reset email");
+                setError(response.message || "Lỗi khi gửi email đặt lại mật khẩu.");
                 setResetEmailSent(false);
             }
         } catch (err) {
-            console.error('Forgot password error:', err);
             setError(
                 err.response?.data?.message ||
-                "Unable to send reset email. Please try again later."
+                "Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau."
             );
             setResetEmailSent(false);
             setSuccess(false);
@@ -63,15 +62,15 @@ const ForgotPassword = () => {
                         <FaLock className="text-blue-500 text-7xl mx-auto mb-4" />
                     </div>
                     <div className="text-lg text-blue-700 font-semibold text-center">
-                        Forgot your password?<br />
-                        No worries, we'll help you reset it!
+                        Quên mật khẩu của bạn?<br />
+                        Không có gì lo lắng, chúng tôi sẽ giúp bạn đặt lại!
                     </div>
                 </div>
                 {/* Right form */}
                 <div className="flex flex-col justify-center w-full md:w-1/2 p-8 md:p-14 ">
                     {resetEmailSent && (
                         <div className="mb-4 p-3 text-center bg-green-100 text-green-700 rounded-lg text-sm">
-                            Reset password email has been sent!
+                            Email đặt lại mật khẩu đã được gửi!
                         </div>
                     )}
 
@@ -82,7 +81,7 @@ const ForgotPassword = () => {
                     )}
 
                     <h2 className="text-3xl font-extrabold mb-2 text-gray-900 text-left drop-shadow">
-                        Forgot<br />Your Password?
+                        Quên<br />Mật khẩu của bạn?
                     </h2>
 
                     <form className="space-y-5" onSubmit={handleSubmit}>
@@ -118,7 +117,7 @@ const ForgotPassword = () => {
                         className="mt-8 flex items-center text-sm text-black hover:underline font-medium"
                         onClick={() => navigate("/login")}
                     >
-                        <FaArrowLeft className="mr-2" /> Back to sign in
+                        <FaArrowLeft className="mr-2" /> Quay lại đăng nhập
                     </button>
                 </div>
             </div>

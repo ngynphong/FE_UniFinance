@@ -57,7 +57,7 @@ export default function Sidebar() {
     const items = [
         {
             key: '1',
-            label: 'My Account',
+            label: 'Tài khoản',
             disabled: true,
         },
         {
@@ -65,7 +65,7 @@ export default function Sidebar() {
         },
         {
             key: '2',
-            label: 'Profile',
+            label: 'Thông tin',
             icon: <FaUser />,
             onClick: () => {
                 navigate(`/dashboard/profile/${user.userID}`);
@@ -75,7 +75,7 @@ export default function Sidebar() {
 
         {
             key: '3',
-            label: 'Logout',
+            label: 'Thoát',
             icon: <MdLogout />,
             onClick: () => {
                 logout();
@@ -92,7 +92,7 @@ export default function Sidebar() {
                 <div>
                     <Button type='text' icon={<IoIosArrowBack />} onClick={() => { navigate('/') }}></Button>
                 </div>
-                {!collapsed && <div className="text-xs uppercase font-bold text-gray-500 mt-2 mb-2 px-4">User Dashboard</div>}
+                {!collapsed && <div className="text-xs uppercase font-bold text-gray-500 mt-2 mb-2 px-4">Thống kê người dùng</div>}
                 <div className="flex items-center justify-end p-2">
                     <Button
                         type="text"

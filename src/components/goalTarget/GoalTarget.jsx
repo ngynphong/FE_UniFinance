@@ -23,7 +23,7 @@ const GoalTarget = () => {
             const data = await goalService.getAllGoals();
             setGoals(data);
         } catch (error) {
-            message.error('Failed to fetch goals', error);
+            message.error('Lỗi khi tải dữ liệu', error);
         } finally {
             setLoading(false);
         }
@@ -42,10 +42,10 @@ const GoalTarget = () => {
     const handleDelete = async (id) => {
         try {
             await goalService.deleteGoal(id);
-            message.success('Goal deleted successfully');
+            message.success('Xóa mục tiêu thành công');
             fetchGoals();
         } catch (error) {
-            message.error('Failed to delete goal', error);
+            message.error('Lỗi khi xóa mục tiêu', error);
         }
     };
 
@@ -53,7 +53,7 @@ const GoalTarget = () => {
         try {
             if (goalData.id) {
                 await goalService.updateGoal(goalData.id, goalData);
-                message.success('Goal updated successfully');
+                message.success('Cập nhật mục tiêu thành công');
             } else {
                 await goalService.createGoal({
                     goal: goalData.goal,
@@ -61,12 +61,12 @@ const GoalTarget = () => {
                     targetDate: goalData.targetDate,
                     userId: user?.userID
                 });
-                message.success('Goal created successfully');
+                message.success('Tạo mục tiêu thành công');
             }
             setModalOpen(false);
             fetchGoals();
         } catch (error) {
-            message.error('Failed to save goal', error);
+            message.error('Lỗi khi lưu mục tiêu', error);
         }
     };
 
@@ -81,9 +81,9 @@ const GoalTarget = () => {
     return (
         <div className="w-full">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
-                <h2 className="text-lg font-semibold">Goal Target</h2>
+                <h2 className="text-lg font-semibold">Mục Tiêu</h2>
                 <Button type="primary" onClick={handleAdd}>
-                    Add Goal Target
+                    Thêm mục tiêu
                 </Button>
             </div>
 
