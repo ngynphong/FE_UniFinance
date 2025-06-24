@@ -48,7 +48,7 @@ const useAuthState = () => {
             localStorage.setItem('token', token);
             // Lưu user info riêng
             localStorage.setItem('authUser', JSON.stringify(response));
-            return { success: true };
+            return { success: true, response };
         } catch (error) {
             return { success: false, message: error.message };
         }
