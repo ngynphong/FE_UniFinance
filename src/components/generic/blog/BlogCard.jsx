@@ -2,7 +2,7 @@ import { Card } from "antd"
 import { useState, useEffect } from "react"
 import { ArrowRight } from "lucide-react"
 
-function ResourceCard({ image, title, description, delay = 0 }) {
+function BlogCard({ imageUrl, title, description, delay = 0 }) {
   const [isVisible, setIsVisible] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
 
@@ -45,7 +45,7 @@ function ResourceCard({ image, title, description, delay = 0 }) {
           </button>
         </div>
         <img
-          src={image || "/placeholder.svg"}
+          src={imageUrl || "/placeholder.svg"}
           alt=""
           className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110"
         />
@@ -76,4 +76,4 @@ function ResourceCard({ image, title, description, delay = 0 }) {
   )
 }
 
-export default ResourceCard
+export default BlogCard
