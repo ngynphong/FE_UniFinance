@@ -17,7 +17,7 @@ const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
             const data = await budgetService.getBudgets();
             setBudgets(Array.isArray(data) ? data : []);
         } catch (error) {
-            message.error(error.message || 'Failed to fetch budgets');
+            message.error(error.message || 'Lỗi khi tải dữ liệu');
             setBudgets([]);
         } finally {
             setLoading(false);
@@ -60,7 +60,7 @@ const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
                             </span>
                         </div>
                         <div className="text-xl md:text-2xl font-bold text-green-500 mb-1">
-                            ${budget.limitAmount?.toLocaleString()}
+                            {budget.limitAmount?.toLocaleString()}
                         </div>
                         <div className="text-xs md:text-sm text-gray-400 mb-2">
                             {new Date(budget.startDate).toLocaleDateString()} -

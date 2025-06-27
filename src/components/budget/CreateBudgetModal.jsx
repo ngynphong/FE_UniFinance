@@ -79,7 +79,7 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
                     <InputNumber
                         className="w-full"
                         min={0}
-                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                         parser={value => value.replace(/\$\s?|(,*)/g, '')}
                     />
                 </Form.Item>

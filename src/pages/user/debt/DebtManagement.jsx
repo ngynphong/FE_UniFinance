@@ -9,22 +9,22 @@ const DebtManagement = () => {
 
     const menuItems = [
         {
-            title: "Debt Overview",
+            title: "Tổng quan về nợ",
             path: "/dashboard/debt-overview",
             icon: "/debt.png",
         },
         {
-            title: "Add New Debt",
+            title: "Thêm Nợ Mới",
             path: "/dashboard/add-debt",
             icon: "/borrow.png",
         },
         {
-            title: "Repayment Progress",
+            title: "Tiến độ trả nợ",
             path: "/dashboard/repayment-progress",
             icon: "/progress.png",
         },
         {
-            title: "Debt Calculator",
+            title: "Máy tính nợ",
             path: "/dashboard/debt-calculator",
             icon: "/caculator.png",
         },
@@ -32,7 +32,7 @@ const DebtManagement = () => {
 
     return (
         <DashboardLayout>
-            <h1 className="text-2xl font-bold mb-6">Debt Management</h1>
+            <h1 className="text-2xl font-bold mb-6">Quản lý nợ</h1>
             <Row gutter={[16, 16]}>
                 {menuItems.map((item, index) => (
                     <Col xs={24} sm={12} key={index}>

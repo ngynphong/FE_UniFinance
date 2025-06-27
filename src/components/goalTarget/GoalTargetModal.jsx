@@ -60,7 +60,7 @@ const GoalTargetModal = ({ open, onClose, onSave, goal }) => {
                 >
                     <InputNumber
                         className="w-full"
-                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                         parser={value => value.replace(/\$\s?|(,*)/g, '')}
                     />
                 </Form.Item>

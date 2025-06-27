@@ -1,8 +1,8 @@
-import { UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, Space } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { MdLogout } from "react-icons/md";
+import { MdLogout, MdOutlineDashboard } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { useAuth } from "../../../contexts/useAuth";
 import { IoIosArrowBack } from "react-icons/io";
@@ -11,6 +11,11 @@ import { LuNotepadText } from "react-icons/lu";
 import { BiSupport } from "react-icons/bi";
 
 const staffMenu = [
+    {
+        label: "Tổng quan",
+        path: "/staff/dashboard/overview",
+        icon: <span className="material-icons"><DashboardOutlined /></span>,
+    },
     {
         label: "Quản lý Blog",
         path: "/staff/dashboard/blogs",
@@ -50,13 +55,13 @@ export default function StaffSidebar() {
         { type: 'divider' },
         {
             key: '2',
-            label: 'Profile',
+            label: 'Hồ sơ',
             icon: <FaUser />,
-            onClick: () => navigate("/dashboard/profile/" + user.id),
+            onClick: () => navigate(`/staff/dashboard/profile-staff/${user.userID}`),
         },
         {
             key: '3',
-            label: 'Logout',
+            label: 'Đăng xuất',
             icon: <MdLogout />,
             onClick: () => logout(),
         },
