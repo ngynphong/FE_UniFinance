@@ -51,6 +51,8 @@ import StaffLayout from "./components/layout/staff/StaffLayout";
 import BlogManagement from "./pages/staff/BlogManagement";
 import ConsultationManagement from "./pages/staff/ConsultationManagement";
 import SupportDashboard from "./pages/staff/SupportDashboard";
+import ProfileStaff from "./pages/staff/ProfileStaff";
+import StaffConsultationManager from "./pages/staff/StaffConsultationManager";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -200,16 +202,46 @@ function App() {
 
             {/* Staff routes */}
 
-            <Route path="/staff/dashboard" element={
-              <ProtectedRoute roles={["Consultant"]}><StaffLayout /> </ProtectedRoute>
-            }>
-
-              <Route path="blogs"
-                element={<BlogManagement />}
-              />
-              <Route path="consultations" element={<ConsultationManagement />} />
-              <Route path="support" element={<SupportDashboard />} />
-            </Route>
+            <Route
+              path="/staff/dashboard/overview"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <StaffConsultationManager />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff/dashboard/blogs"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <BlogManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff/dashboard/consultations"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <ConsultationManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff/dashboard/support"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <SupportDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff/dashboard/profile-staff/:id"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <ProfileStaff />
+                </ProtectedRoute>
+              }
+            />
 
             {/* 404 - Not Found */}
             <Route

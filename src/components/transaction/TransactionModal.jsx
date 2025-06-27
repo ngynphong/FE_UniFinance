@@ -23,7 +23,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
             const data = await categoryService.getUserCategories();
             setCategories(data);
         } catch (error) {
-            message.error('Failed to fetch categories', error);
+            message.error('Lỗi khi tải dữ liệu', error);
         }
     };
 
@@ -54,10 +54,10 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
             form.setFieldValue('categoryId', newCategory.id);
             setNewCategoryName('');
             setAddingCategory(false);
-            message.success('Category added successfully');
+            message.success('Loại ngân sách được tạo thành công');
         } catch (error) {
             console.error('Error adding category:', error);
-            message.error('Failed to add category', error);
+            message.error('Lỗi khi thêm loại ngân sách', error);
         }
     };
 
@@ -106,7 +106,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                 form.resetFields();
                 onClose();
             }}
-            title={editData ? "Edit Transaction" : "New Transaction"}
+            title={editData ? "Sửa giao dịch" : "Tạo giao dịch"}
             footer={null}
             width={600}
         >
@@ -120,17 +120,17 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Form.Item
-                        label="Type"
+                        label="Loại"
                         name="type"
-                        rules={[{ required: true, message: 'Please select type' }]}
+                        rules={[{ required: true, message: 'Vui lọng chọn loại' }]}
                     >
                         <Select>
-                            <Option value="income">Income</Option>
-                            <Option value="expense">Expense</Option>
+                            <Option value="income">Thu nhập</Option>
+                            <Option value="expense">Chi phí</Option>
                         </Select>
                     </Form.Item>
 
-                    <Form.Item label="Category" required>
+                    <Form.Item label="Loại ngân sách" required>
                         <Space.Compact block>
                             <Form.Item
                                 name="categoryId"
@@ -139,7 +139,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                             >
                                 <Select
                                     style={{ width: addingCategory ? '69%' : '100%' }}
-                                    placeholder="Select category"
+                                    placeholder="Chọn loại ngân sách"
                                     popupRender={menu => (
                                         <>
                                             {menu}
@@ -150,7 +150,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                                                 onClick={() => setAddingCategory(true)}
                                                 block
                                             >
-                                                Add New Category
+                                                Thêm loại ngân sách
                                             </Button>
                                         </>
                                     )}
@@ -171,10 +171,10 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                                 <Input
                                     value={newCategoryName}
                                     onChange={e => setNewCategoryName(e.target.value)}
-                                    placeholder="New category name"
+                                    placeholder="Thêm loại ngân sách"
                                 />
                                 <Button type="primary" onClick={handleAddCategory}>
-                                    Add
+                                    Thêm
                                 </Button>
                                 <Button
                                     onClick={() => {
@@ -189,32 +189,32 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Amount"
+                        label="Số tiền"
                         name="amount"
-                        rules={[{ required: true, message: 'Please enter amount' }]}
+                        rules={[{ required: true, message: 'Vui lòng nhập số tiền' }]}
                     >
                         <InputNumber
                             className="w-full"
                             min={0}
-                            placeholder="Enter amount"
-                            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            placeholder="Nhập số tiền"
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                             parser={value => value.replace(/\$\s?|(,*)/g, '')}
                         />
                     </Form.Item>
 
                     <Form.Item
-                        label="Date"
+                        label="Ngày"
                         name="date"
-                        rules={[{ required: true, message: 'Please select date' }]}
+                        rules={[{ required: true, message: 'Vui lòng chọn ngày' }]}
                     >
                         <DatePicker className="w-full" />
                     </Form.Item>
 
                     <Form.Item
-                        label="Budget"
+                        label="Ngân sách"
                         name="budgetId"
                     >
-                        <Select placeholder="Select budget (optional)">
+                        <Select placeholder="Chọn ngân sách">
                             {budgets.map((budget) => (
                                 <Select.Option key={budget.id} value={budget.id}>
                                     {budget.name}
@@ -225,16 +225,16 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                 </div>
 
                 <Form.Item
-                    label="Description"
+                    label="Mô tả"
                     name="description"
                 >
-                    <Input.TextArea rows={2} placeholder="Notes (optional)" />
+                    <Input.TextArea rows={2} placeholder="Nhập mô tả" />
                 </Form.Item>
 
                 <div className="flex justify-end gap-2 mt-4">
                     <Button onClick={onClose}>Cancel</Button>
                     <Button type="primary" htmlType="submit">
-                        {editData ? "Update" : "Create"}
+                        {editData ? "Sửa" : "Tạo"}
                     </Button>
                 </div>
             </Form>

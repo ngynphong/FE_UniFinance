@@ -89,7 +89,7 @@ const ForgotPassword = () => {
                             <input
                                 id="email"
                                 type="email"
-                                placeholder="Email Address"
+                                placeholder="Địa chỉ email"
                                 className={`w-full px-3 py-2 border rounded-xl bg-white/70 
                                 focus:outline-none focus:ring-2 focus:ring-blue-400 
                                 transition shadow-sm ${error ? 'border-red-500' : 'border-gray-200'}`}
@@ -109,7 +109,7 @@ const ForgotPassword = () => {
                             hover:cursor-pointer disabled:opacity-60"
                             disabled={success}
                         >
-                            {success ? 'Email Sent' : 'Reset Password'}
+                            {success ? 'Gửi email' : 'Đặt lại mật khẩu'}
                         </button>
                     </form>
                     <button

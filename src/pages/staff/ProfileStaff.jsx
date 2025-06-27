@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Upload, message } from 'antd';
 import { UserOutlined, UploadOutlined } from '@ant-design/icons';
-import DashboardLayout from '../../../components/layout/user/DashboardLayout';
-import { useAuth } from '../../../contexts/useAuth';
-import { authService } from '../../../services/authService';
+import DashboardLayout from '../../components/layout/user/DashboardLayout';
+import { useAuth } from '../../contexts/useAuth';
+import { authService } from '../../services/authService';
 import { initializeApp } from 'firebase/app';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import StaffLayout from '../../components/layout/staff/StaffLayout';
 
 const firebaseConfig = {
     apiKey: 'AIzaSyDTH0Is91VEQndqZHwo5_TgpI3XIBXTZ-c',
@@ -25,7 +26,7 @@ async function uploadAvatarToFirebase(file, userId) {
     return await getDownloadURL(storageRef);
 }
 
-const Profile = () => {
+const ProfileStaff = () => {
     const { user, updateUserProfile } = useAuth();
     const [form] = Form.useForm();
     const [userProfile, setUserProfile] = useState(null);
@@ -82,9 +83,9 @@ const Profile = () => {
         }
     };
     return (
-        <DashboardLayout>
+        <StaffLayout>
             <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Hồ sơ người dùng</h1>
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Hồ sơ</h1>
 
                 <Form
                     form={form}
@@ -105,7 +106,7 @@ const Profile = () => {
                                     setAvatar(url);
                                     return false;
                                 } catch (error) {
-                                    message.error('Lỗi khi thay avatar');
+                                    message.error('Lỗi khi tải lên avatar');
                                     console.error(error);
                                     return false;
                                 }
@@ -168,8 +169,8 @@ const Profile = () => {
                     </Form.Item>
                 </Form>
             </div>
-        </DashboardLayout>
+        </StaffLayout>
     );
 };
 
-export default Profile; 
+export default ProfileStaff; 

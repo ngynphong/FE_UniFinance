@@ -19,7 +19,7 @@ const RepaymentProgress = () => {
             const response = await debtService.getAllDebts();
             setDebts(response);
         } catch (error) {
-            message.error('Không thể lấy dữ liệu khoản nợ');
+            message.error('Chưa có nợ');
             console.error('Lỗi:', error);
         } finally {
             setLoading(false);
@@ -34,7 +34,7 @@ const RepaymentProgress = () => {
         children: (
             <div>
                 <p className="font-semibold">{debt.debtName}</p>
-                <p>Số tiền: ${debt.amount}</p>
+                <p>Số tiền: {debt.amount}</p>
                 <p>Hạn trả: {new Date(debt.dueDate).toLocaleDateString()}</p>
             </div>
         )

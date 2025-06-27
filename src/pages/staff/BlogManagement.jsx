@@ -3,6 +3,7 @@ import { Modal, Button, Select, Input, message, Popconfirm, Table, Form, Spin } 
 import { Edit, Trash2 } from "lucide-react";
 import { getBlogs, createBlog, updateBlog, deleteBlog } from "../../services/blogService";
 import BlogModal from "../../components/blog/BlogModal";
+import StaffLayout from "../../components/layout/staff/StaffLayout";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -174,44 +175,46 @@ export default function BlogManagement() {
     ];
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Quản lý bài viết Blog</h1>
-                <Button
-                    type="primary"
-                    onClick={() => setShowModal(true)}
-                >
-                    + Tạo bài viết
-                </Button>
-            </div>
-            <div className="mb-4 flex items-center gap-2">
-                <span>Lọc trạng thái:</span>
-                <Select
-                    value={filter}
-                    onChange={setFilter}
-                    className="w-40"
-                >
-                    <Option value="all">Tất cả</Option>
-                    <Option value="pending">Chờ duyệt</Option>
-                    <Option value="approved">Đã duyệt</Option>
-                </Select>
-            </div>
-            <Spin spinning={loading}>
-                <Table
-                    columns={columns}
-                    dataSource={filteredBlogs}
-                    rowKey={record => record.blogId || record._id}
-                    pagination={{ pageSize: 5 }}
-                    className="bg-white shadow rounded"
+        <StaffLayout>
+            <div>
+                <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-2xl font-bold">Quản lý bài viết Blog</h1>
+                    <Button
+                        type="primary"
+                        onClick={() => setShowModal(true)}
+                    >
+                        + Tạo bài viết
+                    </Button>
+                </div>
+                <div className="mb-4 flex items-center gap-2">
+                    <span>Lọc trạng thái:</span>
+                    <Select
+                        value={filter}
+                        onChange={setFilter}
+                        className="w-40"
+                    >
+                        <Option value="all">Tất cả</Option>
+                        <Option value="pending">Chờ duyệt</Option>
+                        <Option value="approved">Đã duyệt</Option>
+                    </Select>
+                </div>
+                <Spin spinning={loading}>
+                    <Table
+                        columns={columns}
+                        dataSource={filteredBlogs}
+                        rowKey={record => record.blogId || record._id}
+                        pagination={{ pageSize: 5 }}
+                        className="bg-white shadow rounded"
+                    />
+                </Spin>
+                <BlogModal
+                    open={showModal}
+                    blog={editingBlog}
+                    onClose={handleModalClose}
+                    onSave={handleModalSave}
                 />
-            </Spin>
-            <BlogModal
-                open={showModal}
-                blog={editingBlog}
-                onClose={handleModalClose}
-                onSave={handleModalSave}
-            />
-        </div>
+            </div>
+        </StaffLayout>
     );
 }
 

@@ -3,7 +3,7 @@ import TransactionItem from "./TransactionItem";
 
 const TransactionList = ({ transactions, onEdit, onDelete, categories, budgets }) => {
     if (transactions.length === 0) {
-        return <div className="text-center text-gray-400 py-8">No transactions found.</div>;
+        return <div className="text-center text-gray-400 py-8">Chưa có giao dịch nào.</div>;
     }
     return (
         <div className="divide-y">

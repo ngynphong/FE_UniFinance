@@ -45,7 +45,7 @@ const Dashboard = () => {
                 setGoals(goalsData);
                 setBudgets(budgetsData);
             } catch (error) {
-                message.error('Failed to fetch dashboard data');
+                message.error('Lỗi khi tải dữ liệu');
                 console.error('Dashboard data fetch error:', error);
             } finally {
                 setLoading(false);
@@ -76,13 +76,13 @@ const Dashboard = () => {
     return (
         <DashboardLayout>
             <div className="space-y-6 px-2 md:px-0">
-                <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Tổng quan chính</h1>
 
                 <Row gutter={[16, 16]}>
                     <Col xs={24} sm={12} md={12} lg={6} xl={6}>
                         <Card className="h-full">
                             <Statistic
-                                title="Total Balance"
+                                title="Tổng số dư"
                                 value={totalBalance}
                                 precision={2}
                                 valueStyle={{ color: totalBalance >= 0 ? '#3f8600' : '#cf1322' }}
@@ -93,7 +93,7 @@ const Dashboard = () => {
                     <Col xs={24} sm={12} md={12} lg={6} xl={6}>
                         <Card className="h-full">
                             <Statistic
-                                title="Monthly Income"
+                                title="Thu nhập hàng tháng"
                                 value={totalIncome}
                                 precision={2}
                                 valueStyle={{ color: '#3f8600' }}
@@ -105,7 +105,7 @@ const Dashboard = () => {
                     <Col xs={24} sm={12} md={12} lg={6} xl={6}>
                         <Card className="h-full">
                             <Statistic
-                                title="Monthly Expenses"
+                                title="Chi phí hàng tháng"
                                 value={totalExpense}
                                 precision={2}
                                 valueStyle={{ color: '#cf1322' }}
@@ -117,7 +117,7 @@ const Dashboard = () => {
                     <Col xs={24} sm={12} md={12} lg={6} xl={6}>
                         <Card className="h-full">
                             <Statistic
-                                title="Savings Rate"
+                                title="Tỷ lệ tiết kiệm"
                                 value={savingsRate}
                                 suffix="%"
                                 valueStyle={{ color: savingsRate >= 0 ? '#3f8600' : '#cf1322' }}
@@ -128,7 +128,7 @@ const Dashboard = () => {
 
                 <Row gutter={[16, 16]}>
                     <Col xs={24} md={24} lg={12} xl={12}>
-                        <Card title="Recent Transactions" className="h-full">
+                        <Card title="Giao dịch gần đây" className="h-full">
                             <List
                                 itemLayout="vertical"
                                 dataSource={recentTransactions}
@@ -150,23 +150,23 @@ const Dashboard = () => {
                                         </div>
                                     </List.Item>
                                 )}
-                                locale={{ emptyText: 'No recent transactions' }}
+                                locale={{ emptyText: 'Không có giao dịch gần đây' }}
                             />
                         </Card>
                     </Col>
                     <Col xs={24} md={24} lg={12} xl={12}>
-                        <Card title="Budget Overview" className="h-full">
+                        <Card title="Tổng quan về ngân sách" className="h-full">
                             <div className="space-y-2">
                                 <div className="flex justify-between flex-wrap">
-                                    <span>Monthly Budget:</span>
+                                    <span>Ngân sách hàng tháng:</span>
                                     <span className="font-semibold">${currentBudget.limitAmount}</span>
                                 </div>
                                 <div className="flex justify-between flex-wrap">
-                                    <span>Spent:</span>
+                                    <span>Đã tiêu:</span>
                                     <span className="font-semibold text-red-600">${totalExpense}</span>
                                 </div>
                                 <div className="flex justify-between flex-wrap">
-                                    <span>Remaining:</span>
+                                    <span>Còn lại:</span>
                                     <span className="font-semibold text-green-600">
                                         ${currentBudget.limitAmount - totalExpense}
                                     </span>
@@ -182,7 +182,7 @@ const Dashboard = () => {
 
                 <Row gutter={[16, 16]}>
                     <Col xs={24}>
-                        <Card title="Financial Goals" className="h-full">
+                        <Card title="Mục tiêu tài chính" className="h-full">
                             <List
                                 itemLayout="vertical"
                                 dataSource={goals}
@@ -191,7 +191,7 @@ const Dashboard = () => {
                                         <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-2">
                                             <div>
                                                 <div className="font-semibold">{goal.goal}</div>
-                                                <div className="text-sm text-gray-500">Target: ${goal.amount}</div>
+                                                <div className="text-sm text-gray-500">Mục tiêu: ${goal.amount}</div>
                                             </div>
                                             <div className="w-full md:w-1/2 mt-2 md:mt-0">
                                                 <Progress
@@ -203,7 +203,7 @@ const Dashboard = () => {
                                         </div>
                                     </List.Item>
                                 )}
-                                locale={{ emptyText: 'No goals set' }}
+                                locale={{ emptyText: 'Không đặt mục tiêu' }}
                             />
                         </Card>
                     </Col>

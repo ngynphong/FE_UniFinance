@@ -17,7 +17,7 @@ const DebtOverview = () => {
             const response = await debtService.getAllDebts();
             setDebts(response);
         } catch (error) {
-            message.error('Không thể tải dữ liệu nợ');
+            message.error('Chưa có nợ');
             console.error('Error:', error);
         } finally {
             setLoading(false);

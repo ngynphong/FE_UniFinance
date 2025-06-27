@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Table, Button, Input, Modal, message, Tag } from "antd";
+import StaffLayout from "../../components/layout/staff/StaffLayout";
 
 const mockCustomers = [
   {
@@ -97,30 +98,32 @@ export default function SupportDashboard() {
   ];
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Hỗ trợ khách hàng</h1>
-      <Table
-        columns={columns}
-        dataSource={customers}
-        rowKey="id"
-        pagination={false}
-        className="bg-white shadow rounded"
-      />
-      <Modal
-        open={noteModal}
-        title={`Ghi chú hỗ trợ: ${selectedCustomer?.name}`}
-        onCancel={() => setNoteModal(false)}
-        onOk={handleSaveNote}
-        okText="Lưu"
-        cancelText="Hủy"
-      >
-        <Input.TextArea
-          rows={4}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Nhập ghi chú hỗ trợ kỹ thuật"
+    <StaffLayout>
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Hỗ trợ khách hàng</h1>
+        <Table
+          columns={columns}
+          dataSource={customers}
+          rowKey="id"
+          pagination={false}
+          className="bg-white shadow rounded"
         />
-      </Modal>
-    </div>
+        <Modal
+          open={noteModal}
+          title={`Ghi chú hỗ trợ: ${selectedCustomer?.name}`}
+          onCancel={() => setNoteModal(false)}
+          onOk={handleSaveNote}
+          okText="Lưu"
+          cancelText="Hủy"
+        >
+          <Input.TextArea
+            rows={4}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Nhập ghi chú hỗ trợ kỹ thuật"
+          />
+        </Modal>
+      </div>
+    </StaffLayout>
   );
 }

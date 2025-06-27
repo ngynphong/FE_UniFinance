@@ -101,7 +101,7 @@ const TransactionsPage = () => {
     return (
         <DashboardLayout>
             <div className="space-y-6 px-2 md:px-0">
-                <h1 className="text-2xl font-bold text-gray-800">Transactions</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Giao dịch</h1>
                 <div className="mx-auto p-4 md:p-6 bg-white rounded-lg shadow-md mt-6 mb-10">
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
@@ -109,7 +109,7 @@ const TransactionsPage = () => {
                             type="primary"
                             onClick={() => { setModalOpen(true); setEditData(null); }}
                         >
-                            + Add Transaction
+                            + Thêm giao dịch
                         </Button>
                     </div>
                     <TransactionFilter filter={filter} setFilter={setFilter} />
