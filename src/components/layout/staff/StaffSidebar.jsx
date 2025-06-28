@@ -31,6 +31,11 @@ const staffMenu = [
         path: "/staff/dashboard/support",
         icon: <span className="material-icons"><BiSupport /></span>,
     },
+    {
+        label: "Tư vấn khách hàng",
+        path: "/staff/dashboard/message",
+        icon: <span className="material-icons"><BiSupport /></span>,
+    },
 ];
 
 export default function StaffSidebar() {

@@ -53,6 +53,8 @@ import ConsultationManagement from "./pages/staff/ConsultationManagement";
 import SupportDashboard from "./pages/staff/SupportDashboard";
 import ProfileStaff from "./pages/staff/ProfileStaff";
 import StaffConsultationManager from "./pages/staff/StaffConsultationManager";
+import ChatPage from "./pages/chat/Chat";
+import MessageManagement from "./pages/staff/MessageManagement";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -90,6 +92,16 @@ function App() {
               <Route path="/term-conditions" element={<TermConditionPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/services" element={<ServicesPage />} />
+            </Route>
+
+            {/* Staff & Customer routes */}
+            <Route  
+              path="/chat" 
+              element={
+              <ProtectedRoute roles={["Consultant", "Customer"]}>
+                <ChatPage /> 
+              </ProtectedRoute>
+            }>
             </Route>
 
             {/* Admin routes */}
@@ -239,6 +251,15 @@ function App() {
               element={
                 <ProtectedRoute roles={["Consultant"]}>
                   <ProfileStaff />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/staff/dashboard/message"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <MessageManagement />
                 </ProtectedRoute>
               }
             />

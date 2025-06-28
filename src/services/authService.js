@@ -10,6 +10,7 @@ export const authService = {
 
             // Ensure token is stored with Bearer prefix
             const token = response.data.accessToken;
+            localStorage.setItem('accessToken', token);
             const bearerToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
             localStorage.setItem('token', bearerToken);
 

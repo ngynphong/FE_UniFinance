@@ -95,6 +95,7 @@ const useAuthState = () => {
         setUser(null);
         localStorage.removeItem('token');
         localStorage.removeItem('authUser');
+        localStorage.removeItem('accessToken');
     };
     const updateUserProfile = (values) => {
         setUser((prevUser) => {
