@@ -20,7 +20,7 @@ const GoalCard = ({ goal, onEdit, onDelete }) => {
                 />,
                 <Popconfirm
                     key="delete"
-                    title="Delete this goal?"
+                    title="Xóa mục tiêu?"
                     onConfirm={() => onDelete(goal.id)}
                 >
                     <Button
@@ -38,7 +38,7 @@ const GoalCard = ({ goal, onEdit, onDelete }) => {
                             {goal.goal}
                         </h3>
                         <p className="text-gray-500 text-sm">
-                            Target Date: {goal.targetDate}
+                            Ngày mục tiêu: {goal.targetDate}
                         </p>
                     </div>
                     <div className="text-right">
@@ -46,7 +46,7 @@ const GoalCard = ({ goal, onEdit, onDelete }) => {
                             ${goal.amount.toLocaleString()}
                         </div>
                         <div className="text-sm text-gray-500">
-                            Current: ${goal.currentSpending.toLocaleString()}
+                            Hiện tại: ${goal.currentSpending.toLocaleString()}
                         </div>
                     </div>
                 </div>
@@ -61,7 +61,7 @@ const GoalCard = ({ goal, onEdit, onDelete }) => {
                         }}
                     />
                     <p className="text-sm text-gray-500 text-right">
-                        {percent}% Completed
+                        {percent}% Hoàn thành
                     </p>
                 </div>
             </div>

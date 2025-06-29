@@ -3,6 +3,7 @@
 import { Row, Col, Timeline } from "antd";
 import { Award } from "lucide-react";
 import { timelineData } from "../../data/timelineData";
+import Kiet from "../../assets/About-us.jpg";
 
 const AboutSection = () => {
   return (
@@ -13,11 +14,15 @@ const AboutSection = () => {
           <Col xs={24} lg={12}>
             <div className="relative">
               <img
-                src="/placeholder.svg?height=400&width=600"
+                src={Kiet}
                 alt="About us"
                 className="rounded-2xl shadow-2xl w-full"
+                style={{ width: "60%", height: "auto" }}
               />
-              <div className="absolute -bottom-6 -right-6 bg-blue-600 text-white p-6 rounded-xl">
+              <div
+                className="absolute -bottom-6 -right-6 bg-blue-600 text-white p-6 rounded-xl"
+                style={{ transform: "translateX(-230px)" }}
+              >
                 <Award className="w-8 h-8" />
               </div>
             </div>

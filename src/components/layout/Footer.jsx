@@ -47,22 +47,22 @@ const Footer = () => {
             <ul className="space-y-3 text-gray-300">
               <li>
                 <a href="#services" className="hover:text-white transition-colors">
-                  Tư vấn đầu tư
+                  Tư vấn tài chính trực tuyến
                 </a>
               </li>
               <li>
                 <a href="#services" className="hover:text-white transition-colors">
-                  Bảo hiểm tài chính
+                  Công cụ quản lý ngân sách
                 </a>
               </li>
               <li>
                 <a href="#services" className="hover:text-white transition-colors">
-                  Lập kế hoạch tài chính
+                  Công cụ quản lý nợ
                 </a>
               </li>
               <li>
                 <a href="#services" className="hover:text-white transition-colors">
-                  Tư vấn thuế
+                  Tạo mục tiêu tài chính
                 </a>
               </li>
               <li>
@@ -77,8 +77,11 @@ const Footer = () => {
           <Col xs={24} md={8}>
             <h3 className="text-xl font-bold mb-6">Liên hệ</h3>
             <div className="space-y-3 text-gray-300">
-              <p>📞 +84 123 456 789</p>
+              {/* <p>📞 +84 123 456 789</p>
               <p>✉️ info@financeconsult.vn</p>
+              <p>📍 123 Đường ABC, Quận 1, TP.HCM</p> */}
+              <p>📞 +84 854 494 415</p>
+              <p>✉️ kietlgse172490@fpt.edu.vn</p>
               <p>📍 123 Đường ABC, Quận 1, TP.HCM</p>
             </div>
           </Col>

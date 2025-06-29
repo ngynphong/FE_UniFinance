@@ -19,13 +19,13 @@ const RepaymentProgress = () => {
             const response = await debtService.getAllDebts();
             setDebts(response);
         } catch (error) {
-            message.error('Failed to fetch debts data');
-            console.error('Error:', error);
+            message.error('Chưa có nợ');
+            console.error('Lỗi:', error);
         } finally {
             setLoading(false);
         }
     };
-    // Create timeline items from debts
+
     const timelineItems = debts.map((debt) => ({
         dot: debt.status === 'Paid'
             ? <CheckCircleOutlined className="text-green-500" />
@@ -34,30 +34,31 @@ const RepaymentProgress = () => {
         children: (
             <div>
                 <p className="font-semibold">{debt.debtName}</p>
-                <p>Amount: ${debt.amount}</p>
-                <p>Due Date: {new Date(debt.dueDate).toLocaleDateString()}</p>
+                <p>Số tiền: {debt.amount}</p>
+                <p>Hạn trả: {new Date(debt.dueDate).toLocaleDateString()}</p>
             </div>
         )
     }));
+
     const columns = [
         {
-            title: 'Payment Date',
+            title: 'Ngày thanh toán',
             dataIndex: 'paymentDate',
             key: 'paymentDate',
         },
         {
-            title: 'Amount',
+            title: 'Số tiền',
             dataIndex: 'amount',
             key: 'amount',
             render: (amount) => `$${amount.toFixed(2)}`,
         },
         {
-            title: 'Status',
+            title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
             render: (status) => (
                 <span className={status === 'Paid' ? 'text-green-500' : 'text-orange-500'}>
-                    {status}
+                    {status === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
                 </span>
             ),
         },
@@ -73,18 +74,18 @@ const RepaymentProgress = () => {
 
     return (
         <DashboardLayout>
-            <h2 className="text-2xl font-bold mb-6">Repayment Progress</h2>
+            <h2 className="text-2xl font-bold mb-6">Tiến trình trả nợ</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
-                    <h3 className="text-lg font-semibold mb-4">Payment Timeline</h3>
+                    <h3 className="text-lg font-semibold mb-4">Dòng thời gian thanh toán</h3>
                     <Timeline
                         items={timelineItems}
                     />
                 </Card>
 
                 <Card>
-                    <h3 className="text-lg font-semibold mb-4">Payment History</h3>
+                    <h3 className="text-lg font-semibold mb-4">Lịch sử thanh toán</h3>
                     <Table
                         dataSource={debts.map((debt, index) => ({
                             key: debt.id || index,

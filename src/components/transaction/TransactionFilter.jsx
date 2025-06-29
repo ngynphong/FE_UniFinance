@@ -16,9 +16,9 @@ const TransactionFilter = ({ filter, setFilter }) => {
                     onChange={val => setFilter(f => ({ ...f, type: val }))}
                     className="w-32"
                 >
-                    <Option value="all">All</Option>
-                    <Option value="income">Income</Option>
-                    <Option value="expense">Expense</Option>
+                    <Option value="all">Tất cả</Option>
+                    <Option value="income">Thu nhập</Option>
+                    <Option value="expense">Chi phí</Option>
                 </Select>
             </div>
             <div>

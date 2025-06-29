@@ -31,14 +31,14 @@ const BudgetManagement = () => {
         <DashboardLayout>
             <div className="space-y-4 md:space-y-6 p-3 md:p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-                    <h1 className="text-xl md:text-2xl font-bold text-gray-800">Budget Management</h1>
+                    <h1 className="text-xl md:text-2xl font-bold text-gray-800">Quản lý ngân sách</h1>
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
                         onClick={() => setShowCreateModal(true)}
                         className="w-full sm:w-auto"
                     >
-                        Create New Budget
+                        Tạo ngân sách mới
                     </Button>
                 </div>
 

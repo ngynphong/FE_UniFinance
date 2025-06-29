@@ -32,7 +32,7 @@ const GoalTargetModal = ({ open, onClose, onSave, goal }) => {
     return (
         <Modal
             open={open}
-            title={goal ? 'Edit Goal' : 'New Goal'}
+            title={goal ? 'Sửa mục tiêu' : 'Tạo mới mục tiêu'}
             onCancel={() => {
                 form.resetFields();
                 onClose();
@@ -47,28 +47,28 @@ const GoalTargetModal = ({ open, onClose, onSave, goal }) => {
             >
                 <Form.Item
                     name="goal"
-                    label="Goal Name"
-                    rules={[{ required: true, message: 'Please enter goal name' }]}
+                    label="Tên mục tiêu"
+                    rules={[{ required: true, message: 'Làm ơn nhập tên mục tiêu' }]}
                 >
                     <Input />
                 </Form.Item>
 
                 <Form.Item
                     name="amount"
-                    label="Target Amount"
-                    rules={[{ required: true, message: 'Please enter target amount' }]}
+                    label="Tiền mục tiêu"
+                    rules={[{ required: true, message: 'Làm nhơn nhập tiền mục tiêu' }]}
                 >
                     <InputNumber
                         className="w-full"
-                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                         parser={value => value.replace(/\$\s?|(,*)/g, '')}
                     />
                 </Form.Item>
 
                 <Form.Item
                     name="targetDate"
-                    label="Target Date"
-                    rules={[{ required: true, message: 'Please select target date' }]}
+                    label="Ngày mục tiêu"
+                    rules={[{ required: true, message: 'Làm nhơn nhập ngày mục tiêu' }]}
                 >
                     <DatePicker className="w-full" />
                 </Form.Item>

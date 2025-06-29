@@ -44,18 +44,18 @@ const TransactionItem = ({ transaction, onEdit, onDelete }) => {
                     <div className="font-medium text-gray-800">{categoryName}</div>
                     <div className="text-xs text-gray-500">{description}</div>
                     {budgetName && (
-                        <div className="text-xs text-blue-500">Budget: {budgetName}</div>
+                        <div className="text-xs text-blue-500">Ngân sách: {budgetName}</div>
                     )}
                 </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 <div className={`font-semibold ${type === "income" ? "text-green-600" : "text-red-500"}`}>
-                    {type === "income" ? "+" : "-"}${amount}
+                    {type === "income" ? "+" : "-"}{amount}
                 </div>
                 <div className="text-xs text-gray-400 w-full sm:w-20">{formattedDate}</div>
                 <div className="flex gap-2">
                     <Button className="text-blue-500 hover:underline" onClick={onEdit}><FaEdit /></Button>
-                    <Popconfirm title="Delete this transaction?" onConfirm={onDelete}>
+                    <Popconfirm title="Xóa giao dịch này?" onConfirm={onDelete}>
                         <Button danger><FaTrash /></Button>
                     </Popconfirm>
                 </div>

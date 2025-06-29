@@ -29,17 +29,17 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
             };
 
             await budgetService.createBudget(budgetData);
-            message.success('Budget created successfully!');
+            message.success('Tạo ngân sách thành công!');
             form.resetFields();
             onSuccess?.();
             onClose();
         } catch (error) {
             console.error('Create budget error:', error);
             if (error.message.includes('Unauthorized')) {
-                message.error('Session expired. Please login again');
+                message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
                 navigate('/login');
             } else {
-                message.error(error.message || 'Failed to create budget');
+                message.error(error.message || 'Lỗi khi tạo ngân sách');
             }
         } finally {
             setLoading(false);
@@ -50,7 +50,7 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
         <Modal
             open={open}
             onCancel={onClose}
-            title="Create New Budget"
+            title="Tạo ngân sách"
             footer={null}
             width="90%"
             maxWidth={600}
@@ -65,29 +65,29 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
             >
                 <Form.Item
                     name="name"
-                    label="Budget Name"
-                    rules={[{ required: true, message: 'Please enter budget name' }]}
+                    label="Tên ngân sách"
+                    rules={[{ required: true, message: 'Làm ơn nhập tên ngân sách' }]}
                 >
-                    <Input placeholder="Enter budget name" />
+                    <Input placeholder="Nhập tên ngân sách" />
                 </Form.Item>
 
                 <Form.Item
                     name="limitAmount"
-                    label="Limit Amount"
-                    rules={[{ required: true, message: 'Please enter limit amount' }]}
+                    label="Giới hạn số tiền tối đa"
+                    rules={[{ required: true, message: 'Vui lòng nhập số tiền tối đa' }]}
                 >
                     <InputNumber
                         className="w-full"
                         min={0}
-                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                         parser={value => value.replace(/\$\s?|(,*)/g, '')}
                     />
                 </Form.Item>
 
                 <Form.Item
                     name="dateRange"
-                    label="Budget Period"
-                    rules={[{ required: true, message: 'Please select date range' }]}
+                    label="Thời gian ngân sách"
+                    rules={[{ required: true, message: 'Vui lòng chọn khoảng thời gian' }]}
                 >
                     <DatePicker.RangePicker
                         className="w-full"
@@ -101,7 +101,7 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
                         onClick={onClose}
                         className="w-full sm:w-auto order-2 sm:order-1"
                     >
-                        Cancel
+                        Hủy
                     </Button>
                     <Button
                         type="primary"
@@ -109,7 +109,7 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
                         loading={loading}
                         className="w-full sm:w-auto order-1 sm:order-2"
                     >
-                        Create Budget
+                        Tạo ngân sách
                     </Button>
                 </div>
             </Form>

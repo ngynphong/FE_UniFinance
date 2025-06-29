@@ -48,6 +48,14 @@ import AddDebt from "./components/debt/AddDebt";
 import RepaymentProgress from "./components/debt/RepaymentProgress";
 import DebtCalculator from "./components/debt/DebtCalculator";
 import BlogManagerPage from "./pages/user/BlogManagerPage";
+import StaffLayout from "./components/layout/staff/StaffLayout";
+import BlogManagement from "./pages/staff/BlogManagement";
+import ConsultationManagement from "./pages/staff/ConsultationManagement";
+import SupportDashboard from "./pages/staff/SupportDashboard";
+import ProfileStaff from "./pages/staff/ProfileStaff";
+import StaffConsultationManager from "./pages/staff/StaffConsultationManager";
+import ChatPage from "./pages/chat/chat";
+import MessageManagement from "./pages/staff/MessageManagement";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -202,6 +210,66 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/dashboard/chat"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Staff routes */}
+
+            <Route
+              path="/staff/dashboard/overview"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <StaffConsultationManager />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff/dashboard/blogs"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <BlogManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff/dashboard/consultations"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <ConsultationManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff/dashboard/support"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <SupportDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff/dashboard/profile-staff/:id"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <ProfileStaff />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/staff/dashboard/message"
+              element={
+                <ProtectedRoute roles={["Consultant"]}>
+                  <MessageManagement />
+                </ProtectedRoute>
+              }
+            />
 
             {/* 404 - Not Found */}
             <Route
@@ -216,7 +284,7 @@ function App() {
           <ToastContainer />
         </div>
       </AuthProvider>
-    </Router>
+    </Router >
 
   );
 }

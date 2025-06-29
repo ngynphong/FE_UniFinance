@@ -50,11 +50,13 @@ const ServiceFAQ = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <div className="text-center">
                 <div className="text-2xl font-bold">📞</div>
-                <div className="text-sm">+84 123 456 789</div>
+                {/* <div className="text-sm">+84 123 456 789</div> */}
+                <div className="text-sm">+84 854 494 415</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">✉️</div>
-                <div className="text-sm">info@financeconsult.vn</div>
+                {/* <div className="text-sm">info@financeconsult.vn</div> */}
+                <div className="text-sm">kietlgse172490@fpt.edu.vn</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">💬</div>
