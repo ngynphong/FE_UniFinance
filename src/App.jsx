@@ -47,6 +47,7 @@ import DebtOverview from "./components/debt/DebtOverview";
 import AddDebt from "./components/debt/AddDebt";
 import RepaymentProgress from "./components/debt/RepaymentProgress";
 import DebtCalculator from "./components/debt/DebtCalculator";
+import BlogManagerPage from "./pages/user/BlogManagerPage";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -190,6 +191,14 @@ function App() {
               element={
                 <ProtectedRoute roles={["Customer"]}>
                   <DebtCalculator />
+                </ProtectedRoute>
+              }
+            />
+                <Route
+              path="/dashboard/blog"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <BlogManagerPage />
                 </ProtectedRoute>
               }
             />
