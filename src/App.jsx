@@ -53,7 +53,7 @@ import ConsultationManagement from "./pages/staff/ConsultationManagement";
 import SupportDashboard from "./pages/staff/SupportDashboard";
 import ProfileStaff from "./pages/staff/ProfileStaff";
 import StaffConsultationManager from "./pages/staff/StaffConsultationManager";
-import ChatPage from "./pages/chat/Chat";
+import ChatPage from "./pages/chat/chat";
 import MessageManagement from "./pages/staff/MessageManagement";
 
 // ===== Layout Wrapper =====
