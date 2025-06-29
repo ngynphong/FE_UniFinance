@@ -40,7 +40,7 @@ const Login = () => {
         const res = await login(email, password);
         if (res.success) {
             setError({ email: "", password: "" });
-            if (res.response.role === "Admin") {
+            if (res.response.role === "Administrator") {
                 navigate("/admin/dashboard");
             } else if (res.response.role === "Consultant") {
                 navigate("/staff/dashboard/overview");
