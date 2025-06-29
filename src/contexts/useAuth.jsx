@@ -21,7 +21,7 @@ const useAuthState = () => {
 
   useEffect(() => {
     // Setup SignalR connection
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("token");
     if (token) {
       const newConnection = new HubConnectionBuilder()
         .withUrl("YOUR_SIGNALR_HUB_URL", {
@@ -143,7 +143,7 @@ const updateOnlineStatus = (userId, isOnline) => {
 };
 
   const logout = async () => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     const payload = JSON.parse(atob(token.split(".")[1]));
