@@ -1,7 +1,7 @@
 import axios from "../configs/axios";
 
 export const getUserStatistics = async () => {
-  const response = await axios.get("/api/Admin/user-statistics");
+  const response = await axios.get("/Admin/user-statistics");
   return response.data;
 };
 

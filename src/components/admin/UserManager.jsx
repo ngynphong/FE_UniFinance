@@ -34,65 +34,51 @@ const UserManagement = () => {
     }
   };
 
-  const columns = [
-    {
-      title: 'Tên',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-    },
-    {
-      title: 'Vai trò',
-      dataIndex: 'role',
-      key: 'role',
-      render: (role) => (
-        <Tag color={role === 'admin' ? 'blue' : 'green'}>
-          {role.toUpperCase()}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => (
-        <Tag color={status === 'active' ? 'success' : 'error'}>
-          {status.toUpperCase()}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Gói dịch vụ',
-      dataIndex: 'subscription',
-      key: 'subscription',
-      render: (subscription) => (
-        <Tag color={subscription === 'premium' ? 'gold' : 'default'}>
-          {subscription.toUpperCase()}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Ngày tham gia',
-      dataIndex: 'joinDate',
-      key: 'joinDate',
-      sorter: (a, b) => new Date(a.joinDate) - new Date(b.joinDate),
-    },
-    {
-      title: 'Hành động',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          <EditOutlined className="text-blue-500" />
-          <DeleteOutlined className="text-red-500" />
-        </Space>
-      ),
-    },
-  ];
+const columns = [
+  {
+    title: 'Tên',
+    dataIndex: 'name',
+    key: 'name',
+    sorter: (a, b) => a.name.localeCompare(b.name),
+  },
+  {
+    title: 'Email',
+    dataIndex: 'email',
+    key: 'email',
+  },
+  {
+    title: 'Số điện thoại',
+    dataIndex: 'phoneNumber',
+    key: 'phoneNumber',
+    render: (phone) => phone || <span className="text-gray-400 italic">Không có</span>,
+  },
+  {
+    title: 'Địa chỉ',
+    dataIndex: 'address',
+    key: 'address',
+    render: (address) => address || <span className="text-gray-400 italic">Không có</span>,
+  },
+  {
+    title: 'Vai trò',
+    dataIndex: 'role',
+    key: 'role',
+    render: (role) => (
+      <Tag color={role === 'Admin' ? 'blue' : role === 'Consultant' ? 'cyan' : 'default'}>
+        {role}
+      </Tag>
+    ),
+  },
+  {
+    title: 'Hành động',
+    key: 'action',
+    render: () => (
+      <Space size="middle">
+        <EditOutlined className="text-blue-500" />
+        <DeleteOutlined className="text-red-500" />
+      </Space>
+    ),
+  },
+];
 
   return (
     <AdminLayout>
