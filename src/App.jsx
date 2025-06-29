@@ -39,7 +39,6 @@ import Profile from "./pages/user/profile/Profile";
 import GoalTargetPage from "./pages/user/goalTarget/GoalTarget";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProfile from "./pages/admin/AdminProfile";
-import UserManagement from "./pages/admin/UserManagement";
 import { ToastContainer } from "react-toastify";
 import ResetPassword from "./components/resetPassword/ResetPassword";
 import DebtManagement from "./pages/user/debt/DebtManagement";
@@ -56,6 +55,7 @@ import ProfileStaff from "./pages/staff/ProfileStaff";
 import StaffConsultationManager from "./pages/staff/StaffConsultationManager";
 import ChatPage from "./pages/chat/chat";
 import MessageManagement from "./pages/staff/MessageManagement";
+import UserManagementPage from "./pages/admin/UserManagementPage";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -108,7 +108,7 @@ function App() {
               path="/admin/dashboard/user-management"
               element={
                 <ProtectedRoute roles={["Admin"]}>
-                  <UserManagement />
+                  <UserManagementPage />
                 </ProtectedRoute>
               }
             />
