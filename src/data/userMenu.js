@@ -9,5 +9,6 @@ export const menu = [
     { label: "Quản lý ngân sách", icon: <AiFillBank />, path: "/dashboard/budget-management" },
     { label: "Giao dịch", icon: <GrTransaction />, path: "/dashboard/transactions" },
     { label: "Mục tiêu", icon: <GoGoal />, path: "/dashboard/goals" },
-    { label: "Quản lý nợ", icon: <MdOutlineDashboard />, path: "/dashboard/debt-management" }
+    { label: "Quản lý nợ", icon: <MdOutlineDashboard />, path: "/dashboard/debt-management" },
+    { label: "Tư vấn trực tuyến", icon: <MdOutlineDashboard />, path: "/dashboard/chat" }
 ];

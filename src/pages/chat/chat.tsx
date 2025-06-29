@@ -20,7 +20,8 @@ import {
 import * as signalR from "@microsoft/signalr";
 
 // Replace localhost with the deployed API URL
-const API_BASE_URL = "https://unifinance-a2cnadc3fubje9dt.southeastasia-01.azurewebsites.net";
+const API_BASE_URL =
+  "https://unifinance-a2cnadc3fubje9dt.southeastasia-01.azurewebsites.net";
 // API endpoints (with /api) for REST calls
 const API_ENDPOINT = `${API_BASE_URL}/api`;
 // Hub endpoint (without /api) for SignalR
@@ -119,7 +120,7 @@ const UsersContainer = styled.div`
 `;
 
 const UserAvatar = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== "isOnline"
+  shouldForwardProp: (prop) => prop !== "isOnline",
 })<StyledProps>`
   width: 40px;
   height: 40px;
@@ -156,7 +157,7 @@ const ChatList = styled.div`
 `;
 
 const ChatItem = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== "active"
+  shouldForwardProp: (prop) => prop !== "active",
 })<StyledProps>`
   padding: 12px 16px;
   display: flex;
@@ -305,6 +306,21 @@ const ChatPage: React.FC = () => {
   const onlineStatusUpdatesRef = useRef<Map<string, boolean>>(new Map());
   let isMounted = true;
 
+  const updateOnlineStatus = (userId, isOnline) => {
+    const storedStatuses = JSON.parse(
+      localStorage.getItem("onlineStatuses") || "{}"
+    );
+    storedStatuses[userId] = isOnline;
+    localStorage.setItem("onlineStatuses", JSON.stringify(storedStatuses));
+  };
+
+  const getUserOnlineStatus = (userId) => {
+    const storedStatuses = JSON.parse(
+      localStorage.getItem("onlineStatuses") || "{}"
+    );
+    return storedStatuses[userId] || false;
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -327,7 +343,8 @@ const ChatPage: React.FC = () => {
         .withUrl(CHAT_HUB_URL, {
           accessTokenFactory: () => token,
           transport:
-            signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
+            signalR.HttpTransportType.WebSockets |
+            signalR.HttpTransportType.LongPolling,
           skipNegotiation: false,
         })
         .withAutomaticReconnect([0, 1000, 5000, 10000, 15000])
@@ -360,81 +377,68 @@ const ChatPage: React.FC = () => {
           setIsSignalRConnected(true);
 
           connection.on("ReceiveOnlineUsers", (userIds) => {
-  console.log("Received online users event with userIds:", userIds);
-  if (isMounted && Array.isArray(userIds) && userIds.length > 0) {
-    onlineStatusUpdatesRef.current.clear();
-    userIds.forEach((id) => onlineStatusUpdatesRef.current.set(id, true));
-
-    setOnlineUsers((prev) =>
-      prev.map((user) => ({
-        ...user,
-        isOnline: onlineStatusUpdatesRef.current.get(user.userID) ?? false,
-      }))
-    );
-
-    setRooms((prev) =>
-      prev.map((room) => ({
-        ...room,
-        participants: Array.isArray(room.participants)
-          ? room.participants.map((p) => ({
-              ...p,
-              isOnline: onlineStatusUpdatesRef.current.get(p.userID) ?? false,
-            }))
-          : room.participants?.$values?.map((p) => ({
-              ...p,
-              isOnline: onlineStatusUpdatesRef.current.get(p.userID) ?? false,
-            })) || [],
-      }))
-    );
-  } else {
-    console.warn("Invalid or empty userIds received:", userIds);
-  }
-});
-
-          connection.on("UserOnline", (userId) => {
-            console.log("UserOnline event received for userId:", userId);
-            if (isMounted && userId) {
-              onlineStatusUpdatesRef.current.set(userId, true);
-              setOnlineUsers((prev) =>
-                prev.map((user) =>
-                  user.userID === userId ? { ...user, isOnline: true } : user
-                )
+            console.log("Received online users event with userIds:", userIds);
+            if (isMounted && Array.isArray(userIds) && userIds.length > 0) {
+              onlineStatusUpdatesRef.current.clear();
+              userIds.forEach((id) =>
+                onlineStatusUpdatesRef.current.set(id, true)
               );
+
+              setOnlineUsers((prev) =>
+                prev.map((user) => ({
+                  ...user,
+                  isOnline:
+                    onlineStatusUpdatesRef.current.get(user.userID) ?? false,
+                }))
+              );
+
               setRooms((prev) =>
                 prev.map((room) => ({
                   ...room,
                   participants: Array.isArray(room.participants)
-                    ? room.participants.map((p) =>
-                        p.userID === userId ? { ...p, isOnline: true } : p
-                      )
-                    : room.participants?.$values?.map((p) =>
-                        p.userID === userId ? { ...p, isOnline: true } : p
-                      ) || [],
+                    ? room.participants.map((p) => ({
+                        ...p,
+                        isOnline:
+                          onlineStatusUpdatesRef.current.get(p.userID) ?? false,
+                      }))
+                    : room.participants?.$values?.map((p) => ({
+                        ...p,
+                        isOnline:
+                          onlineStatusUpdatesRef.current.get(p.userID) ?? false,
+                      })) || [],
                 }))
+              );
+            } else {
+              console.warn("Invalid or empty userIds received:", userIds);
+            }
+          });
+
+          connection.on("UserOnline", (userId) => {
+            console.log("UserOnline event received for userId:", userId);
+            if (userId) {
+              onlineStatusUpdatesRef.current.set(userId, true);
+
+              updateOnlineStatus(userId, true);
+
+              setOnlineUsers((prev) =>
+                prev.map((user) =>
+                  user.userID === userId ? { ...user, isOnline: true } : user
+                )
               );
             }
           });
 
           connection.on("UserOffline", (userId) => {
             console.log("UserOffline event received for userId:", userId);
-            if (isMounted && userId) {
+            if (userId) {
               onlineStatusUpdatesRef.current.set(userId, false);
+
+              updateOnlineStatus(userId, false);
+
               setOnlineUsers((prev) =>
                 prev.map((user) =>
                   user.userID === userId ? { ...user, isOnline: false } : user
                 )
-              );
-              setRooms((prev) =>
-                prev.map((room) => ({
-                  ...room,
-                  participants: Array.isArray(room.participants)
-                    ? room.participants.map((p) =>
-                        p.userID === userId ? { ...p, isOnline: false } : p
-                      )
-                    : room.participants?.$values?.map((p) =>
-                        p.userID === userId ? { ...p, isOnline: false } : p
-                      ) || [],
-                }))
               );
             }
           });
@@ -496,9 +500,11 @@ const ChatPage: React.FC = () => {
     return () => {
       isMounted = false;
       if (connection?.state === "Connected") {
-        connection.stop().catch((error) =>
-          console.error("Failed to stop SignalR connection:", error)
-        );
+        connection
+          .stop()
+          .catch((error) =>
+            console.error("Failed to stop SignalR connection:", error)
+          );
       }
     };
   }, [connection]);
@@ -523,7 +529,9 @@ const ChatPage: React.FC = () => {
       const response = await axios.get<ApiResponse<ChatRoom>>("/Message/rooms");
       console.log("Chat rooms response:", response.data);
 
-      const roomsData: ChatRoom[] = (response.data.$values || response.data || []) as ChatRoom[];
+      const roomsData: ChatRoom[] = (response.data.$values ||
+        response.data ||
+        []) as ChatRoom[];
       const rooms: ChatRoom[] = roomsData.map((room: ChatRoom) => ({
         ...room,
         participants: unwrapValues(room.participants || []),
@@ -544,44 +552,68 @@ const ChatPage: React.FC = () => {
   };
 
   const loadOnlineUsers = async () => {
-  try {
-    const response = await axios.get<ApiResponse<User>>("/Message/users/online");
-    console.log("Online users API response:", response.data);
-    const users: User[] = (response.data.$values || response.data || []) as User[];
-
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      console.error("No token found");
-      setOnlineUsers([]);
-      return;
-    }
-
     try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const currentUserId = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
-      const currentUserRole = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-
-      const filteredUsers = users.filter(
-        (user) => user.userID !== currentUserId && user.role !== currentUserRole
+      const response = await axios.get<ApiResponse<User>>(
+        "/Message/users/online"
       );
+      console.log("Online users API response:", response.data);
+      const users: User[] = (response.data.$values ||
+        response.data ||
+        []) as User[];
 
-      const usersWithUpdatedStatus = filteredUsers.map((user) => {
-        const signalRStatus = onlineStatusUpdatesRef.current.get(user.userID) ?? false; // Ưu tiên SignalR
-        console.log(`User ${user.userID}: API status=${user.isOnline}, SignalR status=${signalRStatus}`);
-        return { ...user, isOnline: signalRStatus };
-      });
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No token found");
+        setOnlineUsers([]);
+        return;
+      }
 
-      console.log("Users with updated online status:", usersWithUpdatedStatus);
-      if (isMounted) setOnlineUsers(usersWithUpdatedStatus);
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const currentUserId =
+          payload[
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+          ];
+        const currentUserRole =
+          payload[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ];
+
+        // Lọc ra người dùng hiện tại và người dùng có cùng vai trò
+        const filteredUsers = users.filter(
+          (user) =>
+            user.userID !== currentUserId && user.role !== currentUserRole
+        );
+
+        // Tải lại trạng thái online đã lưu từ localStorage
+        const storedStatuses = JSON.parse(
+          localStorage.getItem("onlineStatuses") || "{}"
+        );
+
+        const usersWithUpdatedStatus = filteredUsers.map((user) => {
+          const signalRStatus =
+            onlineStatusUpdatesRef.current.get(user.userID) ?? false; // Ưu tiên trạng thái SignalR
+          const savedStatus = storedStatuses[user.userID] ?? signalRStatus; // Nếu không có trạng thái lưu trữ, sử dụng trạng thái SignalR
+          console.log(
+            `User ${user.userID}: API status=${user.isOnline}, SignalR status=${signalRStatus}, Saved status=${savedStatus}`
+          );
+          return { ...user, isOnline: savedStatus };
+        });
+
+        console.log(
+          "Users with updated online status:",
+          usersWithUpdatedStatus
+        );
+        setOnlineUsers(usersWithUpdatedStatus);
+      } catch (error) {
+        console.error("Error parsing token:", error);
+        setOnlineUsers([]);
+      }
     } catch (error) {
-      console.error("Error parsing token:", error);
-      if (isMounted) setOnlineUsers([]);
+      console.error("Failed to load online users:", error);
+      setOnlineUsers([]);
     }
-  } catch (error) {
-    console.error("Failed to load online users:", error);
-    if (isMounted) setOnlineUsers([]);
-  }
-};
+  };
 
   const handleUserClick = async (userId: string) => {
     try {
@@ -605,7 +637,9 @@ const ChatPage: React.FC = () => {
         };
 
         setRooms((prev) => {
-          const exists = prev.some((room) => room.chatRoomID === newRoom.chatRoomID);
+          const exists = prev.some(
+            (room) => room.chatRoomID === newRoom.chatRoomID
+          );
           if (exists) {
             handleRoomClick(newRoom);
             return prev;
@@ -627,7 +661,8 @@ const ChatPage: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!connection || !isSignalRConnected || !activeRoom || !message.trim()) return;
+    if (!connection || !isSignalRConnected || !activeRoom || !message.trim())
+      return;
 
     try {
       console.log("Sending message:", {
@@ -638,7 +673,11 @@ const ChatPage: React.FC = () => {
       const messageContent = message.trim();
       setMessage("");
 
-      await connection.invoke("SendMessage", activeRoom.chatRoomID, messageContent);
+      await connection.invoke(
+        "SendMessage",
+        activeRoom.chatRoomID,
+        messageContent
+      );
       console.log("Message sent successfully");
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -651,7 +690,9 @@ const ChatPage: React.FC = () => {
 
       setActiveRoom(room);
 
-      const response = await axios.get<ChatRoom>(`/Message/room/${room.chatRoomID}`);
+      const response = await axios.get<ChatRoom>(
+        `/Message/room/${room.chatRoomID}`
+      );
       console.log("Fetched room data:", response.data);
 
       const processedRoom = {
@@ -670,7 +711,10 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  const visibleUsers = onlineUsers.slice(userOffset, userOffset + USERS_PER_PAGE);
+  const visibleUsers = onlineUsers.slice(
+    userOffset,
+    userOffset + USERS_PER_PAGE
+  );
   const canScrollLeft = userOffset > 0;
   const canScrollRight = userOffset + USERS_PER_PAGE < onlineUsers.length;
 
@@ -689,7 +733,9 @@ const ChatPage: React.FC = () => {
     if (!token) return null;
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+      return payload[
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+      ];
     } catch (error) {
       console.error("Error parsing token:", error);
       return null;
@@ -736,7 +782,9 @@ const ChatPage: React.FC = () => {
                 key={user.userID}
                 isOnline={user.isOnline}
                 onClick={() => handleUserClick(user.userID)}
-                title={`${user.userName} - ${user.isOnline ? 'Online' : 'Offline'}`}
+                title={`${user.userName} - ${
+                  user.isOnline ? "Online" : "Offline"
+                }`}
               >
                 {user.userName?.[0]?.toUpperCase()}
               </UserAvatar>
@@ -783,19 +831,28 @@ const ChatPage: React.FC = () => {
                           ? activeRoom.participants.length
                           : activeRoom.participants?.$values?.length) || 0
                       } members`
-                    : (
+                    : // Kiểm tra trạng thái online của từng người dùng từ localStorage
+                    (
                         Array.isArray(activeRoom.participants)
-                          ? activeRoom.participants.some((p) => p.isOnline)
-                          : activeRoom.participants?.$values?.some(
-                              (p) => p.isOnline
+                          ? activeRoom.participants.some((p) =>
+                              getUserOnlineStatus(p.userID)
+                            ) // Kiểm tra trạng thái của từng người dùng
+                          : activeRoom.participants?.$values?.some((p) =>
+                              getUserOnlineStatus(p.userID)
                             )
                       )
-                    ? "Active now"
+                    ? // Dùng cho trường hợp $values
+                      "Active now"
                     : "Offline"}
                 </small>
               </div>
-              <div style={{ fontSize: '12px', color: isSignalRConnected ? '#31a24c' : '#ff4444' }}>
-                {isSignalRConnected ? '● Connected' : '● Disconnected'}
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: isSignalRConnected ? "#31a24c" : "#ff4444",
+                }}
+              >
+                {isSignalRConnected ? "● Connected" : "● Disconnected"}
               </div>
             </ChatHeader>
 
@@ -856,8 +913,8 @@ const ChatPage: React.FC = () => {
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 disabled={!isSignalRConnected}
               />
-              <Button 
-                onClick={handleSendMessage} 
+              <Button
+                onClick={handleSendMessage}
                 disabled={!message.trim() || !isSignalRConnected}
               >
                 <FaPaperPlane />

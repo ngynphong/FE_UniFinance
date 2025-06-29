@@ -94,16 +94,6 @@ function App() {
               <Route path="/services" element={<ServicesPage />} />
             </Route>
 
-            {/* Staff & Customer routes */}
-            <Route  
-              path="/chat" 
-              element={
-              <ProtectedRoute roles={["Consultant", "Customer"]}>
-                <ChatPage /> 
-              </ProtectedRoute>
-            }>
-            </Route>
-
             {/* Admin routes */}
             <Route
               path="/admin/dashboard"
@@ -208,6 +198,14 @@ function App() {
               element={
                 <ProtectedRoute roles={["Customer"]}>
                   <DebtCalculator />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/chat"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <ChatPage />
                 </ProtectedRoute>
               }
             />

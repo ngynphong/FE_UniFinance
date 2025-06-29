@@ -75,16 +75,16 @@ const ServiceCTA = ({ scrollToSection }) => {
               <div className="bg-gradient-to-r from-yellow-400/20 to-orange-500/20 backdrop-blur-lg rounded-xl p-6 border border-yellow-400/30">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-yellow-400">50+</div>
+                    <div className="text-2xl font-bold text-yellow-400">6+</div>
                     <div className="text-xs text-gray-300">Khách hàng</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-yellow-400">65%</div>
+                    <div className="text-2xl font-bold text-yellow-400">85%</div>
                     <div className="text-xs text-gray-300">Hài lòng</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-yellow-400">5+</div>
-                    <div className="text-xs text-gray-300">Năm kinh nghiệm</div>
+                    <div className="text-xs text-gray-300">Ra mắt tính năng</div>
                   </div>
                 </div>
               </div>

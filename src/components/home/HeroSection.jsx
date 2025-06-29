@@ -13,9 +13,9 @@ const HeroSection = ({ isVisible, scrollToSection }) => {
   })
 
   const stats = [
-    { label: "Khách hàng tin tưởng", value: 50, suffix: "+" },
-    { label: "Năm kinh nghiệm", value:  5, suffix: "+" },
-    { label: "Tỷ lệ thành công", value: 65, suffix: "%" },
+    { label: "Khách hàng tin tưởng", value: 6, suffix: "+" },
+    { label: "Ra mắt tính năng", value:  5, suffix: "+" },
+    { label: "Tỷ lệ thành công", value: 85, suffix: "%" },
   ]
 
   const floatingElements = [
@@ -42,9 +42,9 @@ const HeroSection = ({ isVisible, scrollToSection }) => {
           }, 30)
         }
 
-        animateNumber(50, "clients")
+        animateNumber(6, "clients")
         animateNumber(5, "experience")
-        animateNumber(65, "success")
+        animateNumber(85, "success")
       }, 500)
 
       return () => clearTimeout(timer)
@@ -123,11 +123,11 @@ const HeroSection = ({ isVisible, scrollToSection }) => {
                   </div>
                   <div className="text-center animate-scale-in" style={{ animationDelay: "0.2s" }}>
                     <div className="text-2xl md:text-3xl font-bold text-purple-600">{animatedNumbers.experience}+</div>
-                    <div className="text-xs md:text-sm text-gray-500">Năm kinh nghiệm</div>
+                    <div className="text-xs md:text-sm text-gray-500">Ra mắt tính năng</div>
                   </div>
                   <div className="text-center animate-scale-in" style={{ animationDelay: "0.4s" }}>
                     <div className="text-2xl md:text-3xl font-bold text-green-600">{animatedNumbers.success}%</div>
-                    <div className="text-xs md:text-sm text-gray-500">Thành công</div>
+                    <div className="text-xs md:text-sm text-gray-500">Duy trì sử dụng</div>
                   </div>
                 </div>
 

@@ -1,4 +1,4 @@
-import { UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined } from "@ant-design/icons";
+import { UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined, MessageOutlined	 } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, Space } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -34,7 +34,7 @@ const staffMenu = [
     {
         label: "Tư vấn khách hàng",
         path: "/staff/dashboard/message",
-        icon: <span className="material-icons"><BiSupport /></span>,
+        icon: <span className="material-icons"><MessageOutlined /></span>,
     },
 ];
 
