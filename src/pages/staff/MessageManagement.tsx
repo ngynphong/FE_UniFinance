@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { HubConnectionBuilder, HubConnection } from "@microsoft/signalr";
 import axios from "axios";
 import styled from "styled-components";
+import StaffLayout from "../../components/layout/staff/StaffLayout";
+
 import {
   ChatRoom,
   Message,
@@ -20,7 +22,8 @@ import {
 import * as signalR from "@microsoft/signalr";
 
 // Replace localhost with the deployed API URL
-const API_BASE_URL = "https://unifinance-a2cnadc3fubje9dt.southeastasia-01.azurewebsites.net";
+const API_BASE_URL =
+  "https://unifinance-a2cnadc3fubje9dt.southeastasia-01.azurewebsites.net";
 // API endpoints (with /api) for REST calls
 const API_ENDPOINT = `${API_BASE_URL}/api`;
 // Hub endpoint (without /api) for SignalR
@@ -37,7 +40,7 @@ const USERS_PER_PAGE = 2;
 // ... styled components remain the same ...
 const Container = styled.div`
   display: flex;
-  height: 100vh;
+  height: 91vh;
   background-color: #f0f2f5;
 `;
 
@@ -305,6 +308,21 @@ const ChatPage: React.FC = () => {
   const onlineStatusUpdatesRef = useRef<Map<string, boolean>>(new Map());
   let isMounted = true;
 
+  const updateOnlineStatus = (userId, isOnline) => {
+    const storedStatuses = JSON.parse(
+      localStorage.getItem("onlineStatuses") || "{}"
+    );
+    storedStatuses[userId] = isOnline;
+    localStorage.setItem("onlineStatuses", JSON.stringify(storedStatuses));
+  };
+
+  const getUserOnlineStatus = (userId) => {
+    const storedStatuses = JSON.parse(
+      localStorage.getItem("onlineStatuses") || "{}"
+    );
+    return storedStatuses[userId] || false;
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -399,48 +417,30 @@ const ChatPage: React.FC = () => {
 
           connection.on("UserOnline", (userId) => {
             console.log("UserOnline event received for userId:", userId);
-            if (isMounted && userId) {
+            if (userId) {
               onlineStatusUpdatesRef.current.set(userId, true);
+
+              updateOnlineStatus(userId, true);
+
               setOnlineUsers((prev) =>
                 prev.map((user) =>
                   user.userID === userId ? { ...user, isOnline: true } : user
                 )
-              );
-              setRooms((prev) =>
-                prev.map((room) => ({
-                  ...room,
-                  participants: Array.isArray(room.participants)
-                    ? room.participants.map((p) =>
-                        p.userID === userId ? { ...p, isOnline: true } : p
-                      )
-                    : room.participants?.$values?.map((p) =>
-                        p.userID === userId ? { ...p, isOnline: true } : p
-                      ) || [],
-                }))
               );
             }
           });
 
           connection.on("UserOffline", (userId) => {
             console.log("UserOffline event received for userId:", userId);
-            if (isMounted && userId) {
+            if (userId) {
               onlineStatusUpdatesRef.current.set(userId, false);
+
+              updateOnlineStatus(userId, false);
+
               setOnlineUsers((prev) =>
                 prev.map((user) =>
                   user.userID === userId ? { ...user, isOnline: false } : user
                 )
-              );
-              setRooms((prev) =>
-                prev.map((room) => ({
-                  ...room,
-                  participants: Array.isArray(room.participants)
-                    ? room.participants.map((p) =>
-                        p.userID === userId ? { ...p, isOnline: false } : p
-                      )
-                    : room.participants?.$values?.map((p) =>
-                        p.userID === userId ? { ...p, isOnline: false } : p
-                      ) || [],
-                }))
               );
             }
           });
@@ -581,32 +581,39 @@ const ChatPage: React.FC = () => {
             "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
           ];
 
+        // Lọc ra người dùng hiện tại và người dùng có cùng vai trò
         const filteredUsers = users.filter(
           (user) =>
             user.userID !== currentUserId && user.role !== currentUserRole
         );
 
+        // Tải lại trạng thái online đã lưu từ localStorage
+        const storedStatuses = JSON.parse(
+          localStorage.getItem("onlineStatuses") || "{}"
+        );
+
         const usersWithUpdatedStatus = filteredUsers.map((user) => {
           const signalRStatus =
-            onlineStatusUpdatesRef.current.get(user.userID) ?? false; // Ưu tiên SignalR
+            onlineStatusUpdatesRef.current.get(user.userID) ?? false; // Ưu tiên trạng thái SignalR
+          const savedStatus = storedStatuses[user.userID] ?? signalRStatus; // Nếu không có trạng thái lưu trữ, sử dụng trạng thái SignalR
           console.log(
-            `User ${user.userID}: API status=${user.isOnline}, SignalR status=${signalRStatus}`
+            `User ${user.userID}: API status=${user.isOnline}, SignalR status=${signalRStatus}, Saved status=${savedStatus}`
           );
-          return { ...user, isOnline: signalRStatus };
+          return { ...user, isOnline: savedStatus };
         });
 
         console.log(
           "Users with updated online status:",
           usersWithUpdatedStatus
         );
-        if (isMounted) setOnlineUsers(usersWithUpdatedStatus);
+        setOnlineUsers(usersWithUpdatedStatus);
       } catch (error) {
         console.error("Error parsing token:", error);
-        if (isMounted) setOnlineUsers([]);
+        setOnlineUsers([]);
       }
     } catch (error) {
       console.error("Failed to load online users:", error);
-      if (isMounted) setOnlineUsers([]);
+      setOnlineUsers([]);
     }
   };
 
@@ -757,174 +764,180 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <Container>
-      <Sidebar>
-        <OnlineUsers>
-          {canScrollLeft && (
-            <NavigationButton
-              onClick={handleScrollLeft}
-              title={`Show previous ${USERS_PER_PAGE} users (${userOffset} previous)`}
-            >
-              <FaChevronLeft />
-            </NavigationButton>
-          )}
-          <UsersContainer>
-            {visibleUsers.map((user) => (
-              <UserAvatar
-                key={user.userID}
-                isOnline={user.isOnline}
-                onClick={() => handleUserClick(user.userID)}
-                title={`${user.userName} - ${
-                  user.isOnline ? "Online" : "Offline"
-                }`}
+    <StaffLayout>
+      <Container>
+        <Sidebar>
+          <OnlineUsers>
+            {canScrollLeft && (
+              <NavigationButton
+                onClick={handleScrollLeft}
+                title={`Show previous ${USERS_PER_PAGE} users (${userOffset} previous)`}
               >
-                {user.userName?.[0]?.toUpperCase()}
-              </UserAvatar>
-            ))}
-          </UsersContainer>
-          {canScrollRight && (
-            <NavigationButton
-              onClick={handleScrollRight}
-              title={`Show next ${USERS_PER_PAGE} users (${
-                onlineUsers.length - (userOffset + USERS_PER_PAGE)
-              } remaining)`}
-            >
-              <FaChevronRight />
-            </NavigationButton>
-          )}
-        </OnlineUsers>
-        <ChatList>
-          {rooms
-            .filter((room) => !room.isGroup)
-            .map((room) => (
-              <ChatItem
-                key={room.chatRoomID}
-                active={room.chatRoomID === activeRoom?.chatRoomID}
-                onClick={() => handleRoomClick(room)}
+                <FaChevronLeft />
+              </NavigationButton>
+            )}
+            <UsersContainer>
+              {visibleUsers.map((user) => (
+                <UserAvatar
+                  key={user.userID}
+                  isOnline={user.isOnline}
+                  onClick={() => handleUserClick(user.userID)}
+                  title={`${user.userName} - ${
+                    user.isOnline ? "Online" : "Offline"
+                  }`}
+                >
+                  {user.userName?.[0]?.toUpperCase()}
+                </UserAvatar>
+              ))}
+            </UsersContainer>
+            {canScrollRight && (
+              <NavigationButton
+                onClick={handleScrollRight}
+                title={`Show next ${USERS_PER_PAGE} users (${
+                  onlineUsers.length - (userOffset + USERS_PER_PAGE)
+                } remaining)`}
               >
-                <div className="chat-info">
-                  <h4>{room.roomName}</h4>
-                  <p>{room.lastMessage?.content}</p>
+                <FaChevronRight />
+              </NavigationButton>
+            )}
+          </OnlineUsers>
+          <ChatList>
+            {rooms
+              .filter((room) => !room.isGroup)
+              .map((room) => (
+                <ChatItem
+                  key={room.chatRoomID}
+                  active={room.chatRoomID === activeRoom?.chatRoomID}
+                  onClick={() => handleRoomClick(room)}
+                >
+                  <div className="chat-info">
+                    <h4>{room.roomName}</h4>
+                    <p>{room.lastMessage?.content}</p>
+                  </div>
+                </ChatItem>
+              ))}
+          </ChatList>
+        </Sidebar>
+        <ChatArea>
+          {activeRoom ? (
+            <>
+              <ChatHeader>
+                <div>
+                  <h3>{activeRoom.roomName}</h3>
+                  <small>
+                    {activeRoom.isGroup
+                      ? `${
+                          (Array.isArray(activeRoom.participants)
+                            ? activeRoom.participants.length
+                            : activeRoom.participants?.$values?.length) || 0
+                        } members`
+                      : // Kiểm tra trạng thái online của từng người dùng từ localStorage
+                      (
+                          Array.isArray(activeRoom.participants)
+                            ? activeRoom.participants.some((p) =>
+                                getUserOnlineStatus(p.userID)
+                              ) // Kiểm tra trạng thái của từng người dùng
+                            : activeRoom.participants?.$values?.some((p) =>
+                                getUserOnlineStatus(p.userID)
+                              )
+                        )
+                      ? // Dùng cho trường hợp $values
+                        "Active now"
+                      : "Offline"}
+                  </small>
                 </div>
-              </ChatItem>
-            ))}
-        </ChatList>
-      </Sidebar>
-      <ChatArea>
-        {activeRoom ? (
-          <>
-            <ChatHeader>
-              <div>
-                <h3>{activeRoom.roomName}</h3>
-                <small>
-                  {activeRoom.isGroup
-                    ? `${
-                        (Array.isArray(activeRoom.participants)
-                          ? activeRoom.participants.length
-                          : activeRoom.participants?.$values?.length) || 0
-                      } members`
-                    : (
-                        Array.isArray(activeRoom.participants)
-                          ? activeRoom.participants.some((p) => p.isOnline)
-                          : activeRoom.participants?.$values?.some(
-                              (p) => p.isOnline
-                            )
-                      )
-                    ? "Active now"
-                    : "Offline"}
-                </small>
-              </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: isSignalRConnected ? "#31a24c" : "#ff4444",
-                }}
-              >
-                {isSignalRConnected ? "● Connected" : "● Disconnected"}
-              </div>
-            </ChatHeader>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: isSignalRConnected ? "#31a24c" : "#ff4444",
+                  }}
+                >
+                  {isSignalRConnected ? "● Connected" : "● Disconnected"}
+                </div>
+              </ChatHeader>
 
-            <MessageList ref={messageListRef}>
-              {(Array.isArray(activeRoom?.messages)
-                ? activeRoom.messages
-                : activeRoom?.messages?.$values || []
-              )
-                .sort(
-                  (a, b) =>
-                    new Date(a.createdDate).getTime() -
-                    new Date(b.createdDate).getTime()
+              <MessageList ref={messageListRef}>
+                {(Array.isArray(activeRoom?.messages)
+                  ? activeRoom.messages
+                  : activeRoom?.messages?.$values || []
                 )
-                .reduce((groups, msg) => {
-                  const lastGroup = groups[groups.length - 1];
-                  if (lastGroup && lastGroup[0].senderID === msg.senderID) {
-                    lastGroup.push(msg);
-                  } else {
-                    groups.push([msg]);
-                  }
-                  return groups;
-                }, [] as Message[][])
-                .map((group, groupIndex) => {
-                  const currentUserId = getCurrentUserIdFromToken();
-                  const isMine = group[0].senderID === currentUserId;
-                  return (
-                    <MessageGroup key={`group-${groupIndex}`} isMine={isMine}>
-                      <div className="messages">
-                        {group.map((msg, msgIndex) => (
-                          <MessageBubble
-                            key={`${msg.chatID}-${msg.createdDate}`}
-                            isMine={isMine}
-                            isFirst={msgIndex === 0}
-                            isLast={msgIndex === group.length - 1}
-                          >
-                            {msg.content}
-                          </MessageBubble>
-                        ))}
-                      </div>
-                      <div className="message-meta">
-                        {group[0].senderName} •{" "}
-                        {new Date(
-                          group[group.length - 1].createdDate
-                        ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                    </MessageGroup>
-                  );
-                })}
-            </MessageList>
-            <InputArea>
-              <Input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type a message..."
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                disabled={!isSignalRConnected}
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!message.trim() || !isSignalRConnected}
-              >
-                <FaPaperPlane />
-              </Button>
-            </InputArea>
-          </>
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-              color: "#65676b",
-              fontSize: "15px",
-            }}
-          >
-            Select a chat or start a new conversation
-          </div>
-        )}
-      </ChatArea>
-    </Container>
+                  .sort(
+                    (a, b) =>
+                      new Date(a.createdDate).getTime() -
+                      new Date(b.createdDate).getTime()
+                  )
+                  .reduce((groups, msg) => {
+                    const lastGroup = groups[groups.length - 1];
+                    if (lastGroup && lastGroup[0].senderID === msg.senderID) {
+                      lastGroup.push(msg);
+                    } else {
+                      groups.push([msg]);
+                    }
+                    return groups;
+                  }, [] as Message[][])
+                  .map((group, groupIndex) => {
+                    const currentUserId = getCurrentUserIdFromToken();
+                    const isMine = group[0].senderID === currentUserId;
+                    return (
+                      <MessageGroup key={`group-${groupIndex}`} isMine={isMine}>
+                        <div className="messages">
+                          {group.map((msg, msgIndex) => (
+                            <MessageBubble
+                              key={`${msg.chatID}-${msg.createdDate}`}
+                              isMine={isMine}
+                              isFirst={msgIndex === 0}
+                              isLast={msgIndex === group.length - 1}
+                            >
+                              {msg.content}
+                            </MessageBubble>
+                          ))}
+                        </div>
+                        <div className="message-meta">
+                          {group[0].senderName} •{" "}
+                          {new Date(
+                            group[group.length - 1].createdDate
+                          ).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                      </MessageGroup>
+                    );
+                  })}
+              </MessageList>
+              <InputArea>
+                <Input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Type a message..."
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  disabled={!isSignalRConnected}
+                />
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!message.trim() || !isSignalRConnected}
+                >
+                  <FaPaperPlane />
+                </Button>
+              </InputArea>
+            </>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "100%",
+                color: "#65676b",
+                fontSize: "15px",
+              }}
+            >
+              Select a chat or start a new conversation
+            </div>
+          )}
+        </ChatArea>
+      </Container>
+    </StaffLayout>
   );
 };
 

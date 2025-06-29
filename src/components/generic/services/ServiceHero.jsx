@@ -7,7 +7,7 @@ const ServiceHero = ({ isVisible, scrollToSection }) => {
   const highlights = [
     {
       icon: <Star className="w-5 h-5" />,
-      text: "5+ năm kinh nghiệm",
+      text: "5+ Tính năng",
       color: "text-yellow-500",
     },
     {
@@ -17,12 +17,12 @@ const ServiceHero = ({ isVisible, scrollToSection }) => {
     },
     {
       icon: <TrendingUp className="w-5 h-5" />,
-      text: "65% thành công",
+      text: "85% Duy trì sử dụng",
       color: "text-blue-500",
     },
     {
       icon: <Users className="w-5 h-5" />,
-      text: "50+ khách hàng",
+      text: "6+ khách hàng",
       color: "text-purple-500",
     },
   ];
