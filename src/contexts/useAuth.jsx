@@ -21,7 +21,7 @@ const useAuthState = () => {
 
   useEffect(() => {
     // Setup SignalR connection
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (token) {
       const newConnection = new HubConnectionBuilder()
         .withUrl("YOUR_SIGNALR_HUB_URL", {
@@ -136,23 +136,23 @@ const useAuthState = () => {
     }
   };
 
-const updateOnlineStatus = (userId, isOnline) => {
-  const storedStatuses = JSON.parse(localStorage.getItem("onlineStatuses") || "{}");
-  storedStatuses[userId] = isOnline;
-  localStorage.setItem("onlineStatuses", JSON.stringify(storedStatuses));
-};
+  const updateOnlineStatus = (userId, isOnline) => {
+    const storedStatuses = JSON.parse(localStorage.getItem("onlineStatuses") || "{}");
+    storedStatuses[userId] = isOnline;
+    localStorage.setItem("onlineStatuses", JSON.stringify(storedStatuses));
+  };
 
   const logout = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (!token) return;
 
     const payload = JSON.parse(atob(token.split(".")[1]));
     const currentUserId =
       payload[
-        "http://schemas.xmlsoap.org/2005/05/identity/claims/nameidentifier"
+      "http://schemas.xmlsoap.org/2005/05/identity/claims/nameidentifier"
       ];
 
-    updateOnlineStatus(currentUserId, false); 
+    updateOnlineStatus(currentUserId, false);
 
     if (connection && isSignalRConnected) {
       try {
