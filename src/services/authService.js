@@ -40,6 +40,9 @@ export const authService = {
                 picture: googleUserInfo.Picture || ''
             });
 
+            const token = response.data.accessToken;
+            localStorage.setItem('accessToken', token);
+
             console.log('Google login response:', response.data); // Debug log
             return response.data;
         } catch (error) {
