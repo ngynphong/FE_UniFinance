@@ -1,5 +1,4 @@
-import axios from '../configs/axios';
-
+import axios from "../configs/axios";
 // Tạo blog mới
 export const createBlog = async (blogData) => {
   try {
@@ -11,11 +10,11 @@ export const createBlog = async (blogData) => {
   }
 };
 
-// Lấy danh sách blog (tùy chọn có search)
-export const getBlogs = async (search = "") => {
+// Lấy danh sách blog (tùy chọn có search và userId)
+export const getBlogs = async (search = "", userId = "") => {
   try {
     const response = await axios.get("/Blog", {
-      params: { search },
+      params: { search, userId },
     });
     return response.data;
   } catch (error) {

@@ -3,6 +3,7 @@ import { AiFillBank } from "react-icons/ai";
 import { GrTransaction } from "react-icons/gr";
 import { GoGoal } from "react-icons/go";
 import { MdOutlineDashboard } from "react-icons/md";
+import { ImBlog } from "react-icons/im";
 
 export const menu = [
     { label: "Tổng quan", icon: <DashboardOutlined />, path: "/dashboard" },
