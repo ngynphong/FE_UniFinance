@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Statistic, Progress, List, Tag, Spin, message } from 'antd';
+import { Row, Col, Card, Statistic, Progress, List, Tag, Spin } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
 import { transactionService } from '../../../services/transactionService';
 import { goalService } from '../../../services/goalService';
 import { budgetService } from '../../../services/budgetService';
-
+import { useAuth } from '../../../contexts/useAuth';
 const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [transactions, setTransactions] = useState([]);
     const [goals, setGoals] = useState([]);
     const [budgets, setBudgets] = useState([]);
+    const { user } = useAuth();
 
     // Calculate totals
     const calculateTotals = () => {
@@ -35,17 +36,17 @@ const Dashboard = () => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                const [transactionsData, goalsData, budgetsData] = await Promise.all([
-                    transactionService.getAllTransactions(),
-                    goalService.getAllGoals(),
-                    budgetService.getBudgets()
-                ]);
+              
+                const transactionsData = await transactionService.getAllTransactions();
+                const goalsData = await goalService.getAllGoals();
+                const budgetsData = await budgetService.getBudgets();
 
-                setTransactions(transactionsData);
-                setGoals(goalsData);
-                setBudgets(budgetsData);
+                setTransactions(transactionsData.filter(t => t.userId === user?.userID));
+                setGoals(goalsData.filter(g => g.userId === user?.userID));
+                setBudgets(budgetsData.filter(b => b.userId === user?.userID));
+
             } catch (error) {
-                message.error('Lỗi khi tải dữ liệu');
+                // message.error('Lỗi khi tải dữ liệu');
                 console.error('Dashboard data fetch error:', error);
             } finally {
                 setLoading(false);
@@ -86,7 +87,7 @@ const Dashboard = () => {
                                 value={totalBalance}
                                 precision={2}
                                 valueStyle={{ color: totalBalance >= 0 ? '#3f8600' : '#cf1322' }}
-                                prefix="$"
+                                prefix="VND"
                             />
                         </Card>
                     </Col>
@@ -97,7 +98,7 @@ const Dashboard = () => {
                                 value={totalIncome}
                                 precision={2}
                                 valueStyle={{ color: '#3f8600' }}
-                                prefix="$"
+                                prefix="VND"
                                 suffix={<ArrowUpOutlined />}
                             />
                         </Card>
@@ -109,7 +110,7 @@ const Dashboard = () => {
                                 value={totalExpense}
                                 precision={2}
                                 valueStyle={{ color: '#cf1322' }}
-                                prefix="$"
+                                prefix="VND"
                                 suffix={<ArrowDownOutlined />}
                             />
                         </Card>
@@ -138,15 +139,15 @@ const Dashboard = () => {
                                             title={
                                                 <span>
                                                     {item.description}
-                                                    <Tag color={item.type === 'income' ? 'green' : 'red'}>
-                                                        {item.type}
+                                                    <Tag color={item.type === 'income' ? 'green' : 'red'} className='ml-2'>
+                                                        {item.type === 'income' ? 'Thu nhập' : 'Chi phí'}
                                                     </Tag>
                                                 </span>
                                             }
                                             description={new Date(item.dateCreate).toLocaleDateString()}
                                         />
                                         <div className={item.type === 'income' ? 'text-green-600' : 'text-red-600'}>
-                                            {item.type === 'income' ? '+' : '-'}${item.amount}
+                                            {item.type === 'income' ? '+' : '-'}{Number(item.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                                         </div>
                                     </List.Item>
                                 )}
@@ -159,16 +160,16 @@ const Dashboard = () => {
                             <div className="space-y-2">
                                 <div className="flex justify-between flex-wrap">
                                     <span>Ngân sách hàng tháng:</span>
-                                    <span className="font-semibold">${currentBudget.limitAmount}</span>
+                                    <span className="font-semibold">{Number(currentBudget.limitAmount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
                                 </div>
                                 <div className="flex justify-between flex-wrap">
                                     <span>Đã tiêu:</span>
-                                    <span className="font-semibold text-red-600">${totalExpense}</span>
+                                    <span className="font-semibold text-red-600">{Number(totalExpense).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
                                 </div>
                                 <div className="flex justify-between flex-wrap">
                                     <span>Còn lại:</span>
                                     <span className="font-semibold text-green-600">
-                                        ${currentBudget.limitAmount - totalExpense}
+                                        {Number(currentBudget.limitAmount - totalExpense).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                                     </span>
                                 </div>
                                 <Progress
@@ -191,13 +192,13 @@ const Dashboard = () => {
                                         <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-2">
                                             <div>
                                                 <div className="font-semibold">{goal.goal}</div>
-                                                <div className="text-sm text-gray-500">Mục tiêu: ${goal.amount}</div>
+                                                <div className="text-sm text-gray-500">Mục tiêu: {Number(goal.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</div>
                                             </div>
                                             <div className="w-full md:w-1/2 mt-2 md:mt-0">
                                                 <Progress
                                                     percent={Math.round((goal.currentSpending / goal.amount) * 100)}
                                                     status={goal.currentSpending >= goal.amount ? 'success' : 'active'}
-                                                    format={() => `$${goal.currentSpending} / $${goal.amount}`}
+                                                    format={() => `${Number(goal.currentSpending).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })} / ${Number(goal.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}`}
                                                 />
                                             </div>
                                         </div>

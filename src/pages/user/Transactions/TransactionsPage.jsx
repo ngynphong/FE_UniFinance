@@ -48,7 +48,7 @@ const TransactionsPage = () => {
             setTransactions(data);
         } catch (error) {
             console.error('Fetch transactions error:', error);
-            message.error('Failed to fetch transactions');
+            // message.error('Failed to fetch transactions');
         } finally {
             setLoading(false);
         }
@@ -59,7 +59,7 @@ const TransactionsPage = () => {
             if (data.id) {
                 // Update existing transaction
                 await transactionService.updateTransaction(data.id, data);
-                message.success('Transaction updated successfully');
+                message.success('Giao dịch đã được cập nhật thành công');
                 setTransactions(prev =>
                     prev.map(t => t.id === data.id ? data : t)
                 );
@@ -69,14 +69,14 @@ const TransactionsPage = () => {
                     ...data,
                     dateCreate: new Date().toISOString()
                 });
-                message.success('Transaction created successfully');
+                message.success('Tạo giao dịch mới thành công');
                 setTransactions(prev => [...prev, response]);
             }
             setModalOpen(false);
             setEditData(null);
         } catch (error) {
             console.error('Save transaction error:', error);
-            message.error(error.message || 'Failed to save transaction');
+            message.error(error.message || 'Lỗi khi lưu giao dịch');
         }
     };
 
@@ -84,11 +84,11 @@ const TransactionsPage = () => {
     const handleDelete = async (transactionId) => {
         try {
             await transactionService.deleteTransaction(transactionId);
-            message.success('Transaction deleted successfully');
+            message.success('Xóa giao dịch thành công');
             setTransactions(prev => prev.filter(t => t.transactionId !== transactionId));
         } catch (error) {
             console.error('Delete transaction error:', error);
-            message.error('Failed to delete transaction');
+            message.error('Lỗi khi xóa giao dịch');
         }
     };
 
@@ -101,7 +101,7 @@ const TransactionsPage = () => {
     return (
         <DashboardLayout>
             <div className="space-y-6 px-2 md:px-0">
-                <h1 className="text-2xl font-bold text-gray-800">Giao dịch</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Quản lý giao dịch</h1>
                 <div className="mx-auto p-4 md:p-6 bg-white rounded-lg shadow-md mt-6 mb-10">
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">

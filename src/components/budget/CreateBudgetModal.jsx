@@ -13,7 +13,7 @@ const CreateBudgetModal = ({ open, onClose, onSuccess }) => {
 
     const handleSubmit = async (values) => {
         if (!isAuthenticated) {
-            message.error('Please login to create budget');
+            message.error('Vui lòng đăng nhập để tạo ngân sách');
             navigate('/login');
             return;
         }
