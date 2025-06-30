@@ -32,6 +32,7 @@ import BudgetManagement from "./pages/user/BudgetManagement/BudgetManagement"
 import TransactionsPage from "./pages/user/Transactions/TransactionsPage"
 import ServicesPage from "./pages/generic/services/ServicesPage";
 import BlogPage from "./pages/generic/BlogPage";
+import EmailVerifyPage from "./pages/generic/EmailVerifyPage";
 
 // Dashboard Pages
 import Dashboard from "./pages/user/Dashboard/Dashboard";
@@ -83,6 +84,7 @@ function App() {
             <Route path='/register' element={<Register />} />
             <Route path='/forgot-password' element={<ForgotPassword />} />
             <Route path='/reset-password' element={<ResetPassword />} />
+            <Route path='/email-verify' element={<EmailVerifyPage />} />
 
             {/* Routes using main layout */}
             <Route element={<Layout onScrollToSection={handleScrollToSection} />}>

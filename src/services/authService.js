@@ -88,13 +88,7 @@ export const authService = {
 
     getUserProfile: async (userID) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`/User/${userID}`, {
-                headers: {
-                    'Accept': '*/*',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await axios.get(`/User/${userID}`);
             return response.data;
         } catch (error) {
             throw error.response?.data || { message: 'Failed to fetch user profile' };
@@ -103,16 +97,27 @@ export const authService = {
 
     updateUserProfile: async (id, userData) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.put(`/User/${id}`, userData, {
-                headers: {
-                    'Accept': '*/*',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await axios.put(`/User/${id}`, userData);
             return response.data;
         } catch (error) {
             throw error.response?.data || { message: 'Failed to update profile' };
+        }
+    },
+    // Xác thực email
+    verifyEmail: async (email, token) => {
+        try {
+            const response = await axios.post('/api/EmailVerification', { email, token });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data?.message || error.message;
+        }
+    },
+    resendVerificationEmail: async (email) => {
+        try {
+            const response = await axios.post(`/api/EmailVerification/Resend/${encodeURIComponent(email)}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data?.message || error.message;
         }
     }
 };
