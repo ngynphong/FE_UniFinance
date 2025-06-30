@@ -3,7 +3,7 @@
 import { Row, Col, Timeline } from "antd";
 import { Award } from "lucide-react";
 import { timelineData } from "../../data/timelineData";
-import Kiet from "../../assets/About-us.jpg";
+
 
 const AboutSection = () => {
   return (
@@ -14,7 +14,7 @@ const AboutSection = () => {
           <Col xs={24} lg={12}>
             <div className="relative">
               <img
-                src={Kiet}
+                src="/FPT.jpg"
                 alt="About us"
                 className="rounded-2xl shadow-2xl w-full"
                 style={{ width: "60%", height: "auto" }}
