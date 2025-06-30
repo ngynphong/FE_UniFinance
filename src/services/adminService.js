@@ -11,3 +11,9 @@ export const getAllUsers = async (role) => {
   });
   return response.data;
 };
+// export const updateUserStatus = async (id, isActive) => {
+//   const response = await axios.put(`/Admin/users/${id}/status`, null, {
+//     params: { isActive },
+//   });
+//   return response.data;
+// };

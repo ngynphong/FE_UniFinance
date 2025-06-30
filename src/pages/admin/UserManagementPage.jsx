@@ -1,5 +1,6 @@
 import React from 'react'
-import UserManagement from '../../components/admin/UserManager'
+import UserManagement from '../../components/admin/userManager/UserManager'
+
 
 function UserManagementPage() {
   return (

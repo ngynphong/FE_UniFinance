@@ -10,8 +10,8 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import AdminLayout from '../../components/layout/admin/AdminLayout';
-import { getAllUsers } from '../../services/adminService';
+import AdminLayout from '../../layout/admin/AdminLayout';
+import { getAllUsers } from '../../../services/adminService';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
