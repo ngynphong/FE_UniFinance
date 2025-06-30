@@ -1,29 +1,41 @@
 "use client";
 
-import { Row, Col, Card, Form, Input, Select, Button, message } from "antd";
+import { Row, Col, Card, Form, Input, Button, message } from "antd";
 import { Phone, Mail, MapPin } from "lucide-react";
+import { contactService } from '../../services/contactService/';
 
-const { Option } = Select;
 const { TextArea } = Input;
 
 const ContactSection = () => {
-  const onFinish = (values) => {
-    message.success("Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong 24h.");
-    console.log("Form values:", values);
+  const onFinish = async (values) => {
+    try {
+      // Gọi API tạo contact
+      const response = await contactService.createContact({
+        Name: values.name,
+        Email: values.email,
+        Issue: values.issue,
+        Message: values.message,
+        DateSent: new Date().toISOString(),  
+      });
+      
+      message.success("Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong 24h.");
+      console.log("Contact created:", response);
+    } catch (error) {
+      message.error(error.message || "Đã có lỗi xảy ra, vui lòng thử lại!");
+      console.log("Error creating contact:", error);
+    }
   };
 
   const contactInfo = [
     {
       icon: <Phone className="w-6 h-6 text-blue-600" />,
       title: "Điện thoại",
-      // content: "+84 123 456 789",
       content: "+84 854 494 415",
       bgColor: "bg-blue-100",
     },
     {
       icon: <Mail className="w-6 h-6 text-green-600" />,
       title: "Email",
-      // content: "info@financeconsult.vn",
       content: "kietlgse172490@fpt.edu.vn",
       bgColor: "bg-green-100",
     },
@@ -85,9 +97,7 @@ const ContactSection = () => {
                     <Form.Item
                       label="Họ và tên"
                       name="name"
-                      rules={[
-                        { required: true, message: "Vui lòng nhập họ tên!" },
-                      ]}
+                      rules={[{ required: true, message: "Vui lòng nhập họ tên!" }]}
                     >
                       <Input size="large" placeholder="Nhập họ và tên" />
                     </Form.Item>
@@ -105,41 +115,31 @@ const ContactSection = () => {
                     </Form.Item>
                   </Col>
                 </Row>
+
                 <Form.Item
-                  label="Dịch vụ quan tâm"
-                  name="service"
-                  rules={[
-                    { required: true, message: "Vui lòng chọn dịch vụ!" },
-                  ]}
+                  label="Vấn đề"
+                  name="issue"
+                  rules={[{ required: true, message: "Vui lòng nhập vấn đề!" }]}
                 >
-                  <Select size="large" placeholder="Chọn dịch vụ">
-                    <Option value="investment-advisory">Tư vấn Đầu tư</Option>
-                    <Option value="asset-management">
-                      Tư vấn Quản lý Tài sản
-                    </Option>
-                    <Option value="personal-finance">
-                      Tư vấn Tài chính Cá Nhân Hóa
-                    </Option>
-                    <Option value="long-term-strategy">
-                      Tư vấn Chiến lược Tài Chính Dài Hạn
-                    </Option>
-                    <Option value="savings-management">
-                      Tư vấn Tiết Kiệm và Quản lý Tiết Kiệm
-                    </Option>
-                    <Option value="financial-planning">
-                      Tư vấn Lập Kế hoạch Tài chính Cá nhân
-                    </Option>                                 
-                  </Select>
+                  <TextArea rows={4} placeholder="Nhập vấn đề bạn đang gặp phải" />
                 </Form.Item>
+
                 <Form.Item
-                  label="Tin nhắn"
+                  label="Mô tả chi tiết"
                   name="message"
                   rules={[
-                    { required: true, message: "Vui lòng nhập tin nhắn!" },
+                    {
+                      required: true,
+                      message: "Vui lòng nhập mô tả chi tiết!",
+                    },
                   ]}
                 >
-                  <TextArea rows={4} placeholder="Nhập tin nhắn của bạn" />
+                  <TextArea
+                    rows={4}
+                    placeholder="Mô tả chi tiết vấn đề hoặc yêu cầu của bạn. Ví dụ: 'Tôi đã thử đổi mật khẩu nhưng không thể đăng nhập.'"
+                  />
                 </Form.Item>
+
                 <Form.Item>
                   <Button
                     type="primary"
@@ -160,3 +160,4 @@ const ContactSection = () => {
 };
 
 export default ContactSection;
+
