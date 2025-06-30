@@ -1,51 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Button, Input, Modal, message, Tag } from "antd";
 import StaffLayout from "../../components/layout/staff/StaffLayout";
-
-const mockCustomers = [
-  {
-    id: 1,
-    name: "Nguyễn Văn A",
-    email: "a@gmail.com",
-    issue: "Không đăng nhập được",
-    status: "pending",
-    note: "",
-  },
-  {
-    id: 2,
-    name: "Trần Thị B",
-    email: "b@gmail.com",
-    issue: "Cần tư vấn nâng cấp gói",
-    status: "pending",
-    note: "",
-  },
-];
+import { contactService } from "../../services/contactService"; 
 
 export default function SupportDashboard() {
-  const [customers, setCustomers] = useState(mockCustomers);
-  const [noteModal, setNoteModal] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [note, setNote] = useState("");
+  const [customers, setCustomers] = useState([]);
+  // const [noteModal, setNoteModal] = useState(false);
+  const [messageModal, setMessageModal] = useState(false); 
+  // const [selectedCustomer, setSelectedCustomer] = useState(null);
+  // const [note, setNote] = useState("");
+  const [selectedMessage, setSelectedMessage] = useState("");
 
-  const handleUpgradeSuggest = (customer) => {
-    message.success(`Đã gửi gợi ý nâng cấp gói cho ${customer.name}`);
-    // Gọi API gửi notification/email ở đây nếu có
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await contactService.getAllContacts();
+        setCustomers(data); 
+      // eslint-disable-next-line no-unused-vars
+      } catch (error) {
+        message.error("Không thể tải danh sách khách hàng.");
+      }
+    };
+
+    fetchCustomers();
+  }, []);
+
+  // const handleUpgradeSuggest = (customer) => {
+  //   message.success(`Đã gửi gợi ý nâng cấp gói cho ${customer.name}`);
+  // };
+
+  // const handleOpenNote = (customer) => {
+  //   setSelectedCustomer(customer);
+  //   setNote(customer.note || "");
+  //   setNoteModal(true);
+  // };
+
+  // const handleSaveNote = () => {
+  //   setCustomers((prev) =>
+  //     prev.map((c) =>
+  //       c.id === selectedCustomer.id ? { ...c, note } : c
+  //     )
+  //   );
+  //   setNoteModal(false);
+  //   message.success("Đã lưu ghi chú hỗ trợ");
+  // };
+
+  const handleOpenMessage = (messageContent) => {
+    setSelectedMessage(messageContent);
+    setMessageModal(true);
   };
 
-  const handleOpenNote = (customer) => {
-    setSelectedCustomer(customer);
-    setNote(customer.note || "");
-    setNoteModal(true);
-  };
-
-  const handleSaveNote = () => {
-    setCustomers((prev) =>
-      prev.map((c) =>
-        c.id === selectedCustomer.id ? { ...c, note } : c
-      )
-    );
-    setNoteModal(false);
-    message.success("Đã lưu ghi chú hỗ trợ");
+  const handleChangeStatus = async (customer) => {
+    try {
+      const updatedCustomer = { ...customer, resolved: !customer.resolved };
+      const response = await contactService.updateStatus(updatedCustomer.id, updatedCustomer.resolved);
+      if (response?.message === "Cập nhật trạng thái thành công.") {
+        setCustomers((prev) =>
+          prev.map((c) =>
+            c.id === customer.id ? updatedCustomer : c
+          )
+        );
+        message.success("Trạng thái đã được thay đổi");
+      }
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      message.error("Không thể thay đổi trạng thái.");
+    }
   };
 
   const columns = [
@@ -65,36 +85,60 @@ export default function SupportDashboard() {
       key: "issue",
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status) =>
-        status === "pending" ? (
-          <Tag color="orange">Đang chờ</Tag>
-        ) : (
-          <Tag color="green">Đã xử lý</Tag>
-        ),
+      title: "Message",
+      dataIndex: "message",
+      key: "message",
+      render: (message) => (
+        <Button size="small" onClick={() => handleOpenMessage(message)}>
+          Xem chi tiết
+        </Button>
+      ),
     },
     {
-      title: "Hành động",
-      key: "action",
-      render: (_, customer) => (
-        <div className="flex gap-2">
-          <Button
-            size="small"
-            onClick={() => handleUpgradeSuggest(customer)}
+      title: "Ngày gửi", 
+      dataIndex: "dateSent",
+      key: "dateSent",
+      render: (dateSent) => {
+        const date = new Date(dateSent);
+        return <span>{date.toLocaleDateString()}</span>; 
+      },
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "resolved",
+      key: "resolved",
+      render: (resolved, customer) => (
+        <div>
+          <Tag
+            color={resolved ? "green" : "orange"}
+            onClick={() => handleChangeStatus(customer)} // Thay đổi trạng thái khi nhấn vào tag
+            style={{ cursor: "pointer" }}
           >
-            Gợi ý nâng cấp gói
-          </Button>
-          <Button
-            size="small"
-            onClick={() => handleOpenNote(customer)}
-          >
-            Ghi chú hỗ trợ
-          </Button>
+            {resolved ? "Đã xử lý" : "Đang chờ"}
+          </Tag>
         </div>
       ),
     },
+    // {
+    //   title: "Hành động",
+    //   key: "action",
+    //   render: (_, customer) => (
+    //     <div className="flex gap-2">
+    //       <Button
+    //         size="small"
+    //         onClick={() => handleUpgradeSuggest(customer)}
+    //       >
+    //         Gợi ý nâng cấp gói
+    //       </Button>
+    //       <Button
+    //         size="small"
+    //         onClick={() => handleOpenNote(customer)}
+    //       >
+    //         Ghi chú hỗ trợ
+    //       </Button>
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (
@@ -108,7 +152,9 @@ export default function SupportDashboard() {
           pagination={false}
           className="bg-white shadow rounded"
         />
-        <Modal
+        
+        {/* Modal để hiển thị ghi chú */}
+        {/* <Modal
           open={noteModal}
           title={`Ghi chú hỗ trợ: ${selectedCustomer?.name}`}
           onCancel={() => setNoteModal(false)}
@@ -122,6 +168,20 @@ export default function SupportDashboard() {
             onChange={(e) => setNote(e.target.value)}
             placeholder="Nhập ghi chú hỗ trợ kỹ thuật"
           />
+        </Modal> */}
+
+        {/* Modal để hiển thị Message */}
+        <Modal
+          open={messageModal}
+          title="Chi tiết vấn đề"
+          onCancel={() => setMessageModal(false)}
+          footer={[
+            <Button key="close" onClick={() => setMessageModal(false)}>
+              Đóng
+            </Button>,
+          ]}
+        >
+          <p>{selectedMessage}</p>
         </Modal>
       </div>
     </StaffLayout>

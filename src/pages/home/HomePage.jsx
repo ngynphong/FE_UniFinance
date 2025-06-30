@@ -5,7 +5,7 @@ import StatsSection from "../../components/home/StatsSection"
 import ServicesSection from "../../components/home/ServicesSection"
 import PremiumSection from "../../components/home/PrimeumSection"
 import AboutSection from "../../components/home/AboutSection"
-import TestimonialsSection from "../../components/home/TestimonialsSection"
+// import TestimonialsSection from "../../components/home/TestimonialsSection"
 import ContactSection from "../../components/home/ContactSection"
 import FinancialChat from "../../components/home/FinancialChat"
 
@@ -32,7 +32,7 @@ function HomePage() {
       <ServicesSection />
       <PremiumSection scrollToSection={scrollToSection} />
       <AboutSection />
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
       <ContactSection />
       <FinancialChat />
     </Content>
