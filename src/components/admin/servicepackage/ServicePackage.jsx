@@ -41,7 +41,7 @@ const ServicePackage = () => {
       const res = await getAllPackages();
       setPackages(res);
     } catch (err) {
-      message.error('Lỗi khi tải danh sách gói dịch vụ');
+      message.error('Lỗi khi tải danh sách gói dịch vụ' + err);
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ const ServicePackage = () => {
       setIsModalOpen(false);
       fetchPackages();
     } catch (err) {
-      message.error('Lỗi khi lưu dữ liệu');
+      message.error('Lỗi khi lưu dữ liệu' + err);
     }
   };
 
