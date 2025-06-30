@@ -36,12 +36,18 @@ export const contactService = {
 
   async updateStatus(contactId, resolved) {
     try {
-      const response = await axios.put(`/Contact/updateStatus/${contactId}`, {
+      const response = await axios.put(
+        `/Contact/updateStatus/${contactId}`,
         resolved,
-      });
-      return response.data; 
+        {
+    headers: {
+      'Content-Type': 'application/json' // Đảm bảo header này được thiết lập
+    }
+  }
+      );
+      return response.data;
     } catch (error) {
-      throw error.response?.data || { message: "Lỗi cập nhật trạng thái" };
+      throw error.response?.data || { message: "Failed to update status" };
     }
   },
 
@@ -50,7 +56,9 @@ export const contactService = {
       const response = await axios.get("/Contact/GetPreviousStats");
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: "Failed to fetch previous stats" };
+      throw (
+        error.response?.data || { message: "Failed to fetch previous stats" }
+      );
     }
-  }
+  },
 };
