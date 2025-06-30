@@ -58,7 +58,12 @@ import StaffConsultationManager from "./pages/staff/StaffConsultationManager";
 import ChatPage from "./pages/chat/chat";
 import MessageManagement from "./pages/staff/MessageManagement";
 import UserManagementPage from "./pages/admin/UserManagementPage";
+
 import PaymentCancelled from "./pages/payment/PaymentCancelled";
+
+import FinancialStatsPage from "./pages/admin/FinancialStatsPage";
+import ServicePackagePage from "./pages/admin/ServicePackagePage";
+
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -115,6 +120,22 @@ function App() {
               element={
                 <ProtectedRoute roles={["Admin"]}>
                   <UserManagementPage />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/admin/dashboard/financial-stats"
+              element={
+                <ProtectedRoute roles={["Admin"]}>
+                  < FinancialStatsPage/>
+                </ProtectedRoute>
+              }
+            />
+              <Route
+              path="/admin/dashboard/packages"
+              element={
+                <ProtectedRoute roles={["Admin"]}>
+                  < ServicePackagePage/>
                 </ProtectedRoute>
               }
             />
