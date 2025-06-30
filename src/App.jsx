@@ -33,6 +33,7 @@ import TransactionsPage from "./pages/user/Transactions/TransactionsPage"
 import ServicesPage from "./pages/generic/services/ServicesPage";
 import BlogPage from "./pages/generic/BlogPage";
 import EmailVerifyPage from "./pages/generic/EmailVerifyPage";
+import PaymentSuccess from "./pages/payment/PaymentSuccess";
 
 // Dashboard Pages
 import Dashboard from "./pages/user/Dashboard/Dashboard";
@@ -57,6 +58,7 @@ import StaffConsultationManager from "./pages/staff/StaffConsultationManager";
 import ChatPage from "./pages/chat/chat";
 import MessageManagement from "./pages/staff/MessageManagement";
 import UserManagementPage from "./pages/admin/UserManagementPage";
+import PaymentCancelled from "./pages/payment/PaymentCancelled";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -85,6 +87,8 @@ function App() {
             <Route path='/forgot-password' element={<ForgotPassword />} />
             <Route path='/reset-password' element={<ResetPassword />} />
             <Route path='/email-verify' element={<EmailVerifyPage />} />
+            <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
 
             {/* Routes using main layout */}
             <Route element={<Layout onScrollToSection={handleScrollToSection} />}>
@@ -204,7 +208,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-                <Route
+            <Route
               path="/dashboard/blog"
               element={
                 <ProtectedRoute roles={["Customer"]}>

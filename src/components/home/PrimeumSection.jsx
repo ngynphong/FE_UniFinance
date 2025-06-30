@@ -1,6 +1,6 @@
 "use client";
 
-import { Row, Col, Card, Button, Badge } from "antd";
+import { Row, Col, Card, Button, Badge, message } from "antd";
 import {
   Crown,
   Star,
@@ -14,9 +14,14 @@ import {
   Award,
   Shield,
 } from "lucide-react";
-import { premiumPackagesData } from "../../data/primeumPackagesData";
+import { useEffect, useState } from "react";
+import packageService from "../../services/packageService";
+import { useAuth } from "../../components/auth/useAuthHook";
 
 const PremiumSection = ({ scrollToSection }) => {
+  const [packages, setPackages] = useState([]);
+  const { user } = useAuth();
+
   const premiumFeatures = [
     {
       icon: <Shield className="w-6 h-6 text-blue-600" />,
@@ -39,6 +44,39 @@ const PremiumSection = ({ scrollToSection }) => {
       description: "Tư vấn khẩn cấp mọi lúc",
     },
   ];
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const data = await packageService.getPackage();
+        setPackages(data);
+      } catch {
+        setPackages([]);
+      }
+    };
+    fetchPackages();
+  }, []);
+
+  const handleSelectPackage = async (pkg) => {
+    if (pkg.name === "Free") {
+      message.success("Đăng ký gói Free thành công!");
+      return;
+    }
+    if (!user || !user.userID) {
+      message.error("Bạn cần đăng nhập để thanh toán gói dịch vụ.");
+      return;
+    }
+    try {
+      const res = await packageService.paymentPackage(pkg.id, user.userID);
+      if (res && res.checkoutUrl) {
+        window.location.href = res.checkoutUrl;
+        return;
+      }
+      message.success(`Thanh toán gói ${pkg.name} thành công!`);
+    } catch {
+      message.error("Thanh toán thất bại. Vui lòng thử lại.");
+    }
+  };
 
   return (
     <section
@@ -95,95 +133,65 @@ const PremiumSection = ({ scrollToSection }) => {
 
         {/* Premium Packages */}
         <Row gutter={[32, 32]} className="mb-16">
-          {premiumPackagesData.map((pkg, index) => (
-            <Col xs={24} lg={8} key={index}>
-              <Card
-                className={`h-full border-0 relative overflow-hidden ${
-                  pkg.popular
-                    ? "bg-gradient-to-br from-yellow-50 to-orange-50 ring-2 ring-yellow-400 transform scale-105"
-                    : "bg-white"
-                }`}
-                bodyStyle={{ padding: "2rem" }}
-              >
-                {pkg.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-2 rounded-full text-sm font-bold flex items-center">
-                      <Star className="w-4 h-4 mr-1" />
-                      Phổ biến nhất
-                    </div>
+          {packages.map((pkg) => {
+            let icon, iconBg, cardBg, priceColor;
+            if (pkg.name === "Free") {
+              icon = <Star className="w-10 h-10 text-blue-400" />;
+              iconBg = "bg-blue-50";
+              cardBg = "bg-blue-100 border-blue-200";
+              priceColor = "text-blue-600";
+            } else if (pkg.name === "Plus") {
+              icon = <TrendingUp className="w-10 h-10 text-purple-500" />;
+              iconBg = "bg-purple-50";
+              cardBg = "bg-purple-100 border-purple-200";
+              priceColor = "text-purple-600";
+            } else if (pkg.name === "Premium") {
+              icon = <Crown className="w-10 h-10 text-yellow-400" />;
+              iconBg = "bg-yellow-50";
+              cardBg = "bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300";
+              priceColor = "text-yellow-600";
+            }
+            return (
+              <Col xs={24} lg={8} key={pkg.id}>
+                <Card
+                  className={`h-full border-2 relative overflow-hidden ${cardBg}`}
+                  bodyStyle={{ padding: "2rem" }}
+                >
+                  <div className="flex justify-center mb-4">
+                    <div className={`rounded-full p-4 shadow ${iconBg}`}>{icon}</div>
                   </div>
-                )}
-
-                <div className="text-center mb-6">
-                  <div
-                    className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${pkg.iconBg}`}
-                  >
-                    {pkg.icon}
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                    {pkg.name}
-                  </h3>
-                  <div className="mb-2">
-                    <span className="text-4xl font-bold text-blue-600">
-                      {pkg.price}
-                    </span>
-                    <span className="text-gray-500 ml-1">{pkg.period}</span>
-                  </div>
-                  {pkg.originalPrice && (
-                    <div className="text-gray-400 line-through text-lg">
-                      {pkg.originalPrice}
-                    </div>
-                  )}
-                  <p className="text-gray-600 mt-2">{pkg.description}</p>
-                </div>
-
-                <div className="space-y-3 mb-8">
-                  {pkg.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {pkg.bonus && (
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-6 border border-blue-200">
-                    <div className="flex items-center mb-2">
-                      <Award className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="font-semibold text-blue-800">
-                        Ưu đãi đặc biệt
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                      {pkg.name}
+                    </h3>
+                    <div className="mb-2">
+                      <span className={`text-4xl font-bold ${priceColor}`}>
+                        {pkg.price === 0 ? "Miễn phí" : pkg.price.toLocaleString("vi-VN") + "đ"}
                       </span>
                     </div>
-                    <ul className="space-y-1">
-                      {pkg.bonus.map((item, idx) => (
-                        <li
-                          key={idx}
-                          className="text-sm text-blue-700 flex items-center"
-                        >
-                          <Zap className="w-3 h-3 mr-2" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
+                    <p className="text-gray-600 mt-2">{pkg.description}</p>
                   </div>
-                )}
-
-                <Button
-                  type={pkg.popular ? "primary" : "default"}
-                  size="large"
-                  className={`w-full h-12 font-semibold flex items-center justify-center ${
-                    pkg.popular
-                      ? "bg-gradient-to-r from-yellow-400 to-orange-500 border-none hover:from-yellow-500 hover:to-orange-600"
-                      : "border-blue-600 text-blue-600 hover:bg-blue-50"
-                  }`}
-                  onClick={() => scrollToSection("contact")}
-                >
-                  {pkg.popular ? "Chọn gói Premium" : "Tìm hiểu thêm"}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Card>
-            </Col>
-          ))}
+                  <div className="space-y-3 mb-8">
+                    {pkg.features && pkg.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start">
+                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    type={pkg.name === "Premium" ? "primary" : "default"}
+                    size="large"
+                    className={`w-full h-12 font-semibold flex items-center justify-center ${pkg.name === "Premium" ? "bg-gradient-to-r from-yellow-400 to-orange-500 border-none hover:from-yellow-500 hover:to-orange-600" : "border-blue-600 text-blue-600 hover:bg-blue-50"}`}
+                    onClick={() => handleSelectPackage(pkg)}
+                  >
+                    {pkg.name === "Premium" ? "Chọn gói Premium" : pkg.name === "Plus" ? "Chọn gói Plus" : "Đăng ký Free"}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
 
         {/* Premium Benefits */}
