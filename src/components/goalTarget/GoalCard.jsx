@@ -43,10 +43,10 @@ const GoalCard = ({ goal, onEdit, onDelete }) => {
                     </div>
                     <div className="text-right">
                         <div className="text-lg font-bold text-green-600">
-                            ${goal.amount.toLocaleString()}
+                            {goal.amount.toLocaleString()} đ
                         </div>
                         <div className="text-sm text-gray-500">
-                            Hiện tại: ${goal.currentSpending.toLocaleString()}
+                            Hiện tại: {goal.currentSpending.toLocaleString()}
                         </div>
                     </div>
                 </div>

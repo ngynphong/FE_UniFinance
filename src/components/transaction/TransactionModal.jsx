@@ -23,7 +23,8 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
             const data = await categoryService.getUserCategories();
             setCategories(data);
         } catch (error) {
-            message.error('Lỗi khi tải dữ liệu', error);
+            // message.error('Lỗi khi tải dữ liệu', error);
+            console.log(error)
         }
     };
 
@@ -114,15 +115,13 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                 layout="vertical"
                 form={form}
                 onFinish={handleFinish}
-
                 preserve={false}
-                
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Form.Item
                         label="Loại"
                         name="type"
-                        rules={[{ required: true, message: 'Vui lọng chọn loại' }]}
+                        rules={[{ required: true, message: 'Vui lòng chọn loại' }]}
                     >
                         <Select>
                             <Option value="income">Thu nhập</Option>
@@ -135,7 +134,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                             <Form.Item
                                 name="categoryId"
                                 noStyle
-                                rules={[{ required: true, message: 'Please select or add category' }]}
+                                rules={[{ required: true, message: 'Vui lòng chọn hoặc thêm loại ngân sách' }]}
                             >
                                 <Select
                                     style={{ width: addingCategory ? '69%' : '100%' }}
@@ -182,7 +181,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                                         setNewCategoryName('');
                                     }}
                                 >
-                                    Cancel
+                                    Hủy
                                 </Button>
                             </Space.Compact>
                         )}
@@ -232,7 +231,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                 </Form.Item>
 
                 <div className="flex justify-end gap-2 mt-4">
-                    <Button onClick={onClose}>Cancel</Button>
+                    <Button onClick={onClose}>Hủy</Button>
                     <Button type="primary" htmlType="submit">
                         {editData ? "Sửa" : "Tạo"}
                     </Button>

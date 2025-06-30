@@ -34,8 +34,10 @@ const TransactionItem = ({ transaction, onEdit, onDelete }) => {
         fetchCategoryAndBudget();
     }, [categoryId, budgetId]);
 
-    // Format date
-    const formattedDate = dayjs(dateCreate).format("MMM DD, YYYY");
+    // Format date (Vietnamese style)
+    const formattedDate = dayjs(dateCreate).format("DD/MM/YYYY");
+    // Format amount as VND currency
+    const formattedAmount = Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
     return (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 px-2 hover:bg-gray-50 transition gap-2">
@@ -50,12 +52,12 @@ const TransactionItem = ({ transaction, onEdit, onDelete }) => {
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 <div className={`font-semibold ${type === "income" ? "text-green-600" : "text-red-500"}`}>
-                    {type === "income" ? "+" : "-"}{amount}
+                    {type === "income" ? "+" : "-"}{formattedAmount}
                 </div>
                 <div className="text-xs text-gray-400 w-full sm:w-20">{formattedDate}</div>
                 <div className="flex gap-2">
                     <Button className="text-blue-500 hover:underline" onClick={onEdit}><FaEdit /></Button>
-                    <Popconfirm title="Xóa giao dịch này?" onConfirm={onDelete}>
+                    <Popconfirm title="Xóa giao dịch này?" onConfirm={onDelete} okText="Xóa" cancelText="Hủy">
                         <Button danger><FaTrash /></Button>
                     </Popconfirm>
                 </div>

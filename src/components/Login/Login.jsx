@@ -58,7 +58,7 @@ const Login = () => {
             if (!credentialResponse?.credential) {
                 throw new Error('No credentials received from Google');
             }
-
+            console.log('google',credentialResponse.credential)
             const decoded = jwtDecode(credentialResponse.credential);
 
             const googleUserInfo = {
