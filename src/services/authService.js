@@ -106,7 +106,7 @@ export const authService = {
     // Xác thực email
     verifyEmail: async (email, token) => {
         try {
-            const response = await axios.post('/api/EmailVerification', { email, token });
+            const response = await axios.post('/EmailVerification', { email, token });
             return response.data;
         } catch (error) {
             throw error.response?.data?.message || error.message;
@@ -114,7 +114,7 @@ export const authService = {
     },
     resendVerificationEmail: async (email) => {
         try {
-            const response = await axios.post(`/api/EmailVerification/Resend/${encodeURIComponent(email)}`);
+            const response = await axios.post(`/EmailVerification/Resend/${encodeURIComponent(email)}`);
             return response.data;
         } catch (error) {
             throw error.response?.data?.message || error.message;
