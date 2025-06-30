@@ -51,22 +51,27 @@ export default function SupportDashboard() {
   };
 
   const handleChangeStatus = async (customer) => {
-    try {
-      const updatedCustomer = { ...customer, resolved: !customer.resolved };
-      const response = await contactService.updateStatus(updatedCustomer.id, updatedCustomer.resolved);
-      if (response?.message === "Cập nhật trạng thái thành công.") {
-        setCustomers((prev) =>
-          prev.map((c) =>
-            c.id === customer.id ? updatedCustomer : c
-          )
-        );
-        message.success("Trạng thái đã được thay đổi");
-      }
-    // eslint-disable-next-line no-unused-vars
-    } catch (error) {
-      message.error("Không thể thay đổi trạng thái.");
+  try {
+    const updatedResolvedStatus = !customer.resolved;
+
+    // Gọi API với contactId và resolved
+    const response = await contactService.updateStatus(customer.contactId, updatedResolvedStatus);
+
+    if (response?.message === "Cập nhật trạng thái thành công.") {
+      // Cập nhật danh sách khách hàng sau khi thay đổi trạng thái
+      setCustomers((prev) =>
+        prev.map((c) =>
+          c.contactId === customer.contactId ? { ...c, resolved: updatedResolvedStatus } : c
+        )
+      );
+      message.success("Trạng thái đã được thay đổi");
     }
-  };
+  // eslint-disable-next-line no-unused-vars
+  } catch (error) {
+    message.error("Không thể thay đổi trạng thái.");
+  }
+};
+
 
   const columns = [
     {
