@@ -10,33 +10,41 @@ const EmailVerifyPage = () => {
     const [message, setMessage] = useState('');
     const [resendLoading, setResendLoading] = useState(false);
     const [resendSuccess, setResendSuccess] = useState(false);
+    const [email, setEmail] = useState(null);
+    const [token, setToken] = useState(null);
+    const [hasVerified, setHasVerified] = useState(false);
 
+    // Lấy email và token từ URL chỉ 1 lần
     useEffect(() => {
         const params = new URLSearchParams(location.search);
-        const email = params.get('email');
-        const token = params.get('token');
-        console.log('Email xác thực:', email);
-        console.log('Token xác thực:', token);
-        if (!email || !token) {
-            setStatus('error');
-            setMessage('Thiếu thông tin xác thực.');
-            return;
-        }
+        const emailParam = params.get('email');
+        const tokenParam = decodeURIComponent(params.get("token")).replace(/ /g, '+');
+        setEmail(emailParam);
+        setToken(tokenParam);
+        console.log('Email xác thực:', emailParam);
+        console.log('Token xác thực:', tokenParam);
+    }, [location.search]);
+
+    // Chỉ xác thực khi có đủ email, token và chưa xác thực
+    useEffect(() => {
+        if (!email || !token || hasVerified) return;
+        setStatus('loading');
+        setMessage('');
         authService.verifyEmail(email, token)
             .then(() => {
                 setStatus('success');
                 setMessage('Xác thực email thành công! Đang chuyển hướng đến trang đăng nhập...');
+                setHasVerified(true);
                 setTimeout(() => navigate('/login'), 3000);
             })
             .catch((err) => {
                 setStatus('error');
                 setMessage(typeof err === 'string' ? err : 'Xác thực thất bại.');
+                setHasVerified(true);
             });
-    }, [location, navigate]);
+    }, [email, token, hasVerified, navigate]);
 
     const handleResend = async () => {
-        const params = new URLSearchParams(location.search);
-        const email = params.get('email');
         if (!email) return;
         setResendLoading(true);
         setResendSuccess(false);
