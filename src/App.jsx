@@ -14,22 +14,22 @@ import scrollToSection from "./components/utils/ScrollToSection";
 import ScrollToTop from "./components/utils/ScrollToTop";
 
 // Auth
-import { AuthProvider } from "./contexts/useAuth"
+import { AuthProvider } from "./contexts/useAuth";
 
 // Pages - Auth
-import Login from "./components/Login/Login"
-import Register from "./components/Register/Register"
+import Login from "./components/Login/Login";
+import Register from "./components/Register/Register";
 import ForgotPassword from "./components/Login/ForgotPassword";
-import ProtectedRoute from "./components/auth/ProtectedRoute"
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // Pages - Public
-import HomePage from "./pages/home/HomePage"
-import AboutPage from "./pages/generic/aboutUsPage/AboutPage"
-import ContactUsPage from "./pages/generic/contactUs/ContactUsPage"
-import PrivacyPolicyPage from "./pages/generic/privacyPolicyPage/PrivacyPolicyPage"
-import TermConditionPage from "./pages/generic/termConsitionsPage/TermConditionPage"
-import BudgetManagement from "./pages/user/BudgetManagement/BudgetManagement"
-import TransactionsPage from "./pages/user/Transactions/TransactionsPage"
+import HomePage from "./pages/home/HomePage";
+import AboutPage from "./pages/generic/aboutUsPage/AboutPage";
+import ContactUsPage from "./pages/generic/contactUs/ContactUsPage";
+import PrivacyPolicyPage from "./pages/generic/privacyPolicyPage/PrivacyPolicyPage";
+import TermConditionPage from "./pages/generic/termConsitionsPage/TermConditionPage";
+import BudgetManagement from "./pages/user/BudgetManagement/BudgetManagement";
+import TransactionsPage from "./pages/user/Transactions/TransactionsPage";
 import ServicesPage from "./pages/generic/services/ServicesPage";
 import BlogPage from "./pages/generic/BlogPage";
 import EmailVerifyPage from "./pages/generic/EmailVerifyPage";
@@ -63,7 +63,7 @@ import PaymentCancelled from "./pages/payment/PaymentCancelled";
 
 import FinancialStatsPage from "./pages/admin/FinancialStatsPage";
 import ServicePackagePage from "./pages/admin/ServicePackagePage";
-
+import BlogAdminManagerPage from "./pages/admin/BlogAdminManagerPage";
 
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
@@ -80,23 +80,24 @@ function App() {
   const handleScrollToSection = scrollToSection;
 
   return (
-
     <Router>
       <AuthProvider>
         <ScrollToTop />
         <div className="min-h-screen bg-gray-50 flex flex-col">
           <Routes>
             {/* Public routes without layout */}
-            <Route path='/login' element={<Login />} />
-            <Route path='/register' element={<Register />} />
-            <Route path='/forgot-password' element={<ForgotPassword />} />
-            <Route path='/reset-password' element={<ResetPassword />} />
-            <Route path='/email-verify' element={<EmailVerifyPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/email-verify" element={<EmailVerifyPage />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
 
             {/* Routes using main layout */}
-            <Route element={<Layout onScrollToSection={handleScrollToSection} />}>
+            <Route
+              element={<Layout onScrollToSection={handleScrollToSection} />}
+            >
               <Route path="/" element={<HomePage />} />
               <Route path="/about-us" element={<AboutPage />} />
               <Route path="/contact-with-us" element={<ContactUsPage />} />
@@ -123,19 +124,19 @@ function App() {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/admin/dashboard/financial-stats"
               element={
                 <ProtectedRoute roles={["Admin"]}>
-                  < FinancialStatsPage/>
+                  <FinancialStatsPage />
                 </ProtectedRoute>
               }
             />
-              <Route
+            <Route
               path="/admin/dashboard/packages"
               element={
                 <ProtectedRoute roles={["Admin"]}>
-                  < ServicePackagePage/>
+                  <ServicePackagePage />
                 </ProtectedRoute>
               }
             />
@@ -147,7 +148,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/admin/dashboard/blogs"
+              element={
+                <ProtectedRoute roles={["Admin"]}>
+                  <BlogAdminManagerPage />
+                </ProtectedRoute>
+              }
+            />
             {/* User Dashboard routes */}
             <Route
               path="/dashboard"
@@ -311,8 +319,7 @@ function App() {
           <ToastContainer />
         </div>
       </AuthProvider>
-    </Router >
-
+    </Router>
   );
 }
 
