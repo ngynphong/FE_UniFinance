@@ -5,6 +5,10 @@ const packageService = {
         const response = await axios.get('/Package');
         return response.data;
     },
+    getUserPackage: async (userId) => {
+        const response = await axios.get(`/Package/user-packages/${userId}`);
+        return response.data;
+    },
     paymentPackage: async (packageId, userId) => {
         const response = await axios.post('/Package/payment', { packageId, userId });
         return response.data;
