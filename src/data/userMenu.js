@@ -2,7 +2,7 @@ import { DashboardOutlined } from "@ant-design/icons";
 import { AiFillBank } from "react-icons/ai";
 import { GrTransaction } from "react-icons/gr";
 import { GoGoal } from "react-icons/go";
-import { MdOutlineDashboard } from "react-icons/md";
+import { MdOutlineDashboard, MdEvent } from "react-icons/md";
 import { ImBlog } from "react-icons/im";
 
 export const menu = [
@@ -11,5 +11,6 @@ export const menu = [
     { label: "Giao dịch", icon: <GrTransaction />, path: "/dashboard/transactions" },
     { label: "Mục tiêu", icon: <GoGoal />, path: "/dashboard/goals" },
     { label: "Quản lý nợ", icon: <MdOutlineDashboard />, path: "/dashboard/debt-management" },
+    { label: "Đặt lịch tư vấn", icon: <MdEvent />, path: "/dashboard/booking" },
     { label: "Tư vấn trực tuyến", icon: <MdOutlineDashboard />, path: "/dashboard/chat" }
 ];

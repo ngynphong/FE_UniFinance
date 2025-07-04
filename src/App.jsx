@@ -65,6 +65,9 @@ import FinancialStatsPage from "./pages/admin/FinancialStatsPage";
 import ServicePackagePage from "./pages/admin/ServicePackagePage";
 import BlogAdminManagerPage from "./pages/admin/BlogAdminManagerPage";
 
+import BookingPage from "./pages/user/Booking/BookingPage";
+
+
 // ===== Layout Wrapper =====
 const Layout = ({ onScrollToSection }) => (
   <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -242,6 +245,14 @@ function App() {
               element={
                 <ProtectedRoute roles={["Customer"]}>
                   <BlogManagerPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/booking"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <BookingPage />
                 </ProtectedRoute>
               }
             />
