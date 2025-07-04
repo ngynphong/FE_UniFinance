@@ -19,58 +19,58 @@ const TestimonialsSection = () => {
   const [hasUserPackage, setHasUserPackage] = useState(false); // Check if user has a package
   const [hasReviewed, setHasReviewed] = useState(false); // Check if user has reviewed the package
 
-  useEffect(() => {
-    // Fetch reviews from the review service
-    const fetchReviews = async () => {
-      try {
-        const data = await reviewService.getAllReviews();
-        const testimonialsWithUserInfo = await Promise.all(
-          data.map(async (testimonial) => {
-            const userInfo = await authService.getUserProfile(testimonial.userID);
-            return {
-              ...testimonial,
-              name: userInfo.name,
-              avatar: userInfo.avatar,
-            };
-          })
+  const fetchReviews = async () => {
+    try {
+      const data = await reviewService.getAllReviews();
+      const testimonialsWithUserInfo = await Promise.all(
+        data.map(async (testimonial) => {
+          const userInfo = await authService.getUserProfile(testimonial.userID);
+          return {
+            ...testimonial,
+            name: userInfo.name,
+            avatar: userInfo.avatar,
+          };
+        })
+      );
+      setTestimonials(testimonialsWithUserInfo);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      setLoading(false);
+    }
+  };
+
+  // Fetch the user package and review status
+  const fetchUserPackage = async () => {
+    try {
+      const userPackageData = await packageService.getUserPackage(user.userID);
+      if (userPackageData && userPackageData.length > 0) {
+        setHasUserPackage(true);
+        setReviewData((prevData) => ({
+          ...prevData,
+          userID: user.userID,
+          userPackageUserId: user.userID,
+          userPackagePackageId: userPackageData[0].packageId,
+        }));
+
+        // Check if the user has already reviewed this package
+        const userReview = await reviewService.getAllReviews(); // or use a specific function to get reviews of the package
+        const existingReview = userReview.find(
+          (review) =>
+            review.userPackagePackageId === userPackageData[0].packageId &&
+            review.userPackageUserId === user.userID
         );
-        setTestimonials(testimonialsWithUserInfo);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching reviews:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchReviews();
-
-    // Fetch the user package and review status
-    const fetchUserPackage = async () => {
-      try {
-        const userPackageData = await packageService.getUserPackage(user.userID);
-        if (userPackageData && userPackageData.length > 0) {
-          setHasUserPackage(true);
-          setReviewData((prevData) => ({
-            ...prevData,
-            userID: user.userID,
-            userPackageUserId: user.userID,
-            userPackagePackageId: userPackageData[0].packageId,
-          }));
-          
-          // Check if the user has already reviewed this package
-          const userReview = await reviewService.getAllReviews(); // or use a specific function to get reviews of the package
-          const existingReview = userReview.find(
-            (review) => review.userPackagePackageId === userPackageData[0].packageId && review.userPackageUserId === user.userID
-          );
-          if (existingReview) {
-            setHasReviewed(true);
-          }
+        if (existingReview) {
+          setHasReviewed(true);
         }
-      } catch (error) {
-        console.error("Error fetching user package:", error);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching user package:", error);
+    }
+  };
 
+  useEffect(() => {
+    fetchReviews();
     fetchUserPackage();
   }, [user]);
 
@@ -82,13 +82,15 @@ const TestimonialsSection = () => {
     try {
       await reviewService.createReview(reviewData);
       setIsModalVisible(false);
+      setHasReviewed(true); // Ẩn nút "Đánh giá ngay"
+      fetchReviews(); // Tải lại danh sách đánh giá
     } catch (error) {
       console.error("Error submitting review:", error);
     }
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false); 
+    setIsModalVisible(false);
   };
 
   const handleInputChange = (e) => {
@@ -118,8 +120,16 @@ const TestimonialsSection = () => {
               <div key={index}>
                 <Card className="max-w-4xl mx-auto border-0 shadow-lg">
                   <div className="text-center p-8">
-                    <Avatar size={80} src={testimonial.avatar} className="mb-6" />
-                    <Rate disabled defaultValue={testimonial.rating} className="mb-4" />
+                    <Avatar
+                      size={80}
+                      src={testimonial.avatar}
+                      className="mb-6"
+                    />
+                    <Rate
+                      disabled
+                      defaultValue={testimonial.rating}
+                      className="mb-4"
+                    />
                     <p className="text-lg text-gray-600 mb-6 italic">
                       "{testimonial.comment}"
                     </p>
@@ -151,7 +161,9 @@ const TestimonialsSection = () => {
           <div className="space-y-4">
             <div>
               <Rate
-                onChange={(value) => setReviewData({ ...reviewData, rating: value })}
+                onChange={(value) =>
+                  setReviewData({ ...reviewData, rating: value })
+                }
                 value={reviewData.rating}
               />
             </div>
