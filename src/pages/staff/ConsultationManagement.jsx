@@ -1,139 +1,343 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, User, Phone, Mail, MessageCircle, CheckCircle, XCircle, AlertCircle, Filter, Search, Plus, Edit3, Eye } from 'lucide-react';
-import StaffLayout from '../../components/layout/staff/StaffLayout';
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+import ReactModal from "react-modal";
+
+import {
+  Calendar,
+  Clock,
+  User,
+  Phone,
+  Mail,
+  Timer,
+  MessageCircle,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Filter,
+  Search,
+  Plus,
+  Edit3,
+  Eye,
+  RotateCcw,
+} from "lucide-react";
+import StaffLayout from "../../components/layout/staff/StaffLayout";
+import { bookingService } from "../../services/bookingService";
+import { authService } from "../../services/authService";
+import packageService from "../../services/packageService";
+
+// import { useAuth } from "../../components/auth/useAuthHook";
 
 const ConsultationManagement = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  // const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
+  const [responseText, setResponseText] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [packageName, setPackageName] = useState("");
+  const [packages, setPackages] = useState([]);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedAppointmentStr = queryParams.get("selectedAppointment");
 
-  // Dữ liệu mẫu cho lịch tư vấn
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      clientName: 'Nguyễn Văn An',
-      phone: '0901234567',
-      email: 'nguyenvanan@email.com',
-      service: 'Tư vấn đầu tư',
-      preferredDate: '2025-07-01',
-      preferredTime: '09:00',
-      status: 'pending',
-      message: 'Tôi muốn tư vấn về đầu tư chứng khoán cho người mới bắt đầu. Hiện tại tôi có 100 triệu VND muốn đầu tư.',
-      submittedAt: '2025-06-26 14:30',
-      response: '',
-      confirmedDate: '',
-      confirmedTime: ''
-    },
-    {
-      id: 2,
-      clientName: 'Trần Thị Mai',
-      phone: '0909876543',
-      email: 'tranthimai@email.com',
-      service: 'Lập kế hoạch tài chính',
-      preferredDate: '2025-06-30',
-      preferredTime: '14:00',
-      status: 'confirmed',
-      message: 'Tôi cần lập kế hoạch tài chính cho gia đình, có 2 con nhỏ và muốn tiết kiệm cho việc học của các con.',
-      submittedAt: '2025-06-25 10:15',
-      response: 'Chào chị Mai, chúng tôi đã xác nhận lịch tư vấn vào 14:00 ngày 30/06/2025. Vui lòng chuẩn bị các thông tin về thu nhập và chi tiêu hiện tại.',
-      confirmedDate: '2025-06-30',
-      confirmedTime: '14:00'
-    },
-    {
-      id: 3,
-      clientName: 'Lê Minh Tuấn',
-      phone: '0912345678',
-      email: 'leminhtan@email.com',
-      service: 'Tư vấn bảo hiểm',
-      preferredDate: '2025-07-02',
-      preferredTime: '10:30',
-      status: 'pending',
-      message: 'Tôi muốn tìm hiểu về các loại bảo hiểm phù hợp cho doanh nghiệp nhỏ của mình.',
-      submittedAt: '2025-06-26 16:45',
-      response: '',
-      confirmedDate: '',
-      confirmedTime: ''
-    },
-    {
-      id: 4,
-      clientName: 'Phạm Thị Lan',
-      phone: '0933456789',
-      email: 'phamthilan@email.com',
-      service: 'Tư vấn vay mua nhà',
-      preferredDate: '2025-06-29',
-      preferredTime: '15:30',
-      status: 'cancelled',
-      message: 'Tôi muốn tư vấn về các gói vay mua nhà ưu đãi hiện tại.',
-      submittedAt: '2025-06-24 09:20',
-      response: 'Rất tiếc, chúng tôi cần hoãn lịch hẹn do chuyên gia có việc đột xuất. Chúng tôi sẽ sắp xếp lại thời gian khác.',
-      confirmedDate: '',
-      confirmedTime: ''
+  useEffect(() => {
+    const activeTabParam = queryParams.get("activeTab");
+
+    if (activeTabParam) {
+      setActiveTab(activeTabParam);
     }
-  ]);
+
+    if (selectedAppointmentStr) {
+      try {
+        // Giải mã chuỗi JSON thành đối tượng
+        const selectedAppointment = JSON.parse(
+          decodeURIComponent(selectedAppointmentStr)
+        );
+        setSelectedAppointment(selectedAppointment);
+      } catch (error) {
+        console.error("Error parsing selectedAppointment:", error);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const bookings = await bookingService.getAllBookings();
+
+        // Lấy thông tin người dùng và thông tin slot cho mỗi booking
+        const bookingsWithUserInfoAndSlot = await Promise.all(
+          bookings.map(async (booking) => {
+            // Lấy thông tin người dùng
+            const userInfor = await authService.getUserProfile(booking.userId);
+
+            // Lấy thông tin slot
+            const slotInfor = await bookingService.getSlotById(booking.slotId);
+
+            // Lấy thông tin phản hồi
+            const bookingResponseInfor =
+              await bookingService.getResponsesByBookingId(booking.bookingId);
+
+            // Lấy thông tin gói
+            const packageInfor = await packageService.getUserPackage(
+              booking.userId
+            );
+
+            const responseText =
+              bookingResponseInfor && bookingResponseInfor.length > 0
+                ? bookingResponseInfor[0].responseText
+                : null;
+
+            const packageName =
+              packageInfor && packageInfor.length > 0
+                ? packageInfor[0].packageName
+                : "Không có gói";
+            return {
+              ...booking,
+              name: userInfor.name,
+              phone: userInfor.phone,
+              email: userInfor.email,
+              avatar: userInfor.avatar,
+              responseText: responseText,
+              slotScheduledTime: slotInfor.scheduledTime,
+              durationMinutes: slotInfor.durationMinutes,
+              packageName: packageName,
+            };
+          })
+        );
+
+        setAppointments(bookingsWithUserInfoAndSlot);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      }
+    };
+
+    fetchBookings();
+  }, []);
 
   // Lọc appointments theo status và search
-  const filteredAppointments = appointments.filter(apt => {
-    const matchesFilter = filter === 'all' || apt.status === filter;
-    const matchesSearch = apt.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      apt.phone.includes(searchTerm) ||
-      apt.service.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  const filteredAppointments = selectedAppointment
+    ? [selectedAppointment] // Chỉ hiển thị cuộc hẹn đã chọn
+    : appointments.filter((apt) => {
+        const matchesFilter = filter === "all" || apt.status === filter;
+        const matchesSearch =
+          (apt.name &&
+            apt.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (apt.email &&
+            apt.email.toLowerCase().includes(searchTerm.toLowerCase()));
+        return matchesFilter && matchesSearch;
+      });
 
   // Thống kê dashboard
   const stats = {
     total: appointments.length,
-    pending: appointments.filter(apt => apt.status === 'pending').length,
-    confirmed: appointments.filter(apt => apt.status === 'confirmed').length,
-    cancelled: appointments.filter(apt => apt.status === 'cancelled').length
+    pending: appointments.filter((apt) => apt.status === "Chờ xử lý").length,
+    confirmed: appointments.filter((apt) => apt.status === "Đã xác nhận")
+      .length,
+    cancelled: appointments.filter((apt) => apt.status === "Đã hủy").length,
   };
 
-  const handleStatusChange = (appointmentId, newStatus, response = '') => {
-    setAppointments(prev => prev.map(apt =>
-      apt.id === appointmentId
-        ? { ...apt, status: newStatus, response: response }
-        : apt
-    ));
+  const handleStatusChange = async (appointment, appointmentId, newStatus) => {
+    let responseMessage = "";
+
+    if (newStatus === "Đã hủy") {
+      if (!appointment.responseText || !appointment.responseText.trim()) {
+        toast.warning("Vui lòng nhập lý do hủy lịch hẹn.");
+        setSelectedAppointment(appointment);
+        setShowResponseModal(true);
+        return;
+      }
+    }
+
+    const confirmMessage =
+      newStatus === "Đã xác nhận"
+        ? "Bạn có chắc chắn muốn xác nhận lịch hẹn này không?"
+        : "Bạn có chắc chắn muốn hủy lịch hẹn này không?";
+
+    const isConfirmed = window.confirm(confirmMessage);
+
+    if (isConfirmed) {
+      try {
+        const updatedBooking = await bookingService.updateBookingStatus(
+          appointmentId,
+          newStatus
+        );
+
+        if (newStatus === "Đã xác nhận" && !appointment.responseText) {
+          responseMessage = `Chào bạn ${
+            appointment.name
+          }, chúng tôi đã xác nhận lịch tư vấn vào ${new Date(
+            appointment.slotScheduledTime
+          ).toLocaleTimeString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })} ngày ${new Date(appointment.slotScheduledTime).toLocaleDateString(
+            "vi-VN"
+          )}`;
+
+          await bookingService.addBookingResponse(
+            appointmentId,
+            responseMessage
+          );
+          setAppointments((prev) =>
+            prev.map((apt) =>
+              apt.bookingId === appointmentId
+                ? { ...apt, responseText: responseMessage }
+                : apt
+            )
+          );
+        }
+
+        // Cập nhật lại trạng thái booking trong state với thông tin từ updatedBooking
+        setAppointments((prev) =>
+          prev.map((apt) =>
+            apt.bookingId === appointmentId
+              ? { ...apt, ...updatedBooking, status: newStatus } // Cập nhật với thông tin từ updatedBooking
+              : apt
+          )
+        );
+
+        toast.success(
+          `Lịch hẹn đã được ${newStatus === "Đã xác nhận" ? "xác nhận" : "hủy"}`
+        );
+      } catch (error) {
+        console.error("Error updating booking status:", error);
+        alert("Có lỗi xảy ra khi cập nhật trạng thái lịch hẹn.");
+      }
+    }
   };
 
-  const handleSendResponse = (appointmentId) => {
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const response = await packageService.getPackage();
+        setPackages(response);
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+      }
+    };
+    fetchPackages();
+  }, []);
+
+  const handleCreateSlot = async () => {
+    if (!startTime || !packageName) {
+      toast.error("Vui lòng chọn thời gian và gói dịch vụ.");
+      return;
+    }
+
+    try {
+      const slotData = {
+        startTime,
+        packageName,
+      };
+
+      const response = await bookingService.createSlot(slotData);
+      toast.success(
+        `Lịch hẹn vào lúc ${new Date(
+          response.scheduledTime
+        ).toLocaleTimeString()} đã được tạo!`
+      );
+
+      // Optional: reset state hoặc reload slot list
+      setStartTime(null);
+      setPackageName("");
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi tạo lịch hẹn.");
+      console.error(error);
+    }
+  };
+  const handleSendResponse = async (appointmentId) => {
     if (responseText.trim()) {
-      handleStatusChange(appointmentId, 'confirmed', responseText);
-      setResponseText('');
-      setShowResponseModal(false);
-      setSelectedAppointment(null);
+      try {
+        if (selectedAppointment?.responseText) {
+          const updatedResponse = await bookingService.updateBookingResponse(
+            appointmentId,
+            responseText
+          );
+
+          setAppointments((prev) =>
+            prev.map((apt) =>
+              apt.bookingId === appointmentId
+                ? { ...apt, responseText: updatedResponse.responseText }
+                : apt
+            )
+          );
+
+          toast.success("Phản hồi đã được cập nhật thành công.");
+        } else {
+          const response = await bookingService.addBookingResponse(
+            appointmentId,
+            responseText
+          );
+
+          setAppointments((prev) =>
+            prev.map((apt) =>
+              apt.bookingId === appointmentId
+                ? { ...apt, responseText: response.responseText }
+                : apt
+            )
+          );
+
+          toast.success("Phản hồi đã được gửi thành công.");
+        }
+
+        setResponseText("");
+        setShowResponseModal(false);
+        setSelectedAppointment(null);
+      } catch (error) {
+        console.error("Error sending response:", error);
+        toast.error("Có lỗi xảy ra khi gửi phản hồi.");
+      }
+    } else {
+      toast.warning("Vui lòng nhập nội dung phản hồi.");
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'confirmed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "Chờ xử lý":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Đã xác nhận":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Đã hủy":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending': return <AlertCircle className="w-4 h-4" />;
-      case 'confirmed': return <CheckCircle className="w-4 h-4" />;
-      case 'cancelled': return <XCircle className="w-4 h-4" />;
-      default: return <AlertCircle className="w-4 h-4" />;
+      case "Chờ xử lý":
+        return <AlertCircle className="w-4 h-4" />;
+      case "Đã xác nhận":
+        return <CheckCircle className="w-4 h-4" />;
+      case "Đã hủy":
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return <AlertCircle className="w-4 h-4" />;
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'pending': return 'Chờ xử lý';
-      case 'confirmed': return 'Đã xác nhận';
-      case 'cancelled': return 'Đã hủy';
-      default: return status;
+      case "Chờ xử lý":
+        return "Chờ xử lý";
+      case "Đã xác nhận":
+        return "Đã xác nhận";
+      case "Đã hủy":
+        return "Đã hủy";
+      default:
+        return status;
     }
   };
+
+  const nf = new Intl.NumberFormat("vi-VN");
 
   return (
     <StaffLayout>
@@ -153,32 +357,43 @@ const ConsultationManagement = () => {
           </div>
         </div>
 
-
         {/* Navigation */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm mb-6">
             <button
-              onClick={() => setActiveTab('dashboard')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'dashboard'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-500 hover:text-gray-700'
-                }`}
+              onClick={() => setActiveTab("dashboard")}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                activeTab === "dashboard"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
             >
               Tổng quan
             </button>
             <button
-              onClick={() => setActiveTab('appointments')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'appointments'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-500 hover:text-gray-700'
-                }`}
+              onClick={() => setActiveTab("appointments")}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                activeTab === "appointments"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
             >
               Quản lý Lịch hẹn
+            </button>
+            <button
+              onClick={() => setActiveTab("schedules")}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                activeTab === "schedules"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Tạo Lịch hẹn
             </button>
           </div>
 
           {/* Dashboard Tab */}
-          {activeTab === 'dashboard' && (
+          {activeTab === "dashboard" && (
             <div className="space-y-6">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -188,8 +403,12 @@ const ConsultationManagement = () => {
                       <Calendar className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Tổng lịch hẹn</p>
-                      <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Tổng lịch hẹn
+                      </p>
+                      <p className="text-2xl font-semibold text-gray-900">
+                        {stats.total}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -200,8 +419,12 @@ const ConsultationManagement = () => {
                       <AlertCircle className="w-6 h-6 text-yellow-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Chờ xử lý</p>
-                      <p className="text-2xl font-semibold text-gray-900">{stats.pending}</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Chờ xử lý
+                      </p>
+                      <p className="text-2xl font-semibold text-gray-900">
+                        {stats.pending}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -212,8 +435,12 @@ const ConsultationManagement = () => {
                       <CheckCircle className="w-6 h-6 text-green-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Đã xác nhận</p>
-                      <p className="text-2xl font-semibold text-gray-900">{stats.confirmed}</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Đã xác nhận
+                      </p>
+                      <p className="text-2xl font-semibold text-gray-900">
+                        {stats.confirmed}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -224,8 +451,12 @@ const ConsultationManagement = () => {
                       <XCircle className="w-6 h-6 text-red-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Đã hủy</p>
-                      <p className="text-2xl font-semibold text-gray-900">{stats.cancelled}</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Đã hủy
+                      </p>
+                      <p className="text-2xl font-semibold text-gray-900">
+                        {stats.cancelled}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -234,7 +465,9 @@ const ConsultationManagement = () => {
               {/* Recent Appointments */}
               <div className="bg-white rounded-lg shadow-sm">
                 <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-medium text-gray-900">Lịch hẹn gần đây</h3>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Lịch hẹn gần đây
+                  </h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -244,7 +477,7 @@ const ConsultationManagement = () => {
                           Khách hàng
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Dịch vụ
+                          Mục tiêu
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Ngày gửi
@@ -258,46 +491,82 @@ const ConsultationManagement = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {appointments.slice(0, 5).map((appointment) => (
-                        <tr key={appointment.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                <User className="w-4 h-4 text-blue-600" />
-                              </div>
-                              <div className="ml-3">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {appointment.clientName}
+                      {[...appointments]
+                        .sort(
+                          (a, b) =>
+                            new Date(b.scheduledTime).getTime() -
+                            new Date(a.scheduledTime).getTime()
+                        )
+                        .slice(0, 5)
+                        .map((appointment) => (
+                          <tr
+                            key={appointment.bookingId}
+                            className="hover:bg-gray-50"
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                  {appointment.avatar ? (
+                                    <img
+                                      src={appointment.avatar}
+                                      alt={appointment.name}
+                                      className="w-4 h-4 rounded-full"
+                                    />
+                                  ) : (
+                                    <User className="w-4 h-4 text-blue-600" />
+                                  )}
                                 </div>
-                                <div className="text-sm text-gray-500">{appointment.phone}</div>
+                                <div className="ml-3">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {appointment.name}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {appointment.phone}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {appointment.service}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {appointment.submittedAt}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(appointment.status)}`}>
-                              {getStatusIcon(appointment.status)}
-                              <span className="ml-1">{getStatusText(appointment.status)}</span>
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <button
-                              onClick={() => {
-                                setSelectedAppointment(appointment);
-                                setActiveTab('appointments');
-                              }}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {appointment.goalNote}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {new Date(appointment.createdAt).toLocaleString(
+                                "vi-VN",
+                                {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                }
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(
+                                  appointment.status
+                                )}`}
+                              >
+                                {getStatusIcon(appointment.status)}
+                                <span className="ml-1">
+                                  {getStatusText(appointment.status)}
+                                </span>
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <button
+                                onClick={() => {
+                                  setSelectedAppointment(appointment);
+                                  setActiveTab("appointments");
+                                }}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
@@ -306,7 +575,7 @@ const ConsultationManagement = () => {
           )}
 
           {/* Appointments Management Tab */}
-          {activeTab === 'appointments' && (
+          {activeTab === "appointments" && (
             <div className="space-y-6">
               {/* Filters and Search */}
               <div className="bg-white rounded-lg shadow-sm p-6">
@@ -316,7 +585,7 @@ const ConsultationManagement = () => {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="text"
-                        placeholder="Tìm kiếm theo tên, số điện thoại, dịch vụ..."
+                        placeholder="Tìm kiếm theo tên, email..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -324,16 +593,28 @@ const ConsultationManagement = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Filter className="w-5 h-5 text-gray-400" />
+                    {selectedAppointment ? (
+                      <button
+                        onClick={() => {
+                          setSelectedAppointment(null);
+                          setActiveTab("appointments");
+                        }}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        <RotateCcw className="w-5 h-5 text-gray-400" />
+                      </button>
+                    ) : (
+                      <Filter className="w-5 h-5 text-gray-400" />
+                    )}
                     <select
                       value={filter}
                       onChange={(e) => setFilter(e.target.value)}
                       className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="all">Tất cả trạng thái</option>
-                      <option value="pending">Chờ xử lý</option>
-                      <option value="confirmed">Đã xác nhận</option>
-                      <option value="cancelled">Đã hủy</option>
+                      <option value="Chờ xử lý">Chờ xử lý</option>
+                      <option value="Đã xác nhận">Đã xác nhận</option>
+                      <option value="Đã hủy">Đã hủy</option>
                     </select>
                   </div>
                 </div>
@@ -342,7 +623,10 @@ const ConsultationManagement = () => {
               {/* Appointments List */}
               <div className="space-y-4">
                 {filteredAppointments.map((appointment) => (
-                  <div key={appointment.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
+                  <div
+                    key={appointment.bookingId}
+                    className="bg-white rounded-lg shadow-sm border border-gray-200"
+                  >
                     <div className="p-6">
                       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
                         <div className="flex-1">
@@ -352,47 +636,74 @@ const ConsultationManagement = () => {
                                 <User className="w-5 h-5 text-blue-600" />
                               </div>
                               <div>
-                                <h3 className="text-lg font-medium text-gray-900">{appointment.clientName}</h3>
-                                <p className="text-sm text-gray-500">ID: #{appointment.id}</p>
+                                <h3 className="text-lg font-medium text-gray-900">
+                                  {appointment.name}
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                  ID: #{appointment.bookingId}
+                                </p>
                               </div>
                             </div>
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(appointment.status)}`}>
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                                appointment.status
+                              )}`}
+                            >
                               {getStatusIcon(appointment.status)}
-                              <span className="ml-1">{getStatusText(appointment.status)}</span>
+                              <span className="ml-1">
+                                {getStatusText(appointment.status)}
+                              </span>
                             </span>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Phone className="w-4 h-4 mr-2" />
-                              {appointment.phone}
-                            </div>
                             <div className="flex items-center text-sm text-gray-600">
                               <Mail className="w-4 h-4 mr-2" />
                               {appointment.email}
                             </div>
                             <div className="flex items-center text-sm text-gray-600">
                               <Calendar className="w-4 h-4 mr-2" />
-                              {appointment.preferredDate} lúc {appointment.preferredTime}
+                              {new Date(
+                                appointment.slotScheduledTime
+                              ).toLocaleDateString("vi-VN", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                              })}
+                              {" lúc "}
+                              {new Date(
+                                appointment.slotScheduledTime
+                              ).toLocaleTimeString("vi-VN", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </div>
                             <div className="flex items-center text-sm text-gray-600">
-                              <MessageCircle className="w-4 h-4 mr-2" />
-                              {appointment.service}
+                              <Phone className="w-4 h-4 mr-2" />
+                              {appointment.phone}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Timer className="w-4 h-4 mr-2" />
+                              {appointment.durationMinutes} Phút
                             </div>
                           </div>
 
                           <div className="mb-4">
-                            <p className="text-sm font-medium text-gray-700 mb-2">Nội dung yêu cầu:</p>
+                            <p className="text-sm font-medium text-gray-700 mb-2">
+                              Mục đích tư vấn:
+                            </p>
                             <p className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-                              {appointment.message}
+                              {appointment.goalNote}
                             </p>
                           </div>
 
-                          {appointment.response && (
+                          {appointment.responseText && (
                             <div className="mb-4">
-                              <p className="text-sm font-medium text-gray-700 mb-2">Phản hồi của bạn:</p>
+                              <p className="text-sm font-medium text-gray-700 mb-2">
+                                Phản hồi của bạn:
+                              </p>
                               <p className="text-sm text-gray-600 bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
-                                {appointment.response}
+                                {appointment.responseText}
                               </p>
                             </div>
                           )}
@@ -400,12 +711,15 @@ const ConsultationManagement = () => {
 
                         <div className="mt-4 lg:mt-0 lg:ml-6 lg:flex-shrink-0">
                           <div className="flex flex-col space-y-2">
-                            {appointment.status === 'pending' && (
+                            {appointment.status === "Chờ xử lý" && (
                               <>
                                 <button
                                   onClick={() => {
-                                    setSelectedAppointment(appointment);
-                                    setShowResponseModal(true);
+                                    handleStatusChange(
+                                      appointment,
+                                      appointment.bookingId,
+                                      "Đã xác nhận"
+                                    );
                                   }}
                                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                                 >
@@ -415,7 +729,7 @@ const ConsultationManagement = () => {
                                 <button
                                   onClick={() => {
                                     setSelectedAppointment(appointment);
-                                    setResponseText('');
+                                    setResponseText("");
                                     setShowResponseModal(true);
                                   }}
                                   className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -424,7 +738,13 @@ const ConsultationManagement = () => {
                                   Phản hồi
                                 </button>
                                 <button
-                                  onClick={() => handleStatusChange(appointment.id, 'cancelled', 'Lịch hẹn đã được hủy theo yêu cầu.')}
+                                  onClick={() => {
+                                    handleStatusChange(
+                                      appointment,
+                                      appointment.bookingId,
+                                      "Đã hủy"
+                                    );
+                                  }}
                                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                                 >
                                   <XCircle className="w-4 h-4 mr-2" />
@@ -432,11 +752,14 @@ const ConsultationManagement = () => {
                                 </button>
                               </>
                             )}
-                            {appointment.status === 'confirmed' && (
+                            {(appointment.status === "Đã xác nhận" ||
+                              appointment.status === "Đã hủy") && (
                               <button
                                 onClick={() => {
                                   setSelectedAppointment(appointment);
-                                  setResponseText(appointment.response);
+                                  setResponseText(
+                                    appointment.responseText || ""
+                                  );
                                   setShowResponseModal(true);
                                 }}
                                 className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -456,12 +779,67 @@ const ConsultationManagement = () => {
               {filteredAppointments.length === 0 && (
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm">
                   <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">Không có lịch hẹn nào</h3>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">
+                    Không có lịch hẹn nào
+                  </h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Không tìm thấy lịch hẹn phù hợp với bộ lọc hiện tại.
                   </p>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Scheduled Time Management Tab */}
+          {activeTab === "schedules" && (
+            <div className="space-y-6">
+              {/* Form to create a new slot */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Tạo Lịch Hẹn
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Date and Time Picker */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Thời gian bắt đầu
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+
+                  {/* Package Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Gói Dịch Vụ
+                    </label>
+                    <select
+                      value={packageName}
+                      onChange={(e) => setPackageName(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    >
+                      <option value="">Chọn gói dịch vụ</option>
+                      {packages.map((pkg) => (
+                        <option key={pkg.id} value={pkg.name}>
+                          {pkg.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <button
+                    onClick={handleCreateSlot}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Tạo Lịch Hẹn
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -473,12 +851,12 @@ const ConsultationManagement = () => {
               <div className="mt-3">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium text-gray-900">
-                    Phản hồi lịch hẹn - {selectedAppointment.clientName}
+                    Phản hồi lịch hẹn - {selectedAppointment.name}
                   </h3>
                   <button
                     onClick={() => {
                       setShowResponseModal(false);
-                      setResponseText('');
+                      setResponseText("");
                       setSelectedAppointment(null);
                     }}
                     className="text-gray-400 hover:text-gray-600"
@@ -488,15 +866,45 @@ const ConsultationManagement = () => {
                 </div>
 
                 <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Thông tin yêu cầu:</p>
-                  <p className="text-sm text-gray-600 mb-2">
-                    <strong>Dịch vụ:</strong> {selectedAppointment.service}
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Thông tin tư vấn:
                   </p>
                   <p className="text-sm text-gray-600 mb-2">
-                    <strong>Thời gian mong muốn:</strong> {selectedAppointment.preferredDate} lúc {selectedAppointment.preferredTime}
+                    <strong>Thu nhập hàng tháng:</strong>{" "}
+                    {nf.format(Number(selectedAppointment.incomeNote)) + " VND"}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    <strong>Nội dung:</strong> {selectedAppointment.message}
+                  <p className="text-sm text-gray-600 mb-2">
+                    <strong>Chi tiêu hàng tháng:</strong>{" "}
+                    {nf.format(Number(selectedAppointment.expenseNote)) +
+                      " VND"}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <strong>Mục tiêu:</strong> {selectedAppointment.goalNote}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <strong>Gói dịch vụ:</strong>{" "}
+                    {selectedAppointment.packageName}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <strong>Lịch hẹn:</strong>{" "}
+                    {new Date(
+                      selectedAppointment.slotScheduledTime
+                    ).toLocaleDateString("vi-VN", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    })}
+                    {" lúc "}
+                    {new Date(
+                      selectedAppointment.slotScheduledTime
+                    ).toLocaleTimeString("vi-VN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <strong>Thời gian tư vấn:</strong>{" "}
+                    {selectedAppointment.durationMinutes} Phút
                   </p>
                 </div>
 
@@ -517,7 +925,7 @@ const ConsultationManagement = () => {
                   <button
                     onClick={() => {
                       setShowResponseModal(false);
-                      setResponseText('');
+                      setResponseText("");
                       setSelectedAppointment(null);
                     }}
                     className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -525,7 +933,9 @@ const ConsultationManagement = () => {
                     Hủy
                   </button>
                   <button
-                    onClick={() => handleSendResponse(selectedAppointment.id)}
+                    onClick={() =>
+                      handleSendResponse(selectedAppointment.bookingId)
+                    }
                     disabled={!responseText.trim()}
                     className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >

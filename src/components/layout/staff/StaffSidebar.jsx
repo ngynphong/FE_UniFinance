@@ -21,11 +21,11 @@ const staffMenu = [
         path: "/staff/dashboard/blogs",
         icon: <span className="material-icons"><MdArticle /></span>,
     },
-    // {
-    //     label: "Lịch tư vấn",
-    //     path: "/staff/dashboard/consultations",
-    //     icon: <span className="material-icons"><LuNotepadText /></span>,
-    // },
+    {
+        label: "Lịch tư vấn",
+        path: "/staff/dashboard/consultations",
+        icon: <span className="material-icons"><LuNotepadText /></span>,
+    },
     {
         label: "Hỗ trợ khách hàng",
         path: "/staff/dashboard/support",
