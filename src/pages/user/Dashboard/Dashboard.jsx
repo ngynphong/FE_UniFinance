@@ -43,8 +43,8 @@ const Dashboard = () => {
 
                 setTransactions(transactionsData.filter(t => t.userId === user?.userID));
                 setGoals(goalsData.filter(g => g.userId === user?.userID));
-                setBudgets(budgetsData.filter(b => b.userId === user?.userID));
-
+                setBudgets(budgetsData);
+                console.log(budgets)
             } catch (error) {
                 // message.error('Lỗi khi tải dữ liệu');
                 console.error('Dashboard data fetch error:', error);

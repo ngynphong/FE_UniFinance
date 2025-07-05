@@ -67,7 +67,10 @@ const TransactionsPage = () => {
                 // Create new transaction
                 const response = await transactionService.createTransaction({
                     ...data,
-                    dateCreate: new Date().toISOString()
+                    dateCreate: new Date().toISOString(),
+                    debtId: data.debtId || null,
+                    goalTargetId: data.goalTargetId || null,
+                    isDeleted: data.isDeleted ?? false
                 });
                 message.success('Tạo giao dịch mới thành công');
                 setTransactions(prev => [...prev, response]);
