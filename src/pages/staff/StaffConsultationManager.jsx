@@ -31,46 +31,86 @@ import {
   Globe,
 } from "lucide-react";
 import StaffLayout from "../../components/layout/staff/StaffLayout";
-import { contactService } from "../../services/contactService/";
 import { Link } from "react-router-dom";
-
+import { bookingService } from "../../services/bookingService";
 const StaffConsultationManager = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  // const [selectedAppointment, setSelectedAppointment] = useState(null);
-  // const [filter, setFilter] = useState('all');
-  // const [searchTerm, setSearchTerm] = useState('');
-  // const [showResponseModal, setShowResponseModal] = useState(false);
-  // const [responseText, setResponseText] = useState('');
-  // const [currentTime, setCurrentTime] = useState(new Date());
-
-  // // Update time every minute
-  // useEffect(() => {
-  //     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-  //     return () => clearInterval(timer);
-  // }, []);
   const [appointments, setAppointments] = useState([]);
   const [previousStats, setPreviousStats] = useState(null);
+  const [weeklyData, setWeeklyData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        // Gọi API để lấy danh sách liên hệ (appointments)
-        const data = await contactService.getAllContacts();
+  const fetchBookings = async () => {
+    try {
+      const bookings = await bookingService.getAllDetailed(); // API mới gộp hết data
+      const formatted = bookings.map(booking => ({
+  ...booking,
+  name: booking.name,
+  phone: booking.phone,
+  email: booking.email,
+  avatar: booking.avatar,
+  slotScheduledTime: booking.slotScheduledTime,
+  durationMinutes: booking.slotDurationMinutes,
+  packageName: booking.packageName || "Không có gói"
+}));;
+      setAppointments(formatted);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  };
 
-        setAppointments(data); // Cập nhật state appointments với dữ liệu trả về từ API
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-      }
-    };
+  fetchBookings();
+}, []);
 
-    fetchAppointments();
-  }, []);
+  const packageStats = appointments.reduce((acc, apt) => {
+    const rawName = apt.packageName?.toLowerCase().trim();
+
+    let key;
+    if (!rawName || rawName === "không có gói") {
+      key = "Không có gói";
+    } else if (rawName.includes("plus")) {
+      key = "Plus";
+    } else if (rawName.includes("premium")) {
+      key = "Premium";
+    } else if (rawName.includes("free")) {
+      key = "Free";
+    } else {
+      key = "Khác";
+    }
+
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  const totalPackages = Object.values(packageStats).reduce(
+    (sum, count) => sum + count,
+    0
+  );
+
+  const packageDistribution = Object.entries(packageStats).map(
+    ([name, count]) => {
+      const percentage =
+        totalPackages > 0 ? Math.round((count / totalPackages) * 100) : 0;
+      const colorMap = {
+        Free: "bg-blue-500",
+        Plus: "bg-green-500",
+        Premium: "bg-purple-500",
+        Khác: "bg-orange-500",
+      };
+      return {
+        name,
+        count,
+        percentage,
+        color: colorMap[name] || "bg-gray-400",
+      };
+    }
+  );
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const data = await contactService.getPreviousStats();
+        const data = await bookingService.getPreviousStats();
         console.log("Dữ liệu thống kê trước:", data);
         setPreviousStats(data);
         setLoading(false);
@@ -83,12 +123,29 @@ const StaffConsultationManager = () => {
     fetchStats();
   }, []);
 
+  useEffect(() => {
+    const fetchWeeklyData = async () => {
+      try {
+        const response = await bookingService.getWeeklyPerformance();
+        setWeeklyData(response);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching weekly performance data", error);
+        setLoading(false);
+      }
+    };
+
+    fetchWeeklyData();
+  }, []);
+
   if (loading) return <div>Loading...</div>;
 
   const currentstats = {
     total: appointments.length,
-    pending: appointments.filter((apt) => apt.resolved === false).length,
-    confirmed: appointments.filter((apt) => apt.resolved === true).length,
+    pending: appointments.filter((apt) => apt.status === "Chờ xử lý").length,
+    confirmed: appointments.filter((apt) => apt.status === "Đã xác nhận")
+      .length,
+    canceled: appointments.filter((apt) => apt.status === "Đã hủy").length,
   };
 
   // Tính toán phần trăm thay đổi
@@ -97,72 +154,41 @@ const StaffConsultationManager = () => {
     return ((current - previous) / previous) * 100;
   };
 
-  // Tính phần trăm thay đổi cho pending và confirmed
+  // Tính phần trăm thay đổi
+  const totalPercentageChange =
+    previousStats && previousStats.totalBookings !== undefined
+      ? calculatePercentage(currentstats.total, previousStats.totalBookings)
+      : 0;
+
   const pendingPercentageChange =
-    previousStats && previousStats.pending !== undefined
-      ? calculatePercentage(currentstats.pending, previousStats.pending)
+    previousStats && previousStats.totalPending !== undefined
+      ? calculatePercentage(currentstats.pending, previousStats.totalPending)
       : 0;
 
   const confirmedPercentageChange =
-    previousStats && previousStats.confirmed !== undefined
-      ? calculatePercentage(currentstats.confirmed, previousStats.confirmed)
+    previousStats && previousStats.totalConfirmed !== undefined
+      ? calculatePercentage(
+          currentstats.confirmed,
+          previousStats.totalConfirmed
+        )
       : 0;
 
-  // Dữ liệu mẫu cho lịch tư vấn
-
-  // Weekly performance data
-  // const weeklyData = [
-  //     { day: 'T2', appointments: 12, completed: 10 },
-  //     { day: 'T3', appointments: 15, completed: 13 },
-  //     { day: 'T4', appointments: 8, completed: 8 },
-  //     { day: 'T5', appointments: 18, completed: 15 },
-  //     { day: 'T6', appointments: 22, completed: 20 },
-  //     { day: 'T7', appointments: 14, completed: 12 },
-  //     { day: 'CN', appointments: 6, completed: 5 }
-  // ];
+  const canceledPercentageChange =
+    previousStats && previousStats.totalCancelled !== undefined
+      ? calculatePercentage(currentstats.canceled, previousStats.totalCancelled)
+      : 0;
 
   // Service statistics
-  // const serviceStats = [
-  //     { name: 'Tư vấn đầu tư', count: 45, percentage: 35, color: 'bg-blue-500' },
-  //     { name: 'Kế hoạch tài chính', count: 32, percentage: 25, color: 'bg-green-500' },
-  //     { name: 'Tư vấn bảo hiểm', count: 28, percentage: 22, color: 'bg-purple-500' },
-  //     { name: 'Vay mua nhà', count: 23, percentage: 18, color: 'bg-orange-500' }
-  // ];
-
-  // Lọc appointments theo status và search
-  // const filteredAppointments = appointments.filter(apt => {
-  //     const matchesFilter = filter === 'all' || apt.status === filter;
-  //     const matchesSearch = apt.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         apt.phone.includes(searchTerm) ||
-  //         apt.service.toLowerCase().includes(searchTerm.toLowerCase());
-  //     return matchesFilter && matchesSearch;
-  // });
-
-  // Thống kê dashboard
-
-  // const handleStatusChange = (appointmentId, newStatus, response = '') => {
-  //     setAppointments(prev => prev.map(apt =>
-  //         apt.id === appointmentId
-  //             ? { ...apt, status: newStatus, response: response }
-  //             : apt
-  //     ));
-  // };
-
-  // const handleSendResponse = (appointmentId) => {
-  //     if (responseText.trim()) {
-  //         handleStatusChange(appointmentId, 'confirmed', responseText);
-  //         setResponseText('');
-  //         setShowResponseModal(false);
-  //         setSelectedAppointment(null);
-  //     }
-  // };
+  const serviceStats = packageDistribution;
 
   const getStatusColor = (status) => {
     switch (status) {
-      case false:
+      case "Chờ xử lý":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case true:
+      case "Đã xác nhận":
         return "bg-green-100 text-green-800 border-green-200";
+      case "Đã hủy":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -170,36 +196,34 @@ const StaffConsultationManager = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case false:
+      case "Chờ xử lý":
         return <AlertCircle className="w-4 h-4" />;
-      case true:
+      case "Đã xác nhận":
         return <CheckCircle className="w-4 h-4" />;
+      case "Đã hủy":
+        return <XCircle className="w-4 h-4" />;
       default:
         return <AlertCircle className="w-4 h-4" />;
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case false:
-        return "Chờ xử lý";
-      case true:
-        return "Đã xử lý";
-      default:
-        return status;
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case false:
+      case "Chờ xử lý":
         return "bg-yellow-500";
-      case true:
+      case "Đã xác nhận":
         return "bg-green-500";
+      case "Đã hủy":
+        return "bg-red-500";
       default:
         return "bg-gray-500";
     }
   };
+
+  const maxValue = Math.max(
+    ...weeklyData.map((d) => Math.max(d.appointments, d.completed)),
+    1
+  );
 
   return (
     <StaffLayout>
@@ -227,26 +251,37 @@ const StaffConsultationManager = () => {
             <div className="space-y-8">
               {/* Stats Cards with Animations */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* <div className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:shadow-blue-200 transition-shadow duration-300">
-                                            <Calendar className="w-8 h-8 text-white" />
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="flex items-center text-green-600 text-sm font-medium">
-                                                <ArrowUp className="w-4 h-4 mr-1" />
-                                                +12%
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-gray-900 mb-1">{stats.total}</p>
-                                        <p className="text-sm text-gray-600">Tổng lịch hẹn</p>
-                                        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                                            <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full w-3/4"></div>
-                                        </div>
-                                    </div>
-                                </div> */}
+                <div className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:shadow-blue-200 transition-shadow duration-300">
+                      <Calendar className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center text-green-600 text-sm font-medium">
+                        {totalPercentageChange >= 0 ? (
+                          <ArrowUp className="w-4 h-4 mr-1" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4 mr-1" />
+                        )}
+                        {totalPercentageChange >= 0
+                          ? `+${totalPercentageChange.toFixed(2)}%`
+                          : `-${Math.abs(totalPercentageChange).toFixed(2)}%`}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-gray-900 mb-1">
+                      {currentstats.total}
+                    </p>
+                    <p className="text-sm text-gray-600">Tổng lịch hẹn</p>
+                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
+                        style={{ width: `${totalPercentageChange}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:scale-105">
                   <div className="flex items-center justify-between mb-4">
@@ -255,10 +290,14 @@ const StaffConsultationManager = () => {
                     </div>
                     <div className="text-right">
                       <div className="flex items-center text-orange-600 text-sm font-medium">
-                        <ArrowUp className="w-4 h-4 mr-1" />
-                        {pendingPercentageChange > 0
+                        {pendingPercentageChange >= 0 ? (
+                          <ArrowUp className="w-4 h-4 mr-1" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4 mr-1" />
+                        )}
+                        {pendingPercentageChange >= 0
                           ? `+${pendingPercentageChange.toFixed(2)}%`
-                          : `${pendingPercentageChange.toFixed(2)}%`}
+                          : `-${Math.abs(pendingPercentageChange).toFixed(2)}%`}
                       </div>
                     </div>
                   </div>
@@ -283,10 +322,16 @@ const StaffConsultationManager = () => {
                     </div>
                     <div className="text-right">
                       <div className="flex items-center text-green-600 text-sm font-medium">
-                        <ArrowUp className="w-4 h-4 mr-1" />
-                        {confirmedPercentageChange > 0
+                        {confirmedPercentageChange >= 0 ? (
+                          <ArrowUp className="w-4 h-4 mr-1" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4 mr-1" />
+                        )}
+                        {confirmedPercentageChange >= 0
                           ? `+${confirmedPercentageChange.toFixed(2)}%`
-                          : `${confirmedPercentageChange.toFixed(2)}%`}
+                          : `-${Math.abs(confirmedPercentageChange).toFixed(
+                              2
+                            )}%`}
                       </div>
                     </div>
                   </div>
@@ -294,107 +339,153 @@ const StaffConsultationManager = () => {
                     <p className="text-3xl font-bold text-gray-900 mb-1">
                       {currentstats.confirmed}
                     </p>
-                    <p className="text-sm text-gray-600">Đã xử lý</p>
+                    <p className="text-sm text-gray-600">Đã xác nhận</p>
                     <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{ width: `${confirmedPercentageChange}%` }}
-></div>
+                      <div
+                        className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
+                        style={{ width: `${confirmedPercentageChange}%` }}
+                      ></div>
                     </div>
                   </div>
                 </div>
 
-                {/* <div className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="p-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl shadow-lg group-hover:shadow-red-200 transition-shadow duration-300">
-                                            <XCircle className="w-8 h-8 text-white" />
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="flex items-center text-red-600 text-sm font-medium">
-                                                <ArrowDown className="w-4 h-4 mr-1" />
-                                                -3%
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-gray-900 mb-1">{stats.cancelled}</p>
-                                        <p className="text-sm text-gray-600">Đã hủy</p>
-                                        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                                            <div className="bg-gradient-to-r from-red-500 to-pink-500 h-2 rounded-full w-1/4"></div>
-                                        </div>
-                                    </div>
-                                </div> */}
+                <div className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl shadow-lg group-hover:shadow-red-200 transition-shadow duration-300">
+                      <XCircle className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center text-red-600 text-sm font-medium">
+                        {canceledPercentageChange >= 0 ? (
+                          <ArrowUp className="w-4 h-4 mr-1" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4 mr-1" />
+                        )}
+                        {canceledPercentageChange >= 0
+                          ? `+${canceledPercentageChange.toFixed(2)}%`
+                          : `-${Math.abs(canceledPercentageChange).toFixed(
+                              2
+                            )}%`}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-gray-900 mb-1">
+                      {currentstats.canceled}
+                    </p>
+                    <p className="text-sm text-gray-600">Đã hủy</p>
+                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-red-500 to-pink-500 h-2 rounded-full"
+                        style={{ width: `${canceledPercentageChange}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Charts Section */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Weekly Performance Chart */}
-                {/* <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div>
-                                            <h3 className="text-xl font-semibold text-gray-900">Hiệu suất tuần này</h3>
-                                            <p className="text-sm text-gray-600">Theo dõi lịch hẹn và hoàn thành</p>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <div className="flex items-center">
-                                                <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                                                <span className="text-sm text-gray-600">Lịch hẹn</span>
-                                            </div>
-                                            <div className="flex items-center">
-                                                <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                                                <span className="text-sm text-gray-600">Hoàn thành</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-end justify-between h-64 space-x-2">
-                                        {weeklyData.map((data, index) => (
-                                            <div key={data.day} className="flex flex-col items-center flex-1">
-                                                <div className="flex flex-col items-center justify-end h-48 space-y-1">
-                                                    <div
-                                                        className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-500 hover:shadow-lg"
-                                                        style={{ height: `${(data.appointments / 25) * 100}%` }}
-                                                    ></div>
-                                                    <div
-                                                        className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-500 hover:shadow-lg"
-                                                        style={{ height: `${(data.completed / 25) * 100}%` }}
-                                                    ></div>
-                                                </div>
-                                                <div className="mt-2 text-center">
-                                                    <p className="text-xs font-medium text-gray-900">{data.day}</p>
-                                                    <p className="text-xs text-gray-500">{data.appointments}/{data.completed}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div> */}
+                <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        Hiệu suất tuần này
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Theo dõi lịch hẹn và hoàn thành
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                        <span className="text-sm text-gray-600">Lịch hẹn</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <span className="text-sm text-gray-600">
+                          Hoàn thành
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-end justify-between h-64 space-x-2">
+                    {weeklyData.map((data) => (
+                      <div
+                        key={data.day}
+                        className="flex flex-col items-center flex-1"
+                      >
+                        <div className="w-full h-48 flex flex-col justify-end relative">
+                          <div
+                            className="w-full bg-blue-500"
+                            style={{
+                              height: `${
+                                ((data.appointments - data.completed) /
+                                  maxValue) *
+                                100
+                              }%`,
+                            }}
+                          ></div>
+                          <div
+                            className="w-full bg-green-500"
+                            style={{
+                              height: `${(data.completed / maxValue) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                        <div className="mt-2 text-center">
+                          <p className="text-xs font-medium text-gray-900">
+                            {data.day}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {data.appointments}/{data.completed}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 {/* Service Distribution */}
-                {/* <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div>
-                                            <h3 className="text-xl font-semibold text-gray-900">Phân bố dịch vụ</h3>
-                                            <p className="text-sm text-gray-600">Tỷ lệ theo loại tư vấn</p>
-                                        </div>
-                                        <PieChart className="w-6 h-6 text-gray-400" />
-                                    </div>
-                                    <div className="space-y-4">
-                                        {serviceStats.map((service, index) => (
-                                            <div key={service.name} className="group">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-sm font-medium text-gray-900">{service.name}</span>
-                                                    <span className="text-sm text-gray-600">{service.count}</span>
-                                                </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                                                    <div
-                                                        className={`h-3 rounded-full ${service.color} transition-all duration-700 group-hover:shadow-lg`}
-                                                        style={{ width: `${service.percentage}%` }}
-                                                    ></div>
-                                                </div>
-                                                <div className="text-right mt-1">
-                                                    <span className="text-xs text-gray-500">{service.percentage}%</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div> */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        Phân bố gói dịch vụ
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Tỷ lệ theo loại gói người dùng sử dụng
+                      </p>
+                    </div>
+                    <PieChart className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <div className="space-y-4">
+                    {serviceStats.map((service) => (
+                      <div key={service.name} className="group">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-900">
+                            {service.name}
+                          </span>
+                          <span className="text-sm text-gray-600">
+                            {service.count}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                          <div
+                            className={`h-3 rounded-full ${service.color} transition-all duration-700 group-hover:shadow-lg`}
+                            style={{ width: `${service.percentage}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-right mt-1">
+                          <span className="text-xs text-gray-500">
+                            {service.percentage}%
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Recent Activity */}
@@ -409,7 +500,7 @@ const StaffConsultationManager = () => {
                     </div>
                     <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
                       <Link
-                        to="/staff/dashboard/support"
+                        to="/staff/dashboard/consultations?activeTab=appointments"
                         className="flex items-center"
                       >
                         Xem tất cả
@@ -422,7 +513,7 @@ const StaffConsultationManager = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {appointments.slice(0, 4).map((appointment) => (
                       <div
-                        key={appointment.contactId}
+                        key={appointment.bookingId}
                         className="group flex items-start space-x-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-transparent hover:border-blue-200"
                       >
                         <div className="relative">
@@ -431,7 +522,7 @@ const StaffConsultationManager = () => {
                           </div>
                           <div
                             className={`absolute -bottom-1 -right-1 w-4 h-4 ${getPriorityColor(
-                              appointment.resolved
+                              appointment.status
                             )} rounded-full border-2 border-white`}
                           ></div>
                         </div>
@@ -442,13 +533,11 @@ const StaffConsultationManager = () => {
                             </p>
                             <span
                               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                                appointment.resolved
+                                appointment.status
                               )}`}
                             >
-                              {getStatusIcon(appointment.resolved)}
-                              <span className="ml-1">
-                                {getStatusText(appointment.resolved)}
-                              </span>
+                              {getStatusIcon(appointment.status)}
+                              <span className="ml-1">{appointment.status}</span>
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 mb-2">
@@ -456,22 +545,36 @@ const StaffConsultationManager = () => {
                           </p>
                           <div className="flex items-center space-x-4 text-xs text-gray-500">
                             <div className="flex items-center">
-                              <Calendar className="w-3 h-3 mr-1" />
+                              <Calendar className="w-4 h-4 mr-2" />
                               {new Date(
-                                appointment.dateSent
-                              ).toLocaleDateString("vi-VN")}
+                                appointment.slotScheduledTime
+                              ).toLocaleDateString("vi-VN", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                              })}
+                              {" lúc "}
+                              {new Date(
+                                appointment.slotScheduledTime
+                              ).toLocaleTimeString("vi-VN", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </div>
                           </div>
                         </div>
-                        {/* <button
-                          onClick={() => {
-                            // setSelectedAppointment(appointment);
-                            setActiveTab("appointments");
+                        <Link
+                          to={{
+                            pathname: "/staff/dashboard/consultations",
+                            search: `?activeTab=appointments&selectedAppointment=${encodeURIComponent(
+                              JSON.stringify(appointment)
+                            )}`,
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-2 text-blue-600 hover:text-blue-800 transition-opacity duration-200"
                         >
-                          <ChevronRight className="w-4 h-4" />
-                        </button> */}
+                          <button className="opacity-0 group-hover:opacity-100 p-2 text-blue-600 hover:text-blue-800 transition-opacity duration-200">
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </Link>
                       </div>
                     ))}
                   </div>

@@ -51,14 +51,14 @@ export const contactService = {
     }
   },
 
-  async getPreviousStats() {
-    try {
-      const response = await axios.get("/Contact/GetPreviousStats");
-      return response.data;
-    } catch (error) {
-      throw (
-        error.response?.data || { message: "Failed to fetch previous stats" }
-      );
-    }
-  },
+  // async getPreviousStats() {
+  //   try {
+  //     const response = await axios.get("/Contact/GetPreviousStats");
+  //     return response.data;
+  //   } catch (error) {
+  //     throw (
+  //       error.response?.data || { message: "Failed to fetch previous stats" }
+  //     );
+  //   }
+  // },
 };
