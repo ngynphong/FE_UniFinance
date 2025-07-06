@@ -12,7 +12,7 @@ const ServiceHero = ({ isVisible, scrollToSection }) => {
     },
     {
       icon: <Shield className="w-5 h-5" />,
-      text: "Bảo mật tuyệt đối",
+      text: "Cam kết bảo mật",
       color: "text-green-500",
     },
     {
