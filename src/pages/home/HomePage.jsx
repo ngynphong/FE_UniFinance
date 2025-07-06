@@ -30,7 +30,7 @@ function HomePage() {
       <HeroSection isVisible={isVisible} scrollToSection={scrollToSection} />
       <StatsSection />
       <ServicesSection />
-      <PremiumSection scrollToSection={scrollToSection} />
+      <PremiumSection/>
       <AboutSection />
       <TestimonialsSection />
       <ContactSection />

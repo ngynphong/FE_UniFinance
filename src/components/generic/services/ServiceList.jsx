@@ -1,19 +1,34 @@
-"use client"
+"use client";
 
-import { Row, Col, Button } from "antd"
-import { ArrowRight, CheckCircle } from 'lucide-react'
-import { detailedServicesData } from "../../../data/detailedServicesData"
-
-
+import { Row, Col, Button } from "antd";
+import { ArrowRight, CheckCircle } from "lucide-react";
+import { detailedServicesData } from "../../../data/detailedServicesData";
+import { useAuth } from "../../../components/auth/useAuthHook";
+import { useNavigate } from "react-router-dom";
 const ServiceList = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleConsult = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    navigate("/dashboard/booking");
+  };
+
   return (
     <section id="services" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">Dịch vụ chi tiết</h2>
+          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+            Dịch vụ chi tiết
+          </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Khám phá các dịch vụ tư vấn tài chính chuyên nghiệp được thiết kế riêng cho nhu cầu của bạn
+            Khám phá dịch vụ tư vấn tài chính cá nhân, được thiết kế riêng cho
+            nhu cầu của bạn
           </p>
         </div>
 
@@ -36,7 +51,9 @@ const ServiceList = () => {
                     <div className="absolute bottom-6 left-6 text-white">
                       <div className="flex items-center space-x-2 mb-2">
                         {service.icon}
-                        <span className="text-sm font-medium">{service.category}</span>
+                        <span className="text-sm font-medium">
+                          {service.category}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -47,8 +64,12 @@ const ServiceList = () => {
                   <div className="space-y-6">
                     {/* Title and description */}
                     <div>
-                      <h3 className="text-3xl font-bold text-gray-800 mb-4">{service.title}</h3>
-                      <p className="text-lg text-gray-600 leading-relaxed">{service.description}</p>
+                      <h3 className="text-3xl font-bold text-gray-800 mb-4">
+                        {service.title}
+                      </h3>
+                      <p className="text-lg text-gray-600 leading-relaxed">
+                        {service.description}
+                      </p>
                     </div>
 
                     {/* Features */}
@@ -63,12 +84,19 @@ const ServiceList = () => {
 
                     {/* Benefits */}
                     <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-100">
-                      <h4 className="font-semibold text-gray-800 mb-3">Lợi ích chính:</h4>
+                      <h4 className="font-semibold text-gray-800 mb-3">
+                        Lợi ích chính:
+                      </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {service.benefits.map((benefit, idx) => (
-                          <div key={idx} className="flex items-center space-x-2">
+                          <div
+                            key={idx}
+                            className="flex items-center space-x-2"
+                          >
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            <span className="text-sm text-gray-700">{benefit}</span>
+                            <span className="text-sm text-gray-700">
+                              {benefit}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -77,11 +105,20 @@ const ServiceList = () => {
                     {/* Pricing */}
                     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                       <div>
-                        <div className="text-2xl font-bold text-blue-600">{service.price}</div>
-                        <div className="text-sm text-gray-500">{service.priceNote}</div>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {service.price}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {service.priceNote}
+                        </div>
                       </div>
-                      <Button type="primary" size="large" className="bg-blue-600 hover:bg-blue-700">
-                        Tư vấn ngay
+                      <Button
+                        type="primary"
+                        size="large"
+                        className="bg-blue-600 hover:bg-blue-700"
+                        onClick={handleConsult}
+                      >
+                        Đặt lịch tư vấn
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </div>
@@ -100,7 +137,7 @@ const ServiceList = () => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default ServiceList
+export default ServiceList;
