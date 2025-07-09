@@ -1,26 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, InputNumber, Select, DatePicker, TimePicker, Button, message, Divider, Space } from "antd";
+import { Modal, Form, Input, InputNumber, Select, DatePicker, TimePicker, Button, Divider, Space } from "antd";
 import dayjs from "dayjs";
 import { useAuth } from "../../components/auth/useAuthHook"; // Add this import
 const { Option, OptGroup } = Select;
 import { categoryService } from "../../services/categoryService";
 import { PlusOutlined } from "@ant-design/icons";
 import { budgetService } from "../../services/budgetService";
+import debtService from "../../services/debtService";
+import { goalService } from "../../services/goalService";
 
 const TransactionModal = ({ open, onClose, onSave, editData }) => {
     const [form] = Form.useForm();
     const { user } = useAuth(); // Get user from auth context
     const [categories, setCategories] = useState([]);
-    const [newCategoryName, setNewCategoryName] = useState('');
-    const [addingCategory, setAddingCategory] = useState(false);
     const [budgets, setBudgets] = useState([]);
+    const [debts, setDebts] = useState([]);
+    const [goals, setGoals] = useState([]);
     useEffect(() => {
         fetchCategories();
+        fetchBudgets();
+        fetchDebts();
+        fetchGoals();
     }, []);
 
     const fetchCategories = async () => {
         try {
             const data = await categoryService.getUserCategories();
+            console.log("Category", data)
             setCategories(data);
         } catch (error) {
             // message.error('Lỗi khi tải dữ liệu', error);
@@ -28,37 +34,31 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
         }
     };
 
-    useEffect(() => {
-        // Gọi API lấy danh sách budget
-        const fetchBudgets = async () => {
-            try {
-                const data = await budgetService.getBudgets();
-                setBudgets(data); // data là mảng budget
-            } catch (error) {
-                setBudgets([]);
-                console.log(error)
-            }
-        };
-        fetchBudgets();
-    }, []);
-
-    const handleAddCategory = async () => {
+    const fetchBudgets = async () => {
         try {
-            const newCategory = await categoryService.createCategory({
-                userId: user?.userID,
-                categoryName: newCategoryName,
-                type: form.getFieldValue('type'), // income/expense
-                description: ''
-            });
-
-            setCategories(prev => [...prev, newCategory]);
-            form.setFieldValue('categoryId', newCategory.id);
-            setNewCategoryName('');
-            setAddingCategory(false);
-            message.success('Loại ngân sách được tạo thành công');
+            const data = await budgetService.getBudgets();
+            setBudgets(data); // data là mảng budget
         } catch (error) {
-            console.error('Error adding category:', error);
-            message.error('Lỗi khi thêm loại ngân sách', error);
+            setBudgets([]);
+            console.log(error)
+        }
+    };
+
+    const fetchDebts = async () => {
+        try {
+            const data = await debtService.getAllDebts();
+            setDebts(data);
+        } catch {
+            setDebts([]);
+        }
+    };
+
+    const fetchGoals = async () => {
+        try {
+            const data = await goalService.getAllGoals();
+            setGoals(data);
+        } catch {
+            setGoals([]);
         }
     };
 
@@ -85,10 +85,13 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
             userId: user?.userID, // Get userId from auth context
             amount: parseFloat(values.amount),
             description: values.description || "", // Use note as description
-            categoryId: parseInt(values.categoryId) || 0,
-            budgetId: parseInt(values.budgetId) || 0,
+            categoryId: parseInt(values.categoryId) || null,
+            budgetId: parseInt(values.budgetId) || null,
+            debtId: parseInt(values.debtId) || null,
+            goalTargetId: parseInt(values.goalTargetId) || null,
             dateCreate: dateTime.format('YYYY-MM-DDTHH:mm:ss'),
-            type: values.type // income or expense
+            type: values.type, // income or expense
+            isDeleted: values.isDeleted ?? false
         };
 
         if (editData?.id) {
@@ -130,61 +133,23 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                     </Form.Item>
 
                     <Form.Item label="Loại ngân sách" required>
-                        <Space.Compact block>
-                            <Form.Item
-                                name="categoryId"
-                                noStyle
-                                rules={[{ required: true, message: 'Vui lòng chọn hoặc thêm loại ngân sách' }]}
+                        <Form.Item
+                            name="categoryId"
+                            noStyle
+                            rules={[{ required: true, message: 'Vui lòng chọn loại ngân sách' }]}
+                        >
+                            <Select
+                                placeholder="Chọn loại ngân sách"
                             >
-                                <Select
-                                    style={{ width: addingCategory ? '69%' : '100%' }}
-                                    placeholder="Chọn loại ngân sách"
-                                    popupRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Button
-                                                type="text"
-                                                icon={<PlusOutlined />}
-                                                onClick={() => setAddingCategory(true)}
-                                                block
-                                            >
-                                                Thêm loại ngân sách
-                                            </Button>
-                                        </>
-                                    )}
-                                >
-                                    {categories
-                                        .filter(cat => cat.type === form.getFieldValue('type'))
-                                        .map(cat => (
-                                            <Select.Option key={cat.categoryId} value={cat.categoryId}>
-                                                {cat.categoryName}
-                                            </Select.Option>
-                                        ))
-                                    }
-                                </Select>
-                            </Form.Item>
-                        </Space.Compact>
-                        {addingCategory && (
-                            <Space.Compact block className="mt-2">
-                                <Input
-                                    value={newCategoryName}
-                                    onChange={e => setNewCategoryName(e.target.value)}
-                                    placeholder="Thêm loại ngân sách"
-                                />
-                                <Button type="primary" onClick={handleAddCategory}>
-                                    Thêm
-                                </Button>
-                                <Button
-                                    onClick={() => {
-                                        setAddingCategory(false);
-                                        setNewCategoryName('');
-                                    }}
-                                >
-                                    Hủy
-                                </Button>
-                            </Space.Compact>
-                        )}
+                                {categories
+                                    .map(cat => (
+                                        <Select.Option key={cat.categoryId} value={cat.categoryId}>
+                                            {cat.categoryName}
+                                        </Select.Option>
+                                    ))
+                                }
+                            </Select>
+                        </Form.Item>
                     </Form.Item>
 
                     <Form.Item
@@ -206,7 +171,11 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                         name="date"
                         rules={[{ required: true, message: 'Vui lòng chọn ngày' }]}
                     >
-                        <DatePicker className="w-full" />
+                        <DatePicker
+                            className="w-full"
+                            format="YYYY-MM-DD HH:mm:ss"
+                            showTime
+                        />
                     </Form.Item>
 
                     <Form.Item
@@ -214,13 +183,51 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                         name="budgetId"
                     >
                         <Select placeholder="Chọn ngân sách">
-                            {budgets.map((budget) => (
+                            {(budgets || []).map((budget) => (
                                 <Select.Option key={budget.id} value={budget.id}>
                                     {budget.name}
                                 </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
+
+                    <Form.Item
+                        label="Khoản nợ (nếu có)"
+                        name="debtId"
+                    >
+                        <Select allowClear placeholder="Chọn khoản nợ">
+                            {(debts || []).map(debt => (
+                                <Select.Option key={debt.debtId} value={debt.debtId}>
+                                    {debt.debtName || debt.name || `Nợ #${debt.debtId}`}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Mục tiêu tài chính (nếu có)"
+                        name="goalTargetId"
+                    >
+                        <Select allowClear placeholder="Chọn mục tiêu tài chính">
+                            {(goals || []).map(goal => (
+                                <Select.Option key={goal.goalTargetId || goal.id} value={goal.goalTargetId || goal.id}>
+                                    {goal.goal || `Mục tiêu #${goal.goalTargetId || goal.id}`}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    {/* <Form.Item
+                        label="Đánh dấu đã xoá?"
+                        name="isDeleted"
+                        valuePropName="checked"
+                        initialValue={false}
+                    >
+                        <Select>
+                            <Option value={false}>Chưa xoá</Option>
+                            <Option value={true}>Đã xoá</Option>
+                        </Select>
+                    </Form.Item> */}
                 </div>
 
                 <Form.Item

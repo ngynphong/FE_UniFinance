@@ -5,12 +5,15 @@ import CreateBudgetModal from "../../../components/budget/CreateBudgetModal";
 import UpdateBudgetModal from "../../../components/budget/UpdateBudgetModal";
 import { Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import { useNavigate } from 'react-router-dom';
 
 const BudgetManagement = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [selectedBudget, setSelectedBudget] = useState(null);
     const [budgetRefresh, setBudgetRefresh] = useState(false);
+    const navigate = useNavigate();
+
     const handleBudgetCreated = () => {
         setShowCreateModal(false);
         setBudgetRefresh(prev => !prev);
@@ -25,6 +28,10 @@ const BudgetManagement = () => {
         setShowUpdateModal(false);
         setSelectedBudget(null);
         setBudgetRefresh(prev => !prev);
+    };
+
+    const handleBudgetClick = (budget) => {
+        navigate(`/dashboard/budget-management/${budget.id}`);
     };
 
     return (
@@ -47,6 +54,7 @@ const BudgetManagement = () => {
                         onEdit={handleEditBudget}
                         onRefresh={setBudgetRefresh}
                         refresh={budgetRefresh}
+                        onClickBudget={handleBudgetClick}
                     />
                 </div>
 

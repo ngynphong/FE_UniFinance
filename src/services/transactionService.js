@@ -22,19 +22,20 @@ export const transactionService = {
 
     async createTransaction(transactionData) {
         try {
-
             const response = await axios.post('/Transaction', {
                 userId: transactionData.userId,
                 amount: transactionData.amount,
                 description: transactionData.description,
                 categoryId: transactionData.categoryId,
                 budgetId: transactionData.budgetId,
+                debtId: transactionData.debtId,
+                goalTargetId: transactionData.goalTargetId,
                 dateCreate: transactionData.dateCreate,
-                type: transactionData.type
+                type: transactionData.type,
+                isDeleted: transactionData.isDeleted ?? false
             });
             return response.data;
         } catch (error) {
-
             throw error.response?.data || { message: 'Failed to create transaction' };
         }
     },
@@ -74,5 +75,23 @@ export const transactionService = {
             }
             throw error.response?.data || { message: 'Failed to delete transaction' };
         }
-    }
-};
+    },
+
+    async getTransactionRecent(userId){
+        try{
+            const response = await axios.get(`/Transaction/recent/${userId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed get transaction recent' };
+        }
+    },
+    
+    async getTransactionSumary(userId) {
+        try {
+            const response = await axios.get(`/Transaction/summary/${userId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed get transaction summary' };
+        }
+    },
+}

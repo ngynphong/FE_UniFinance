@@ -3,7 +3,7 @@ import { Card, Progress, Spin, Button, Popconfirm, message } from "antd";
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { budgetService } from "../../services/budgetService";
 
-const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
+const BudgetSummary = ({ onEdit, onRefresh, refresh, onClickBudget }) => {
     const [loading, setLoading] = useState(true);
     const [budgets, setBudgets] = useState([]);
 
@@ -51,6 +51,8 @@ const BudgetSummary = ({ onEdit, onRefresh, refresh }) => {
                     className="relative bg-white rounded-lg md:rounded-2xl shadow-md hover:shadow-lg md:shadow-xl 
                     hover:md:shadow-2xl border-l-4 md:border-l-8 border-blue-400 transition-all duration-200 
                     p-4 md:p-6 w-full max-w-sm mx-auto flex flex-col justify-between min-h-[160px] md:min-h-[180px]"
+                    onClick={() => onClickBudget?.(budget)}
+                    style={{ cursor: 'pointer' }}
                 >
                     <div>
                         <div className="flex items-center gap-2 mb-2">

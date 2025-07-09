@@ -15,6 +15,11 @@ const debtService = {
         const response = await axios.post("/Debt/CalculateDebtInterest", data);
         return response.data;
     },
+
+    addDebtContribution: async (id, contributionData) => {
+        const response = await axios.post(`/Debt/AddDebtContribution/${id}`, contributionData);
+        return response.data;
+    },
 };
 
 export default debtService;

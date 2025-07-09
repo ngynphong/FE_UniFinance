@@ -4,11 +4,15 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { categoryService } from "../../services/categoryService";
 import { budgetService } from "../../services/budgetService";
 import dayjs from "dayjs";
+import debtService from "../../services/debtService";
+import { goalService } from "../../services/goalService";
 
 const TransactionItem = ({ transaction, onEdit, onDelete }) => {
-    const { type, categoryId, budgetId, amount, dateCreate, description } = transaction;
+    const { type, categoryId, budgetId, debtId, amount, goalTargetId, dateCreate, description } = transaction;
     const [categoryName, setCategoryName] = useState("");
     const [budgetName, setBudgetName] = useState("");
+    const [debtName, setDebtName] = useState("");
+    const [goalName, setGoalName] = useState("");
 
     useEffect(() => {
         const fetchCategoryAndBudget = async () => {
@@ -26,13 +30,26 @@ const TransactionItem = ({ transaction, onEdit, onDelete }) => {
                 if (budget) {
                     setBudgetName(budget.name);
                 }
+
+                const debts = await debtService.getAllDebts();
+                const debt = debts.find(d => d.debtId === debtId);
+                if (debt) {
+                    setDebtName(debt.debtName)
+                }
+     
+                const goals = await goalService.getAllGoals();
+                const goal = goals.find(g => g.id === goalTargetId);
+                if (goal) {
+                    setGoalName(goal.goal)
+                }
+
             } catch (error) {
                 console.error("Error fetching category or budget:", error);
             }
         };
 
         fetchCategoryAndBudget();
-    }, [categoryId, budgetId]);
+    }, [categoryId, budgetId, debtId, goalTargetId]);
 
     // Format date (Vietnamese style)
     const formattedDate = dayjs(dateCreate).format("DD/MM/YYYY");
@@ -47,6 +64,12 @@ const TransactionItem = ({ transaction, onEdit, onDelete }) => {
                     <div className="text-xs text-gray-500">{description}</div>
                     {budgetName && (
                         <div className="text-xs text-blue-500">Ngân sách: {budgetName}</div>
+                    )}
+                    {debtName && (
+                        <div className="text-xs text-red-500">Khoản nợ: {debtName}</div>
+                    )}
+                    {goalName && (
+                        <div className="text-xs text-green-500">Mục tiêu: {goalName}</div>
                     )}
                 </div>
             </div>

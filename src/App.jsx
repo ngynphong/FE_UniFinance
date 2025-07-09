@@ -66,6 +66,9 @@ import ServicePackagePage from "./pages/admin/ServicePackagePage";
 import BlogAdminManagerPage from "./pages/admin/BlogAdminManagerPage";
 
 import BookingPage from "./pages/user/Booking/BookingPage";
+
+import BudgetDetail from "./pages/user/BudgetManagement/BudgetDetail";
+
 import BookingHistoryPage from "./pages/user/Booking/BookingHistoryPage";
 
 
@@ -183,6 +186,14 @@ function App() {
               element={
                 <ProtectedRoute roles={["Customer"]}>
                   <BudgetManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/budget-management/:id"
+              element={
+                <ProtectedRoute roles={["Customer"]}>
+                  <BudgetDetail />
                 </ProtectedRoute>
               }
             />

@@ -1,7 +1,7 @@
 import axios from '../configs/axios';
 export const budgetService = {
     getBudgets: async () => {
-        try {          
+        try {
             const response = await axios.get('/Budget');
             return response.data;
         } catch (error) {
@@ -35,5 +35,54 @@ export const budgetService = {
         } catch (error) {
             throw error.response?.data || { message: 'Failed to delete budget' };
         }
-    }
+    },
+
+    async getBudgetById(id) {
+        try {
+            const response = await axios.get(`/Bdget/${id}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed get budget' };
+        }
+    },
+
+    async getBudgetDetails(id) {
+        try {
+            const response = await axios.get(`/Budget/${id}/detail`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed get budget' };
+        }
+    },
+
+    async getBudgetCategories(id) {
+        try {
+            const response = await axios.get(`/Budget/${id}/categories`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed get budget' };
+        }
+    },
+
+    async getBudgetSummary(month, year) {
+        try {
+            const response = await axios.get('/Budget/summary', {
+                params: { month, year }
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed to fetch budget summary' };
+        }
+    },
+
+    async getBudgetAlert(threshold) {
+        try {
+            const response = await axios.get('/Budget/alerts', {
+                params: { threshold }
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed to alert' };
+        }
+    },
 };
