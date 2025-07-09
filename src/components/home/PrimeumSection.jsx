@@ -17,10 +17,52 @@ import {
 import { useEffect, useState } from "react";
 import packageService from "../../services/packageService";
 import { useAuth } from "../../components/auth/useAuthHook";
+import { useNavigate } from "react-router-dom";
 
-const PremiumSection = ({ scrollToSection }) => {
+const PremiumSection = () => {
   const [packages, setPackages] = useState([]);
+  const [currentPkg, setCurrentPkg] = useState(null);
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const rank = { Free: 0, Plus: 1, Premium: 2 };
+
+  useEffect(() => {
+    if (!user) {
+      setCurrentPkg(null);
+      return;
+    }
+
+    const fetchUserPkg = async () => {
+      try {
+        const data = await packageService.getUserPackage(user.userID);
+
+        // Lọc các record còn hiệu lực (status=2 & chưa hết hạn)
+        const valid = data.filter(
+          (up) =>
+            up.userPackageStatusId === 2 &&
+            (!up.expiredAt || new Date(up.expiredAt) > new Date())
+        );
+
+        // Lấy record mới nhất theo renewedAt/createdAt
+        valid.sort(
+          (a, b) =>
+            new Date(b.renewedAt || b.createdAt) -
+            new Date(a.renewedAt || a.createdAt)
+        );
+
+        const activeName =
+          valid[0]?.package?.name ?? // Package.Name
+          valid[0]?.packageName ?? // tuỳ DTO
+          "Free";
+
+        setCurrentPkg(activeName);
+      } catch {
+        setCurrentPkg("Free");
+      }
+    };
+
+    fetchUserPkg();
+  }, [user]);
 
   const premiumFeatures = [
     {
@@ -57,26 +99,47 @@ const PremiumSection = ({ scrollToSection }) => {
     fetchPackages();
   }, []);
 
-  const handleSelectPackage = async (pkg) => {
-    if (pkg.name === "Free") {
-      message.success("Đăng ký gói Free thành công!");
-      return;
-    }
-    if (!user || !user.userID) {
-      message.error("Bạn cần đăng nhập để thanh toán gói dịch vụ.");
-      return;
-    }
+  const handlePayment = async (pkg) => {
     try {
       const res = await packageService.paymentPackage(pkg.id, user.userID);
-      if (res && res.checkoutUrl) {
+
+      // Backend trả link cổng thanh toán
+      if (res?.checkoutUrl) {
         window.location.href = res.checkoutUrl;
         return;
       }
+
+      // Trường hợp thanh toán instant
       message.success(`Thanh toán gói ${pkg.name} thành công!`);
     } catch {
       message.error("Thanh toán thất bại. Vui lòng thử lại.");
     }
   };
+
+  const premiumPkg = packages.find((p) => p.name === "Premium");
+
+  const onPremiumCTAClick = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    if (currentPkg === "Premium") {
+      message.info("Bạn đang ở gói Premium."); 
+      return;
+    }
+
+    handlePayment(premiumPkg);
+  };
+
+
+  const onConsultClick = () => {
+  if (!user) {
+    navigate("/login");            
+  } else {
+    navigate("/dashboard/booking");
+  }
+};
 
   return (
     <section
@@ -148,9 +211,49 @@ const PremiumSection = ({ scrollToSection }) => {
             } else if (pkg.name === "Premium") {
               icon = <Crown className="w-10 h-10 text-yellow-400" />;
               iconBg = "bg-yellow-50";
-              cardBg = "bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300";
+              cardBg =
+                "bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300";
               priceColor = "text-yellow-600";
             }
+
+            /* ---------- XÁC ĐỊNH TRẠNG THÁI GÓI ---------------------- */
+            const isLoggedIn = !!user;
+            const isCurrentPkg = isLoggedIn && currentPkg === pkg.name;
+            const isDowngrade =
+              isLoggedIn && currentPkg && rank[pkg.name] < rank[currentPkg];
+
+            /* ----- Nhãn nút ----------------------------------------- */
+            let buttonLabel;
+            if (!isLoggedIn) {
+              buttonLabel =
+                pkg.name === "Premium"
+                  ? "Chọn gói Premium"
+                  : pkg.name === "Plus"
+                  ? "Chọn gói Plus"
+                  : "Đăng ký Free";
+            } else if (isCurrentPkg) {
+              buttonLabel = `Bạn đang ở gói ${pkg.name}`;
+            } else if (isDowngrade) {
+              buttonLabel = "Không khả dụng";
+            } else {
+              // Nâng cấp
+              buttonLabel =
+                pkg.name === "Premium"
+                  ? "Nâng cấp lên Premium"
+                  : pkg.name === "Plus"
+                  ? "Nâng cấp lên Plus"
+                  : "Đăng ký Free";
+            }
+            /* ----- Xử lý click -------------------------------------- */
+            const onPackageClick = () => {
+              if (!isLoggedIn) {
+                navigate("/login");
+                return;
+              }
+              if (isCurrentPkg || isDowngrade) return;
+              handlePayment(pkg);
+            };
+
             return (
               <Col xs={24} lg={8} key={pkg.id}>
                 <Card
@@ -158,7 +261,9 @@ const PremiumSection = ({ scrollToSection }) => {
                   bodyStyle={{ padding: "2rem" }}
                 >
                   <div className="flex justify-center mb-4">
-                    <div className={`rounded-full p-4 shadow ${iconBg}`}>{icon}</div>
+                    <div className={`rounded-full p-4 shadow ${iconBg}`}>
+                      {icon}
+                    </div>
                   </div>
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-gray-800 mb-2">
@@ -166,27 +271,39 @@ const PremiumSection = ({ scrollToSection }) => {
                     </h3>
                     <div className="mb-2">
                       <span className={`text-4xl font-bold ${priceColor}`}>
-                        {pkg.price === 0 ? "Miễn phí" : pkg.price.toLocaleString("vi-VN") + "đ"}
+                        {pkg.price === 0
+                          ? "Miễn phí"
+                          : pkg.price.toLocaleString("vi-VN") + "đ"}
                       </span>
                     </div>
                     <p className="text-gray-600 mt-2">{pkg.description}</p>
                   </div>
                   <div className="space-y-3 mb-8">
-                    {pkg.features && pkg.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{feature}</span>
-                      </div>
-                    ))}
+                    {pkg.features &&
+                      pkg.features.map((feature, idx) => (
+                        <div key={idx} className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-700">{feature}</span>
+                        </div>
+                      ))}
                   </div>
                   <Button
                     type={pkg.name === "Premium" ? "primary" : "default"}
                     size="large"
-                    className={`w-full h-12 font-semibold flex items-center justify-center ${pkg.name === "Premium" ? "bg-gradient-to-r from-yellow-400 to-orange-500 border-none hover:from-yellow-500 hover:to-orange-600" : "border-blue-600 text-blue-600 hover:bg-blue-50"}`}
-                    onClick={() => handleSelectPackage(pkg)}
+                    disabled={isCurrentPkg || isDowngrade}
+                    className={`w-full h-12 font-semibold flex items-center justify-center
+    ${
+      pkg.name === "Premium"
+        ? "bg-gradient-to-r from-yellow-400 to-orange-500 border-none hover:from-yellow-500 hover:to-orange-600"
+        : "border-blue-600 text-blue-600 hover:bg-blue-50"
+    }
+    ${isCurrentPkg || isDowngrade ? "cursor-default" : ""}`}
+                    onClick={onPackageClick}
                   >
-                    {pkg.name === "Premium" ? "Chọn gói Premium" : pkg.name === "Plus" ? "Chọn gói Plus" : "Đăng ký Free"}
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    {buttonLabel}
+                    {!isCurrentPkg && !isDowngrade && (
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    )}
                   </Button>
                 </Card>
               </Col>
@@ -221,11 +338,12 @@ const PremiumSection = ({ scrollToSection }) => {
               </div>
             </Col>
             <Col xs={24} lg={12}>
-              <div className="relative">
+              <div className="relative flex justify-center">
                 <img
-                  src="/placeholder.svg?height=300&width=400"
+                  src="/best-choice.jpg"
                   alt="Premium Benefits"
-                  className="rounded-2xl shadow-2xl w-full"
+                  className="rounded-2xl shadow-2xl w-2/3  /* hoặc max-w-md */"
+                  style={{ width: "60%", height: "auto" }}
                 />
                 <div className="absolute -top-4 -right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-full">
                   <Crown className="w-8 h-8" />
@@ -249,7 +367,7 @@ const PremiumSection = ({ scrollToSection }) => {
               type="primary"
               size="large"
               className="bg-gradient-to-r from-yellow-400 to-orange-500 border-none hover:from-yellow-500 hover:to-orange-600 h-12 px-8 text-lg font-semibold flex items-center justify-center"
-              onClick={() => scrollToSection("contact")}
+              onClick={onPremiumCTAClick}
             >
               Đăng ký Premium ngay
               <Crown className="w-5 h-5 ml-2" />
@@ -259,7 +377,7 @@ const PremiumSection = ({ scrollToSection }) => {
               className="h-12 px-8 text-lg bg-transparent border-2 border-orange-300 text-orange-500 
              hover:bg-orange-200 hover:text-orange-700 hover:border-orange-400 
              flex items-center justify-center"
-              onClick={() => scrollToSection("contact")}
+              onClick={onConsultClick}
             >
               Tư vấn miễn phí
             </Button>

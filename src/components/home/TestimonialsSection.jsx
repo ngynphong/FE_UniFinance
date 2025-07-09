@@ -45,19 +45,22 @@ const TestimonialsSection = () => {
     try {
       const userPackageData = await packageService.getUserPackage(user.userID);
       if (userPackageData && userPackageData.length > 0) {
-        setHasUserPackage(true);
+        const packageId = userPackageData[0].packageId;
+
+        if (packageId !== 1) setHasUserPackage(true);
+
         setReviewData((prevData) => ({
           ...prevData,
           userID: user.userID,
           userPackageUserId: user.userID,
-          userPackagePackageId: userPackageData[0].packageId,
+          userPackagePackageId: packageId,
         }));
 
         // Check if the user has already reviewed this package
         const userReview = await reviewService.getAllReviews(); // or use a specific function to get reviews of the package
         const existingReview = userReview.find(
           (review) =>
-            review.userPackagePackageId === userPackageData[0].packageId &&
+            review.userPackagePackageId === packageId &&
             review.userPackageUserId === user.userID
         );
         if (existingReview) {
@@ -79,13 +82,19 @@ const TestimonialsSection = () => {
   };
 
   const handleOk = async () => {
+    if (hasReviewed) {
+      return;
+    }
+    setLoading(true);
     try {
       await reviewService.createReview(reviewData);
       setIsModalVisible(false);
-      setHasReviewed(true); // Ẩn nút "Đánh giá ngay"
-      fetchReviews(); // Tải lại danh sách đánh giá
+      setHasReviewed(true);
+      fetchReviews();
     } catch (error) {
       console.error("Error submitting review:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,7 +136,7 @@ const TestimonialsSection = () => {
                     />
                     <Rate
                       disabled
-                      defaultValue={testimonial.rating}
+                      value={testimonial.rating}
                       className="mb-4"
                     />
                     <p className="text-lg text-gray-600 mb-6 italic">
@@ -144,7 +153,7 @@ const TestimonialsSection = () => {
           </Carousel>
         )}
 
-        {hasUserPackage && !hasReviewed && (
+        {hasUserPackage && !hasReviewed && !loading && (
           <div className="text-center mt-8">
             <Button type="primary" onClick={showModal}>
               Đánh giá ngay
@@ -161,10 +170,11 @@ const TestimonialsSection = () => {
           <div className="space-y-4">
             <div>
               <Rate
+                disabled={false}
+                value={reviewData.rating}
                 onChange={(value) =>
                   setReviewData({ ...reviewData, rating: value })
                 }
-                value={reviewData.rating}
               />
             </div>
 

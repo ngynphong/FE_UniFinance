@@ -2,8 +2,22 @@
 
 import { Row, Col, Button, Card } from "antd"
 import { ArrowRight, Phone, Mail, MessageCircle } from 'lucide-react'
+import { useAuth } from "../../../components/auth/useAuthHook";
+import { useNavigate } from "react-router-dom";
 
-const ServiceCTA = ({ scrollToSection }) => {
+const ServiceCTA = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleConsult = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    navigate("/dashboard/booking");
+  };
+
   return (
     <section
       id="cta"
@@ -44,7 +58,7 @@ const ServiceCTA = ({ scrollToSection }) => {
                   type="primary"
                   size="large"
                   className="bg-gradient-to-r from-yellow-400 to-orange-500 border-none hover:from-yellow-500 hover:to-orange-600 h-14 px-8 text-lg font-semibold"
-                  onClick={() => scrollToSection("contact")}
+                  onClick={handleConsult}
                 >
                   Đặt lịch tư vấn ngay
                   <ArrowRight className="w-5 h-5 ml-2" />

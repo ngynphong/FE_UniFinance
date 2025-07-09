@@ -39,7 +39,7 @@ export default function ServicesPage() {
           <ServiceProcess />
           <ServicePricing scrollToSection={scrollToSection} />
           <ServiceFAQ />
-          <ServiceCTA scrollToSection={scrollToSection} />
+          <ServiceCTA />
         </main>
       </div>
     </ConfigProvider>
