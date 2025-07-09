@@ -2,13 +2,8 @@ import axios from "../configs/axios";
 
 const debtService = {
     getAllDebts: async () => {
-        try {
-            const response = await axios.get("/Debt/GetAllByUser");
-            return response.data;
-        } catch (error) {
-            console.log(error)
-        }
-
+        const response = await axios.get("/Debt/GetAllByUser");
+        return response.data;
     },
 
     addDebt: async (debtData) => {
@@ -18,6 +13,11 @@ const debtService = {
 
     calculateDebtInterest: async (data) => {
         const response = await axios.post("/Debt/CalculateDebtInterest", data);
+        return response.data;
+    },
+
+    addDebtContribution: async (id, contributionData) => {
+        const response = await axios.post(`/Debt/AddDebtContribution/${id}`, contributionData);
         return response.data;
     },
 };

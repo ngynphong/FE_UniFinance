@@ -88,7 +88,7 @@ const DebtCalculator = () => {
                                 {/* Hiển thị các trường kết quả trả về từ API */}
                                 <Statistic
                                     title="Tổng tiền lãi"
-                                    value={results.totalInterest}
+                                    value={results}
                                     precision={2}
                                     suffix="VNĐ"
                                     valueStyle={{ color: '#faad14' }}

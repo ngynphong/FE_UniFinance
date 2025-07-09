@@ -38,7 +38,7 @@ const GoalCard = ({ goal, onEdit, onDelete }) => {
                             {goal.goal}
                         </h3>
                         <p className="text-gray-500 text-sm">
-                            Ngày mục tiêu: {goal.targetDate}
+                            Ngày mục tiêu: {new Date(goal.targetDate).toLocaleDateString('vi-VN')}
                         </p>
                     </div>
                     <div className="text-right">

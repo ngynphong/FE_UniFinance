@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, DatePicker, Button, message, Card } from "antd";
+import { Form, Input, DatePicker, Button, message, Card, InputNumber } from "antd";
 import debtService from "../../services/debtService";
 import DashboardLayout from "../layout/user/DashboardLayout";
 
@@ -54,7 +54,12 @@ const AddDebt = ({ onSuccess }) => {
                         label="Số tiền"
                         rules={[{ required: true, message: "Vui lòng nhập số tiền" }]}
                     >
-                        <Input type="number" placeholder="Nhập số tiền" />
+                        <InputNumber
+                            className="w-full"
+                            min={0}
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' VNĐ'}
+                            parser={value => value.replace(/\s?VNĐ|(,*)/g, '')}
+                        />
                     </Form.Item>
 
                     <Form.Item

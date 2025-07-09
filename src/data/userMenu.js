@@ -12,5 +12,6 @@ export const menu = [
     { label: "Mục tiêu", icon: <GoGoal />, path: "/dashboard/goals" },
     { label: "Quản lý nợ", icon: <MdOutlineDashboard />, path: "/dashboard/debt-management" },
     { label: "Đặt lịch tư vấn", icon: <MdEvent />, path: "/dashboard/booking" },
+    { label: "Bài viết", icon: <ImBlog />, path: "/dashboard/blog" },
     { label: "Tư vấn trực tuyến", icon: <MdOutlineDashboard />, path: "/dashboard/chat" }
-];
+]; 

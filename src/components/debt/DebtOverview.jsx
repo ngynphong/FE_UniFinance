@@ -16,6 +16,7 @@ const DebtOverview = () => {
             setLoading(true);
             const response = await debtService.getAllDebts();
             setDebts(response);
+            console.log('Debt', debts)
         } catch (error) {
             message.error('Chưa có nợ');
             console.error('Error:', error);
@@ -31,70 +32,68 @@ const DebtOverview = () => {
                 totalDebt: 0,
                 paidDebt: 0,
                 remainingDebt: 0,
-                progressPercentage: 0
+                progressPercentage: 0,
+                progressText: '0/0 (0%)'
             };
         }
 
-        // Calculate total debt
-        const totalDebt = debts.reduce((sum, debt) => sum + debt.amount, 0);
+        // Calculate total debt using principal
+        const totalDebt = debts.reduce((sum, debt) => sum + (debt.principal || 0), 0);
 
-        // Calculate paid amount based on debt status
+        // Calculate paid amount using paidAmount field
         const paidDebt = debts.reduce((sum, debt) => {
-            // Assuming debt has a 'paid' or similar status field
-            if (debt.status === 'Paid' || debt.status === 'Đã trả') {
-                return sum + debt.amount;
-            }
-            // If debt has a paidAmount field, use it
-            if (debt.paidAmount) {
-                return sum + debt.paidAmount;
-            }
-            return sum;
+            return sum + (debt.paidAmount || 0);
         }, 0);
 
         const remainingDebt = totalDebt - paidDebt;
-        const progressPercentage = totalDebt > 0 ? (paidDebt / totalDebt) * 100 : 0;
+        // Nếu có progress ở từng debt, lấy tổng progressText và phần trăm trung bình
+        let progressText = '';
+        let progressPercentage = 0;
+        if (debts[0]?.progress) {
+            // Nếu tất cả các debt đều có progress, lấy trung bình phần trăm
+            const progresses = debts.map(d => {
+                const match = d.progress.match(/\((\d+)%\)/);
+                return match ? parseFloat(match[1]) : 0;
+            });
+            progressPercentage = progresses.length > 0 ? progresses.reduce((a, b) => a + b, 0) / progresses.length : 0;
+            progressText = debts.map(d => d.progress).join(' | ');
+        } else {
+            progressPercentage = totalDebt > 0 ? (paidDebt / totalDebt) * 100 : 0;
+            progressText = `${paidDebt.toLocaleString('vi-VN')} / ${totalDebt.toLocaleString('vi-VN')} (${progressPercentage.toFixed(1)}%)`;
+        }
 
         return {
             totalDebt,
             paidDebt,
             remainingDebt,
-            progressPercentage
+            progressPercentage,
+            progressText
         };
     };
 
     // Function to translate status to Vietnamese
-    const getStatusInVietnamese = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'active':
-                return 'Đang nợ';
-            case 'paid':
-                return 'Đã trả';
-            case 'overdue':
-                return 'Quá hạn';
-            case 'pending':
-                return 'Chờ xử lý';
-            default:
-                return 'Đang nợ';
+    const getStatusInVietnamese = (debt) => {
+        if (debt.isPaid) {
+            return 'Đã trả';
         }
+        if (debt.currentAmount > 0) {
+            return 'Đang nợ';
+        }
+        return 'Đã trả';
     };
 
     // Function to get status color
-    const getStatusColor = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'active':
-                return 'blue';
-            case 'paid':
-                return 'green';
-            case 'overdue':
-                return 'red';
-            case 'pending':
-                return 'orange';
-            default:
-                return 'blue';
+    const getStatusColor = (debt) => {
+        if (debt.isPaid) {
+            return 'green';
         }
+        if (debt.currentAmount > 0) {
+            return 'blue';
+        }
+        return 'green';
     };
 
-    const { totalDebt, paidDebt, remainingDebt, progressPercentage } = calculateTotals();
+    const { totalDebt, paidDebt, remainingDebt, progressPercentage, progressText } = calculateTotals();
 
     if (loading) {
         return (
@@ -149,10 +148,10 @@ const DebtOverview = () => {
                         '0%': '#108ee9',
                         '100%': '#87d068',
                     }}
-                    format={percent => `${percent}%`}
+                    // format={() => progressText}
                 />
                 <div className="mt-2 text-sm text-gray-600">
-                    Đã hoàn thành {progressPercentage.toFixed(1)}% tổng số nợ
+                    Đã hoàn thành {progressText}
                 </div>
             </Card>
 
@@ -169,16 +168,19 @@ const DebtOverview = () => {
                                 />
                                 <div className="flex flex-col items-end">
                                     <span className="text-lg font-semibold">
-                                        {debt.amount?.toLocaleString('vi-VN')} VNĐ
+                                        {debt.currentAmount?.toLocaleString('vi-VN')} VNĐ
                                     </span>
-                                    <Tag color={getStatusColor(debt.status)}>
-                                        {getStatusInVietnamese(debt.status)}
+                                    <Tag color={getStatusColor(debt)}>
+                                        {getStatusInVietnamese(debt)}
                                     </Tag>
                                     {debt.dueDate && (
                                         <div className="text-xs text-gray-500 mt-1">
                                             Hạn: {new Date(debt.dueDate).toLocaleDateString('vi-VN')}
                                         </div>
                                     )}
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        Đã trả: {debt.paidAmount?.toLocaleString('vi-VN')} VNĐ
+                                    </div>
                                 </div>
                             </List.Item>
                         )}

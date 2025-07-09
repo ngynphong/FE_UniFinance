@@ -6,11 +6,14 @@ import { transactionService } from '../../../services/transactionService';
 import { goalService } from '../../../services/goalService';
 import { budgetService } from '../../../services/budgetService';
 import { useAuth } from '../../../contexts/useAuth';
+import debtService from '../../../services/debtService';
+
 const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [transactions, setTransactions] = useState([]);
     const [goals, setGoals] = useState([]);
     const [budgets, setBudgets] = useState([]);
+    const [debts, setDebts] = useState([]);
     const { user } = useAuth();
 
     // Calculate totals
@@ -32,28 +35,55 @@ const Dashboard = () => {
     };
 
     // Fetch all data
+    const fetchGoals = async () => {
+        try {
+            const goalsData = await goalService.getAllGoals();
+            setGoals(goalsData.filter(g => g.userId === user?.userID));
+        } catch (error) {
+            // console.error('Lỗi lấy dữ liệu :', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchDebts = async () => {
+        try {
+            const debtsData = await debtService.getAllDebts();
+            setDebts(debtsData || []);
+        } catch (error) {
+            // console.error('Lỗi lấy dữ liệu :', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchBudgets = async () => {
+        try {
+            const budgetsData = await budgetService.getBudgets();
+            setBudgets(budgetsData);
+        } catch (error) {
+            // console.error('Lỗi lấy dữ liệu :', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchTransactions = async () => {
+        try {
+            const transactionsData = await transactionService.getAllTransactions();
+            setTransactions(transactionsData.filter(t => t.userId === user?.userID));
+        } catch (error) {
+            // console.error('Lỗi lấy dữ liệu :', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                setLoading(true);
-              
-                const transactionsData = await transactionService.getAllTransactions();
-                const goalsData = await goalService.getAllGoals();
-                const budgetsData = await budgetService.getBudgets();
-
-                setTransactions(transactionsData.filter(t => t.userId === user?.userID));
-                setGoals(goalsData.filter(g => g.userId === user?.userID));
-                setBudgets(budgetsData);
-                console.log(budgets)
-            } catch (error) {
-                // message.error('Lỗi khi tải dữ liệu');
-                console.error('Dashboard data fetch error:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDashboardData();
+        fetchTransactions();
+        fetchGoals();
+        fetchBudgets();
+        fetchDebts();
     }, []);
 
     if (loading) {
@@ -74,13 +104,16 @@ const Dashboard = () => {
     // Get the current month's budget if exists
     const currentBudget = budgets.length > 0 ? budgets[0] : { limitAmount: 0 };
 
+    // Tổng số dư còn lại trong nợ
+    const totalDebtCurrentAmount = debts.reduce((sum, d) => sum + (d.currentAmount || 0), 0);
+
     return (
         <DashboardLayout>
             <div className="space-y-6 px-2 md:px-0">
                 <h1 className="text-2xl font-bold text-gray-800">Tổng quan chính</h1>
 
                 <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} md={12} lg={6} xl={6}>
+                    <Col xs={24} sm={24} md={24} lg={6} xl={6}>
                         <Card className="h-full">
                             <Statistic
                                 title="Tổng số dư"
@@ -91,7 +124,7 @@ const Dashboard = () => {
                             />
                         </Card>
                     </Col>
-                    <Col xs={24} sm={12} md={12} lg={6} xl={6}>
+                    <Col xs={24} sm={24} md={24} lg={6} xl={6}>
                         <Card className="h-full">
                             <Statistic
                                 title="Thu nhập hàng tháng"
@@ -103,7 +136,7 @@ const Dashboard = () => {
                             />
                         </Card>
                     </Col>
-                    <Col xs={24} sm={12} md={12} lg={6} xl={6}>
+                    <Col xs={24} sm={24} md={24} lg={6} xl={6}>
                         <Card className="h-full">
                             <Statistic
                                 title="Chi phí hàng tháng"
@@ -115,13 +148,24 @@ const Dashboard = () => {
                             />
                         </Card>
                     </Col>
-                    <Col xs={24} sm={12} md={12} lg={6} xl={6}>
+                    <Col xs={24} sm={24} md={24} lg={6} xl={6}>
                         <Card className="h-full">
                             <Statistic
                                 title="Tỷ lệ tiết kiệm"
                                 value={savingsRate}
                                 suffix="%"
                                 valueStyle={{ color: savingsRate >= 0 ? '#3f8600' : '#cf1322' }}
+                            />
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                        <Card className="h-full">
+                            <Statistic
+                                title="Số dư còn lại trong nợ"
+                                value={totalDebtCurrentAmount}
+                                precision={2}
+                                valueStyle={{ color: totalDebtCurrentAmount > 0 ? '#cf1322' : '#3f8600' }}
+                                prefix="VND"
                             />
                         </Card>
                     </Col>
@@ -139,6 +183,8 @@ const Dashboard = () => {
                                             title={
                                                 <span>
                                                     {item.description}
+                                                    {item.debtId && <Tag color="blue" className="ml-2">Khoản nợ</Tag>}
+                                                    {item.budgetId && !item.debtId && <Tag color="purple" className="ml-2">Ngân sách</Tag>}
                                                     <Tag color={item.type === 'income' ? 'green' : 'red'} className='ml-2'>
                                                         {item.type === 'income' ? 'Thu nhập' : 'Chi phí'}
                                                     </Tag>

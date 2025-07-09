@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { budgetService } from '../../../services/budgetService';
 import { transactionService } from '../../../services/transactionService';
 import { categoryService } from '../../../services/categoryService';
-import { Card, Spin, message, InputNumber, Button } from 'antd';
+import { Card, Spin, message, InputNumber, Button, Statistic, Col, Row } from 'antd';
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { useAuth } from '../../../components/auth/useAuthHook';
@@ -92,43 +92,64 @@ const BudgetDetail = () => {
         <DashboardLayout>
             <div className="space-y-6 p-4 md:p-8">
                 {/* Tổng quan ngân sách */}
-                <Card className="mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                <Row gutter={[16, 16]}>
+                    <Col xs={24} sm={24} md={12} lg={8} xl={8}>
+                        <Card className='h-full'>
+                            <Statistic
+                                title="Ngân sách hàng tháng"
+                                value={budget.limitAmount?.toLocaleString()}
+                                precision={2}
+                                prefix="VND"
+                            />
+
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={8} xl={8}>
+                        <Card className='h-full'>
+                            <Statistic
+                                title="Đã chi cho đến nay"
+                                value={budget.spentAmount?.toLocaleString()}
+                                precision={2}
+                                prefix="VND"
+                            />
+
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={8} xl={8}>
+                        <Card className='h-full'>
+                            <Statistic
+                                title="Ngân sách còn lại"
+                                value={budget.remainingAmount?.toLocaleString()}
+                                precision={2}
+                                prefix="VND"
+                            />
+
+                        </Card>
+                    </Col>
+                </Row>
+
+
+                {/* Transaction summary */}
+                {transactionSummary && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                         <div>
-                            <div className="text-gray-500">Monthly Budget</div>
-                            <div className="text-2xl font-bold">{budget.limitAmount?.toLocaleString()}</div>
+                            <div className="text-gray-500">Tổng thu nhập</div>
+                            <div className="text-lg font-semibold text-green-600">{transactionSummary.totalIncome?.toLocaleString()}</div>
                         </div>
                         <div>
-                            <div className="text-gray-500">Spent So Far</div>
-                            <div className="text-2xl font-bold">{budget.spentAmount?.toLocaleString()}</div>
+                            <div className="text-gray-500">Tổng chi phí</div>
+                            <div className="text-lg font-semibold text-red-500">{transactionSummary.totalExpense?.toLocaleString()}</div>
                         </div>
                         <div>
-                            <div className="text-gray-500">Remaining Budget</div>
-                            <div className="text-2xl font-bold">{budget.remainingAmount?.toLocaleString()}</div>
+                            <div className="text-gray-500">Số dư</div>
+                            <div className="text-lg font-semibold {transactionSummary.netBalance >= 0 ? 'text-green-600' : 'text-red-500'}">{transactionSummary.netBalance?.toLocaleString()}</div>
                         </div>
                     </div>
-                    {/* Transaction summary */}
-                    {transactionSummary && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                            <div>
-                                <div className="text-gray-500">Total Income</div>
-                                <div className="text-lg font-semibold text-green-600">{transactionSummary.totalIncome?.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div className="text-gray-500">Total Expense</div>
-                                <div className="text-lg font-semibold text-red-500">{transactionSummary.totalExpense?.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div className="text-gray-500">Net Balance</div>
-                                <div className="text-lg font-semibold {transactionSummary.netBalance >= 0 ? 'text-green-600' : 'text-red-500'}">{transactionSummary.netBalance?.toLocaleString()}</div>
-                            </div>
-                        </div>
-                    )}
-                </Card>
-
+                )}
                 {/* Danh sách category và transaction */}
                 <Card>
-                    <div className="font-semibold text-lg mb-4">Transactions</div>
+                    <div className="font-semibold text-lg mb-4">Giao dịch</div>
                     {categories?.map(category => {
                         const overLimit = category.percentageUsed > 100;
                         return (

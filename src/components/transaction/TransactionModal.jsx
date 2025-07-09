@@ -85,8 +85,8 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
             userId: user?.userID, // Get userId from auth context
             amount: parseFloat(values.amount),
             description: values.description || "", // Use note as description
-            categoryId: parseInt(values.categoryId) || 0,
-            budgetId: parseInt(values.budgetId) || 0,
+            categoryId: parseInt(values.categoryId) || null,
+            budgetId: parseInt(values.budgetId) || null,
             debtId: parseInt(values.debtId) || null,
             goalTargetId: parseInt(values.goalTargetId) || null,
             dateCreate: dateTime.format('YYYY-MM-DDTHH:mm:ss'),
@@ -211,7 +211,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                         <Select allowClear placeholder="Chọn mục tiêu tài chính">
                             {(goals || []).map(goal => (
                                 <Select.Option key={goal.goalTargetId || goal.id} value={goal.goalTargetId || goal.id}>
-                                    {goal.goalName || goal.name || `Mục tiêu #${goal.goalTargetId || goal.id}`}
+                                    {goal.goal || `Mục tiêu #${goal.goalTargetId || goal.id}`}
                                 </Select.Option>
                             ))}
                         </Select>
