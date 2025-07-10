@@ -8,10 +8,9 @@ const RepaymentProgress = () => {
 
     const [debts, setDebts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedDebt, setSelectedDebt] = useState(null);
-    const [contributionModalOpen, setContributionModalOpen] = useState(false);
-    const [contribution, setContribution] = useState({ name: '', description: '', amount: 0 });
-    const [contributing, setContributing] = useState(false);
+    // const [contributionModalOpen, setContributionModalOpen] = useState(false);
+    // const [contribution, setContribution] = useState({ name: '', description: '', amount: 0 });
+    // const [contributing, setContributing] = useState(false);
 
     useEffect(() => {
         fetchDebts();
@@ -75,26 +74,20 @@ const RepaymentProgress = () => {
         },
     ];
 
-    const openContributionModal = (debt) => {
-        setSelectedDebt(debt);
-        setContribution({ name: '', description: '', amount: 0 });
-        setContributionModalOpen(true);
-    };
-
-    const handleContribution = async () => {
-        if (!selectedDebt) return;
-        setContributing(true);
-        try {
-            await debtService.addDebtContribution(selectedDebt.debtId, contribution);
-            message.success('Đóng góp trả nợ thành công!');
-            setContributionModalOpen(false);
-            fetchDebts();
-        } catch {
-            message.error('Lỗi khi đóng góp trả nợ');
-        } finally {
-            setContributing(false);
-        }
-    };
+    // const handleContribution = async () => {
+    //     if (!selectedDebt) return;
+    //     setContributing(true);
+    //     try {
+    //         await debtService.addDebtContribution(selectedDebt.debtId, contribution);
+    //         message.success('Đóng góp trả nợ thành công!');
+    //         setContributionModalOpen(false);
+    //         fetchDebts();
+    //     } catch {
+    //         message.error('Lỗi khi đóng góp trả nợ');
+    //     } finally {
+    //         setContributing(false);
+    //     }
+    // };
 
     if (loading) {
         return (
@@ -127,58 +120,13 @@ const RepaymentProgress = () => {
                             isPaid: debt.isPaid,
                             debtObj: debt
                         }))}
-                        columns={[
-                            ...columns,
-                            {
-                                title: 'Hành động',
-                                key: 'action',
-                                render: (_, record) => (
-                                    <button
-                                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
-                                        onClick={() => openContributionModal(record.debtObj)}
-                                        disabled={record.isPaid}
-                                    >
-                                        Đóng góp trả nợ
-                                    </button>
-                                )
-                            }
-                        ]}
+                        columns={columns}
                         pagination={false}
                         scroll={{ y: 400 }}
                     />
                 </Card>
             </div>
 
-            <Modal
-                open={contributionModalOpen}
-                onCancel={() => setContributionModalOpen(false)}
-                title={`Đóng góp trả nợ: ${selectedDebt?.debtName || ''}`}
-                onOk={handleContribution}
-                okText="Xác nhận đóng góp"
-                confirmLoading={contributing}
-            >
-                <div className="space-y-3">
-                    <Input
-                        placeholder="Tên đóng góp"
-                        value={contribution.name}
-                        onChange={e => setContribution({ ...contribution, name: e.target.value })}
-                    />
-                    <Input.TextArea
-                        placeholder="Mô tả (tuỳ chọn)"
-                        value={contribution.description}
-                        onChange={e => setContribution({ ...contribution, description: e.target.value })}
-                    />
-                    <InputNumber
-                        className="w-full"
-                        min={1}
-                        placeholder="Số tiền đóng góp"
-                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                        value={contribution.amount}
-                        onChange={val => setContribution({ ...contribution, amount: val })}
-                    />
-                </div>
-            </Modal>
         </DashboardLayout>
     );
 };

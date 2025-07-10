@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { budgetService } from '../../../services/budgetService';
 import { transactionService } from '../../../services/transactionService';
-import { categoryService } from '../../../services/categoryService';
 import { Card, Spin, message, InputNumber, Button, Statistic, Col, Row } from 'antd';
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
-import { useAuth } from '../../../components/auth/useAuthHook';
 
 const BudgetDetail = () => {
     const { id } = useParams();
@@ -16,9 +14,6 @@ const BudgetDetail = () => {
     const [categories, setCategories] = useState([]);
     const [budgetAlerts, setBudgetAlerts] = useState([]);
     const [alertThreshold, setAlertThreshold] = useState(80);
-    const [newCategoryName, setNewCategoryName] = useState('');
-    const [newCategoryType, setNewCategoryType] = useState('expense');
-    const { user } = useAuth();
     useEffect(() => {
         fetchBudgetDetail();
         fetchTransactionSummary();
@@ -67,24 +62,6 @@ const BudgetDetail = () => {
         }
     };
 
-    const handleAddCategory = async () => {
-        try {
-            if (!newCategoryName) return;
-            await categoryService.createCategory({
-                userId: user.userID,
-                categoryName: newCategoryName,
-                type: newCategoryType,
-                description: ''
-            });
-            setNewCategoryName('');
-            setNewCategoryType('expense');
-            fetchBudgetCategories();
-            message.success('Tạo loại giao dịch thành công')
-        } catch {
-            // Có thể show message lỗi nếu muốn
-        }
-    };
-
     if (loading) return <Spin size="large" className="flex justify-center items-center h-40" />;
     if (!budget) return <div>Không tìm thấy ngân sách</div>;
 
@@ -128,7 +105,6 @@ const BudgetDetail = () => {
                         </Card>
                     </Col>
                 </Row>
-
 
                 {/* Transaction summary */}
                 {transactionSummary && (
@@ -222,31 +198,11 @@ const BudgetDetail = () => {
                     )}
                 </Card>
                 {/* Thêm mới category */}
-                <Card className="mb-4">
-                    <div className="flex flex-col md:flex-row items-center gap-2">
-                        <input
-                            className="border rounded px-2 py-1 w-48"
-                            placeholder="Tên loại ngân sách mới"
-                            value={newCategoryName}
-                            onChange={e => setNewCategoryName(e.target.value)}
-                        />
-                        <select
-                            className="border rounded px-2 py-1"
-                            value={newCategoryType}
-                            onChange={e => setNewCategoryType(e.target.value)}
-                        >
-                            <option value="income">Thu nhập</option>
-                            <option value="expense">Chi phí</option>
-                        </select>
-                        <Button type="primary" onClick={handleAddCategory} disabled={!newCategoryName}>
-                            Thêm loại ngân sách
-                        </Button>
-                    </div>
-                </Card>
+                
                 {/* TODO: Transaction recent, transaction summary sẽ bổ sung sau */}
             </div>
         </DashboardLayout>
     );
 };
 
-export default BudgetDetail; 
+export default BudgetDetail;

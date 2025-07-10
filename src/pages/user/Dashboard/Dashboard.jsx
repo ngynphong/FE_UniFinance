@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Statistic, Progress, List, Tag, Spin } from 'antd';
+import { Row, Col, Card, Statistic, Progress, List, Tag, Spin, Select, DatePicker } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
 import { transactionService } from '../../../services/transactionService';
-import { goalService } from '../../../services/goalService';
-import { budgetService } from '../../../services/budgetService';
 import { useAuth } from '../../../contexts/useAuth';
 import debtService from '../../../services/debtService';
+import dayjs from 'dayjs';
 
 const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [transactions, setTransactions] = useState([]);
-    const [goals, setGoals] = useState([]);
-    const [budgets, setBudgets] = useState([]);
     const [debts, setDebts] = useState([]);
     const { user } = useAuth();
+    const [filterPeriod, setFilterPeriod] = useState('month');
+    const [selectedDate, setSelectedDate] = useState(dayjs());
 
     // Calculate totals
     const calculateTotals = () => {
@@ -35,55 +34,64 @@ const Dashboard = () => {
     };
 
     // Fetch all data
-    const fetchGoals = async () => {
-        try {
-            const goalsData = await goalService.getAllGoals();
-            setGoals(goalsData.filter(g => g.userId === user?.userID));
-        } catch (error) {
-            // console.error('Lỗi lấy dữ liệu :', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const fetchDebts = async () => {
         try {
             const debtsData = await debtService.getAllDebts();
             setDebts(debtsData || []);
-        } catch (error) {
-            // console.error('Lỗi lấy dữ liệu :', error);
+        } catch {
+            // console.error('Lỗi lấy dữ liệu :');
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchBudgets = async () => {
-        try {
-            const budgetsData = await budgetService.getBudgets();
-            setBudgets(budgetsData);
-        } catch (error) {
-            // console.error('Lỗi lấy dữ liệu :', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const fetchTransactions = async () => {
         try {
             const transactionsData = await transactionService.getAllTransactions();
             setTransactions(transactionsData.filter(t => t.userId === user?.userID));
-        } catch (error) {
-            // console.error('Lỗi lấy dữ liệu :', error);
+        } catch {
+            // console.error('Lỗi lấy dữ liệu :');
         } finally {
             setLoading(false);
         }
     };
 
+    const getFilteredTotal = (type) => {
+        return transactions
+            .filter(t => {
+                if (t.type !== type) return false;
+                const tDate = dayjs(t.dateCreate);
+                if (filterPeriod === 'day') {
+                    return tDate.isSame(selectedDate, 'day');
+                }
+                if (filterPeriod === 'month') {
+                    return tDate.isSame(selectedDate, 'month');
+                }
+                if (filterPeriod === 'year') {
+                    return tDate.isSame(selectedDate, 'year');
+                }
+                return false;
+            })
+            .reduce((sum, t) => sum + t.amount, 0);
+    };
+
+
     useEffect(() => {
-        fetchTransactions();
-        fetchGoals();
-        fetchBudgets();
-        fetchDebts();
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                await Promise.all([
+                    fetchTransactions(),
+                    fetchDebts(),
+                ]);
+            } catch {
+                // console.error("Failed to fetch data");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, []);
 
     if (loading) {
@@ -101,11 +109,11 @@ const Dashboard = () => {
         .sort((a, b) => new Date(b.dateCreate) - new Date(a.dateCreate))
         .slice(0, 5);
 
-    // Get the current month's budget if exists
-    const currentBudget = budgets.length > 0 ? budgets[0] : { limitAmount: 0 };
-
     // Tổng số dư còn lại trong nợ
     const totalDebtCurrentAmount = debts.reduce((sum, d) => sum + (d.currentAmount || 0), 0);
+
+    const filteredIncome = getFilteredTotal('income');
+    const filteredExpense = getFilteredTotal('expense');
 
     return (
         <DashboardLayout>
@@ -172,6 +180,7 @@ const Dashboard = () => {
                 </Row>
 
                 <Row gutter={[16, 16]}>
+                    {/* các giaoa dịch gần đây */}
                     <Col xs={24} md={24} lg={12} xl={12}>
                         <Card title="Giao dịch gần đây" className="h-full">
                             <List
@@ -201,57 +210,41 @@ const Dashboard = () => {
                             />
                         </Card>
                     </Col>
+                    {/* Tổng quan chi tiêu và thu nhập */}
                     <Col xs={24} md={24} lg={12} xl={12}>
-                        <Card title="Tổng quan về ngân sách" className="h-full">
-                            <div className="space-y-2">
-                                <div className="flex justify-between flex-wrap">
-                                    <span>Ngân sách hàng tháng:</span>
-                                    <span className="font-semibold">{Number(currentBudget.limitAmount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
-                                </div>
-                                <div className="flex justify-between flex-wrap">
-                                    <span>Đã tiêu:</span>
-                                    <span className="font-semibold text-red-600">{Number(totalExpense).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
-                                </div>
-                                <div className="flex justify-between flex-wrap">
-                                    <span>Còn lại:</span>
-                                    <span className="font-semibold text-green-600">
-                                        {Number(currentBudget.limitAmount - totalExpense).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                                    </span>
-                                </div>
-                                <Progress
-                                    percent={Math.round((totalExpense / currentBudget.limitAmount) * 100)}
-                                    status={totalExpense > currentBudget.limitAmount ? 'exception' : 'active'}
+                        <Card title="Tổng quan chi tiêu và thu nhập" className="h-full">
+                            <div className="flex justify-end mb-4 space-x-2">
+                                <Select value={filterPeriod} onChange={setFilterPeriod} style={{ width: 120 }}>
+                                    <Select.Option value="day">Ngày</Select.Option>
+                                    <Select.Option value="month">Tháng</Select.Option>
+                                    <Select.Option value="year">Năm</Select.Option>
+                                </Select>
+                                <DatePicker
+                                    picker={filterPeriod}
+                                    value={selectedDate}
+                                    onChange={setSelectedDate}
                                 />
                             </div>
-                        </Card>
-                    </Col>
-                </Row>
-
-                <Row gutter={[16, 16]}>
-                    <Col xs={24}>
-                        <Card title="Mục tiêu tài chính" className="h-full">
-                            <List
-                                itemLayout="vertical"
-                                dataSource={goals}
-                                renderItem={goal => (
-                                    <List.Item>
-                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-2">
-                                            <div>
-                                                <div className="font-semibold">{goal.goal}</div>
-                                                <div className="text-sm text-gray-500">Mục tiêu: {Number(goal.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</div>
-                                            </div>
-                                            <div className="w-full md:w-1/2 mt-2 md:mt-0">
-                                                <Progress
-                                                    percent={Math.round((goal.currentSpending / goal.amount) * 100)}
-                                                    status={goal.currentSpending >= goal.amount ? 'success' : 'active'}
-                                                    format={() => `${Number(goal.currentSpending).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })} / ${Number(goal.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}`}
-                                                />
-                                            </div>
-                                        </div>
-                                    </List.Item>
-                                )}
-                                locale={{ emptyText: 'Không đặt mục tiêu' }}
-                            />
+                            <div className="space-y-4">
+                                <Card>
+                                    <Statistic
+                                        title="Tổng thu nhập"
+                                        value={filteredIncome}
+                                        precision={2}
+                                        valueStyle={{ color: '#3f8600' }}
+                                        prefix="VND"
+                                    />
+                                </Card>
+                                <Card>
+                                    <Statistic
+                                        title="Tổng chi tiêu"
+                                        value={filteredExpense}
+                                        precision={2}
+                                        valueStyle={{ color: '#cf1322' }}
+                                        prefix="VND"
+                                    />
+                                </Card>
+                            </div>
                         </Card>
                     </Col>
                 </Row>

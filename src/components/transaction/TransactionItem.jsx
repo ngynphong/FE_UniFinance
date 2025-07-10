@@ -52,7 +52,7 @@ const TransactionItem = ({ transaction, onEdit, onDelete }) => {
     }, [categoryId, budgetId, debtId, goalTargetId]);
 
     // Format date (Vietnamese style)
-    const formattedDate = dayjs(dateCreate).format("DD/MM/YYYY");
+    const formattedDate = dayjs(dateCreate).format("DD/MM/YYYY HH:mm");
     // Format amount as VND currency
     const formattedAmount = Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 

@@ -9,7 +9,7 @@ import { message } from "antd";
 import dayjs from "dayjs";
 import { useAuth } from "../../../contexts/useAuth";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 const TransactionsPage = () => {
     const [transactions, setTransactions] = useState([]);
@@ -45,7 +45,8 @@ const TransactionsPage = () => {
         try {
             setLoading(true);
             const data = await transactionService.getAllTransactions();
-            setTransactions(data);
+            const sortData = data.sort((a, b) => new Date(b.dateCreate) - new Date(a.dateCreate));
+            setTransactions(sortData);
         } catch (error) {
             console.error('Fetch transactions error:', error);
             // message.error('Failed to fetch transactions');
@@ -73,7 +74,7 @@ const TransactionsPage = () => {
                     isDeleted: data.isDeleted ?? false
                 });
                 message.success('Tạo giao dịch mới thành công');
-                setTransactions(prev => [...prev, response]);
+                setTransactions(prev => [response, ...prev ]);
             }
             setModalOpen(false);
             setEditData(null);
