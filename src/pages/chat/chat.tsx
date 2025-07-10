@@ -758,7 +758,7 @@ const ChatPage: React.FC = () => {
   }
 
   const handleHomeClick = () => {
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
@@ -766,7 +766,7 @@ const ChatPage: React.FC = () => {
       <Sidebar>
         <OnlineUsers>
           <CreateChatButton onClick={handleHomeClick}>
-            <FaHome /> Trang Chủ
+            <FaHome /> Trở về
           </CreateChatButton>
           {canScrollLeft && (
             <NavigationButton
