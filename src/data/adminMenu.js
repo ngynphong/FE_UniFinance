@@ -36,14 +36,14 @@ export const menu = [
     icon: <FaRegCalendarAlt />,
     path: "/admin/dashboard/consultation-schedule",
   },
-  {
-    label: "Mục tiêu",
-    icon: <GoGoal />,
-    path: "/admin/dashboard/goals",
-  },
-  {
-    label: "Giao dịch",
-    icon: <GrTransaction />,
-    path: "/admin/dashboard/transactions",
-  },
+  // {
+  //   label: "Mục tiêu",
+  //   icon: <GoGoal />,
+  //   path: "/admin/dashboard/goals",
+  // },
+  // {
+  //   label: "Giao dịch",
+  //   icon: <GrTransaction />,
+  //   path: "/admin/dashboard/transactions",
+  // },
 ];

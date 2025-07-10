@@ -106,24 +106,87 @@ export const bookingService = {
     }
   },
 
+  async getAllSlots() {
+    try {
+      const response = await axios.get("/Booking/GetAllSlots");
+      return response.data;
+    } catch (error) {
+      throw (
+        error.response?.data || {
+          message: "Failed to fetch all slots",
+        }
+      );
+    }
+  },
+
   async createSlot(slotData) {
     try {
       const res = await axios.post("/Booking/CreateConsultantSlot", {
         startTime: slotData.startTime,
-        packageName: slotData.packageName, 
+        packageName: slotData.packageName,
       });
 
-      return res.data; 
+      return res.data;
     } catch (err) {
-      // Display the error message from the backend
       if (err.response && err.response.data && err.response.data.message) {
-        toast.error(err.response.data.message); // Show error message to user
+        toast.error(err.response.data.message);
       } else {
-        toast.error("Failed to create slot"); // Generic error message
+        toast.error("Failed to create slot");
       }
-      throw err.response?.data || { message: "Failed to create slot" }; // Handle errors
+      throw err.response?.data || { message: "Failed to create slot" };
     }
   },
+
+  async updateSlot(slotId, slotData) {
+    try {
+      const response = await axios.put(
+        `/Booking/${slotId}/UpdateSlot`,
+        slotData
+      );
+      return response.data;
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Failed to update slot");
+      }
+      throw err.response?.data || { message: "Failed to update slot" };
+    }
+  },
+
+  async updateApprovalStatus(slotId, approvalStatus) {
+    try {
+      const response = await axios.put(
+        `/Booking/${slotId}/UpdateApprovalStatus`,
+        approvalStatus, // Gửi chuỗi approvalStatus trực tiếp
+        {
+          headers: {
+            "Content-Type": "application/json", // Đảm bảo Content-Type là application/json
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Failed to update approval status");
+      }
+      throw (
+        err.response?.data || { message: "Failed to update approval status" }
+      );
+    }
+  },
+
+  async deleteSlot(slotId) {
+    try {
+      const response = await axios.delete(`/Booking/${slotId}/DeleteSlot`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Failed to delete slot" };
+    }
+  },
+
   async addBookingResponse(appointmentId, responseText) {
     try {
       const res = await axios.post(`/Booking/${appointmentId}/AddResponse`, {
@@ -176,7 +239,9 @@ export const bookingService = {
       return response.data;
     } catch (error) {
       throw (
-        error.response?.data || { message: "Failed to fetch weekly performance" }
+        error.response?.data || {
+          message: "Failed to fetch weekly performance",
+        }
       );
     }
   },
@@ -186,9 +251,7 @@ export const bookingService = {
       const response = await axios.get("/Booking/GetAllDetailed");
       return response.data;
     } catch (error) {
-      throw (
-        error.response?.data || { message: "Failed to fetch all detailed" }
-      );
+      throw error.response?.data || { message: "Failed to fetch all detailed" };
     }
   },
 };
