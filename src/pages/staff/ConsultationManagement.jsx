@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import ReactModal from "react-modal";
-
+import SlotModal from "../../components/slot/SlotModal";
+import {
+  Button,
+  Popconfirm,
+  Table,
+  Spin,
+  message,
+} from "antd";
 import {
   Calendar,
-  Clock,
   User,
   Phone,
   Mail,
@@ -16,8 +21,9 @@ import {
   AlertCircle,
   Filter,
   Search,
-  Plus,
+  Edit,
   Edit3,
+  Trash2,
   Eye,
   RotateCcw,
 } from "lucide-react";
@@ -26,20 +32,23 @@ import { bookingService } from "../../services/bookingService";
 import { authService } from "../../services/authService";
 import packageService from "../../services/packageService";
 
-// import { useAuth } from "../../components/auth/useAuthHook";
-
 const ConsultationManagement = () => {
-  // const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [filteredAppointments, setFilteredAppointments] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseText, setResponseText] = useState("");
   const [startTime, setStartTime] = useState("");
   const [packageName, setPackageName] = useState("");
   const [packages, setPackages] = useState([]);
+  const [slots, setSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const selectedAppointmentStr = queryParams.get("selectedAppointment");
@@ -53,7 +62,6 @@ const ConsultationManagement = () => {
 
     if (selectedAppointmentStr) {
       try {
-        // Giải mã chuỗi JSON thành đối tượng
         const selectedAppointment = JSON.parse(
           decodeURIComponent(selectedAppointmentStr)
         );
@@ -120,18 +128,82 @@ const ConsultationManagement = () => {
     fetchBookings();
   }, []);
 
+  const fetchAllSlots = async () => {
+    setLoading(true);
+    try {
+      const response = await bookingService.getAllSlots();
+      setSlots(response);
+    } catch (error) {
+      console.error("Error fetching all slots:", error);
+    }
+    setLoading(false);
+  };
+  useEffect(() => {
+    fetchAllSlots();
+  }, []);
+
+  const handleSlotEdit = (slot) => {
+    setSelectedSlot(slot);
+    setEditModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setEditModalOpen(false);
+    setSelectedSlot(null);
+  };
+
+  const handleModalSave = async (slot) => {
+    setLoading(true);
+    try {
+      if (slot.slotId) {
+        await bookingService.updateSlot(slot.slotId, slot);
+        message.success("Đã cập nhật lịch hẹn");
+      }
+      fetchAllSlots();
+    } catch {
+      message.error("Lưu thất bại");
+    }
+    setLoading(false);
+    handleModalClose();
+  };
+
+  const handleDeleteSlot = async (slotId) => {
+    setLoading(true);
+    try {
+      await bookingService.deleteSlot(slotId);
+      setSlots((prev) => prev.filter((pkg) => pkg.slotId !== slotId));
+      toast.success("Lịch hẹn đã được xóa thành công.");
+    } catch (error) {
+      console.error("Error deleting slot:", error);
+      toast.error("Có lỗi xảy ra khi xóa lịch hẹn.");
+    }
+    setLoading(false);
+  };
+
   // Lọc appointments theo status và search
-  const filteredAppointments = selectedAppointment
-    ? [selectedAppointment] // Chỉ hiển thị cuộc hẹn đã chọn
-    : appointments.filter((apt) => {
-        const matchesFilter = filter === "all" || apt.status === filter;
-        const matchesSearch =
-          (apt.name &&
-            apt.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (apt.email &&
-            apt.email.toLowerCase().includes(searchTerm.toLowerCase()));
-        return matchesFilter && matchesSearch;
-      });
+  useEffect(() => {
+    const filtered = selectedAppointment
+      ? [selectedAppointment] // Chỉ hiển thị cuộc hẹn đã chọn
+      : appointments.filter((apt) => {
+          const matchesFilter = filter === "all" || apt.status === filter;
+          const matchesSearch =
+            (apt.name &&
+              apt.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (apt.email &&
+              apt.email.toLowerCase().includes(searchTerm.toLowerCase()));
+          return matchesFilter && matchesSearch;
+        });
+
+    setFilteredAppointments(filtered); // Cập nhật lại filteredAppointments
+  }, [appointments, selectedAppointment, filter, searchTerm]);
+
+  const filteredSlots = slots
+    .filter((s) => filter === "all" || s.approvalStatus === filter)
+    .sort(
+      (a, b) =>
+        new Date(a.scheduledTime).getTime() -
+        new Date(b.scheduledTime).getTime()
+    );
 
   // Thống kê dashboard
   const stats = {
@@ -193,21 +265,20 @@ const ConsultationManagement = () => {
           );
         }
 
-        // Cập nhật lại trạng thái booking trong state với thông tin từ updatedBooking
         setAppointments((prev) =>
           prev.map((apt) =>
             apt.bookingId === appointmentId
-              ? { ...apt, ...updatedBooking, status: newStatus } // Cập nhật với thông tin từ updatedBooking
+              ? { ...apt, ...updatedBooking, status: newStatus }
               : apt
           )
         );
 
+        setFilter("all");
         toast.success(
           `Lịch hẹn đã được ${newStatus === "Đã xác nhận" ? "xác nhận" : "hủy"}`
         );
       } catch (error) {
         console.error("Error updating booking status:", error);
-        alert("Có lỗi xảy ra khi cập nhật trạng thái lịch hẹn.");
       }
     }
   };
@@ -243,11 +314,11 @@ const ConsultationManagement = () => {
         ).toLocaleTimeString()} đã được tạo!`
       );
 
-      // Optional: reset state hoặc reload slot list
+      setSlots((prevSlots) => [response, ...prevSlots]);
+
       setStartTime(null);
       setPackageName("");
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi tạo lịch hẹn.");
       console.error(error);
     }
   };
@@ -338,6 +409,84 @@ const ConsultationManagement = () => {
   };
 
   const nf = new Intl.NumberFormat("vi-VN");
+
+  const columns = [
+    {
+      title: "Thời gian",
+      dataIndex: "scheduledTime",
+      key: "scheduledTime",
+      render: (date) => {
+        // Tạo đối tượng Date từ dữ liệu
+        const formattedDate = new Date(date);
+
+        // Chuyển đổi thành định dạng "DD/MM/YYYY hh:mm A"
+        const options = {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true, // Đảm bảo sử dụng định dạng 12 giờ (AM/PM)
+        };
+
+        // Trả về thời gian định dạng theo "vi-VN"
+        return formattedDate.toLocaleString("vi-VN", options);
+      },
+    },
+    {
+      title: "Thời lượng",
+      dataIndex: "durationMinutes",
+      key: "durationMinutes",
+      render: (duration) => `${duration} Phút`,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "approvalStatus",
+      key: "approvalStatus",
+      render: (status) =>
+        status === "Approved" ? (
+          <span className="text-green-600">Đã phê duyệt</span>
+        ) : status === "Rejected" ? (
+          <span className="text-red-600">Đã từ chối</span>
+        ) : (
+          <span className="text-yellow-600">Chưa phê duyệt</span>
+        ),
+      filters: [
+        { text: "Đã phê duyệt", value: "Approved" },
+        { text: "Chưa phê duyệt", value: "Pending" },
+        { text: "Đã từ chối", value: "Rejected" },
+      ],
+      onFilter: (value, record) => record.approvalStatus === value,
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, slot) => (
+        <div className="flex gap-2">
+          {slot.approvalStatus !== "Approved" &&
+            slot.approvalStatus !== "Rejected" && (
+              <Button
+                size="small"
+                type="link"
+                onClick={() => handleSlotEdit(slot)}
+              >
+                <Edit size={16} />
+              </Button>
+            )}
+          <Popconfirm
+            title="Bạn chắc chắn muốn xóa?"
+            onConfirm={() => handleDeleteSlot(slot.slotId)}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button size="small" type="link" danger>
+              <Trash2 size={16} />
+            </Button>
+          </Popconfirm>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <StaffLayout>
@@ -494,8 +643,8 @@ const ConsultationManagement = () => {
                       {[...appointments]
                         .sort(
                           (a, b) =>
-                            new Date(b.scheduledTime).getTime() -
-                            new Date(a.scheduledTime).getTime()
+                            new Date(a.scheduledTime).getTime() -
+                            new Date(b.scheduledTime).getTime()
                         )
                         .slice(0, 5)
                         .map((appointment) => (
@@ -796,7 +945,7 @@ const ConsultationManagement = () => {
               {/* Form to create a new slot */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Tạo Lịch Hẹn
+                  Tạo Lịch hẹn
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Date and Time Picker */}
@@ -823,11 +972,23 @@ const ConsultationManagement = () => {
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
                     >
                       <option value="">Chọn gói dịch vụ</option>
-                      {packages.map((pkg) => (
-                        <option key={pkg.id} value={pkg.name}>
-                          {pkg.name}
-                        </option>
-                      ))}
+                      {packages.map((pkg) => {
+                        // Append the appropriate time based on pkg.name
+                        let displayName = pkg.name;
+                        if (pkg.name === "Free") {
+                          displayName = `${pkg.name} - 15 Phút`;
+                        } else if (pkg.name === "Plus") {
+                          displayName = `${pkg.name} - 60 Phút`;
+                        } else if (pkg.name === "Premium") {
+                          displayName = `${pkg.name} - 120 Phút`;
+                        }
+
+                        return (
+                          <option key={pkg.id} value={pkg.name}>
+                            {displayName}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
@@ -836,14 +997,43 @@ const ConsultationManagement = () => {
                     onClick={handleCreateSlot}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
-                    Tạo Lịch Hẹn
+                    Tạo Lịch
                   </button>
                 </div>
+              </div>
+
+              {/* List of created slots */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Danh Sách Lịch Hẹn
+                </h3>
+                {slots.length === 0 ? (
+                  <p className="text-gray-500">
+                    Chưa có lịch hẹn nào được tạo.
+                  </p>
+                ) : (
+                  <Spin spinning={loading}>
+                    <Table
+                      columns={columns}
+                      dataSource={filteredSlots}
+                      rowKey={(record) => record.slotId || record._id}
+                      pagination={{ pageSize: 4 }}
+                      className="bg-white shadow rounded"
+                      size="middle"
+                    />
+                  </Spin>
+                )}
               </div>
             </div>
           )}
         </div>
-
+        {/* The modal for editing slot */}
+        <SlotModal
+          open={editModalOpen}
+          slot={selectedSlot}
+          onClose={handleModalClose}
+          onSave={handleModalSave}
+        />
         {/* Response Modal */}
         {showResponseModal && selectedAppointment && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">

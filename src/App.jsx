@@ -64,11 +64,10 @@ import PaymentCancelled from "./pages/payment/PaymentCancelled";
 import FinancialStatsPage from "./pages/admin/FinancialStatsPage";
 import ServicePackagePage from "./pages/admin/ServicePackagePage";
 import BlogAdminManagerPage from "./pages/admin/BlogAdminManagerPage";
+import SlotAdminManagerPage from "./pages/admin/SlotAdminManagerPage";
 
 import BookingPage from "./pages/user/Booking/BookingPage";
-
 import BudgetDetail from "./pages/user/BudgetManagement/BudgetDetail";
-
 import BookingHistoryPage from "./pages/user/Booking/BookingHistoryPage";
 
 
@@ -161,6 +160,14 @@ function App() {
               element={
                 <ProtectedRoute roles={["Admin"]}>
                   <BlogAdminManagerPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/dashboard/consultation-schedule"
+              element={
+                <ProtectedRoute roles={["Admin"]}>
+                  <SlotAdminManagerPage />
                 </ProtectedRoute>
               }
             />
