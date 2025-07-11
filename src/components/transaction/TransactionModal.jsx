@@ -163,7 +163,7 @@ const TransactionModal = ({ open, onClose, onSave, editData }) => {
                     >
                         <DatePicker
                             className="w-full"
-                            format="YYYY-MM-DD HH:mm:ss"
+                            format="DD/MM/YYYY HH:mm"
                             showTime
                         />
                     </Form.Item>

@@ -14,41 +14,59 @@ const TransactionItem = ({ transaction, onEdit, onDelete }) => {
     const [debtName, setDebtName] = useState("");
     const [goalName, setGoalName] = useState("");
 
-    useEffect(() => {
-        const fetchCategoryAndBudget = async () => {
-            try {
-                // Fetch category name
-                const categories = await categoryService.getUserCategories();
-                const category = categories.find(cat => cat.categoryId === categoryId);
-                if (category) {
-                    setCategoryName(category.categoryName);
-                }
-
-                // Fetch budget name
-                const budgets = await budgetService.getBudgets();
-                const budget = budgets.find(b => b.id === budgetId);
-                if (budget) {
-                    setBudgetName(budget.name);
-                }
-
-                const debts = await debtService.getAllDebts();
-                const debt = debts.find(d => d.debtId === debtId);
-                if (debt) {
-                    setDebtName(debt.debtName)
-                }
-     
-                const goals = await goalService.getAllGoals();
-                const goal = goals.find(g => g.id === goalTargetId);
-                if (goal) {
-                    setGoalName(goal.goal)
-                }
-
-            } catch (error) {
-                console.error("Error fetching category or budget:", error);
+    const fetchCategoryName = async () => {
+        try {
+            const categories = await categoryService.getUserCategories();
+            const category = categories.find(cat => cat.categoryId === categoryId);
+            if (category) {
+                setCategoryName(category.categoryName);
             }
-        };
+        } catch (error) {
+            console.error("Error fetching category name:", error);
+        }
+    };
 
-        fetchCategoryAndBudget();
+    const fetchBudgetName = async () => {
+        try {
+            const budgets = await budgetService.getBudgets();
+            const budget = budgets.find(b => b.id === budgetId);
+            if (budget) {
+                setBudgetName(budget.name);
+            }
+        } catch (error) {
+            console.error("Error fetching budget name:", error);
+        }
+    };
+
+    const fetchDebtName = async () => {
+        try {
+            const debts = await debtService.getAllDebts();
+            const debt = debts.find(d => d.debtId === debtId);
+            if (debt) {
+                setDebtName(debt.debtName)
+            }
+        } catch (error) {
+            console.error("Error fetching debt name:", error);
+        }
+    };
+
+    const fetchGoalName = async () => {
+        try {
+            const goals = await goalService.getAllGoals();
+            const goal = goals.find(g => g.id === goalTargetId);
+            if (goal) {
+                setGoalName(goal.goal)
+            }
+        } catch (error) {
+            console.error("Error fetching goal name:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategoryName();
+        fetchBudgetName();
+        fetchDebtName();
+        fetchGoalName();
     }, [categoryId, budgetId, debtId, goalTargetId]);
 
     // Format date (Vietnamese style)
