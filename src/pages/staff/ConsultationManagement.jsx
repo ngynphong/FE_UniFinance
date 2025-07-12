@@ -2,13 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import SlotModal from "../../components/slot/SlotModal";
-import {
-  Button,
-  Popconfirm,
-  Table,
-  Spin,
-  message,
-} from "antd";
+import { Button, Popconfirm, Table, Spin, message } from "antd";
 import {
   Calendar,
   User,
@@ -25,6 +19,7 @@ import {
   Edit3,
   Trash2,
   Eye,
+  Clock,
   RotateCcw,
 } from "lucide-react";
 import StaffLayout from "../../components/layout/staff/StaffLayout";
@@ -273,6 +268,7 @@ const ConsultationManagement = () => {
           )
         );
 
+        setSelectedAppointment(null);
         setFilter("all");
         toast.success(
           `Lịch hẹn đã được ${newStatus === "Đã xác nhận" ? "xác nhận" : "hủy"}`
@@ -860,62 +856,108 @@ const ConsultationManagement = () => {
 
                         <div className="mt-4 lg:mt-0 lg:ml-6 lg:flex-shrink-0">
                           <div className="flex flex-col space-y-2">
-                            {appointment.status === "Chờ xử lý" && (
+                            {new Date(appointment.slotScheduledTime) <=
+                            new Date() ? (
+                              // Nếu thời gian lịch hẹn đã qua
                               <>
-                                <button
-                                  onClick={() => {
-                                    handleStatusChange(
-                                      appointment,
-                                      appointment.bookingId,
-                                      "Đã xác nhận"
-                                    );
-                                  }}
-                                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Xác nhận
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setSelectedAppointment(appointment);
-                                    setResponseText("");
-                                    setShowResponseModal(true);
-                                  }}
-                                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                  <MessageCircle className="w-4 h-4 mr-2" />
-                                  Phản hồi
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    handleStatusChange(
-                                      appointment,
-                                      appointment.bookingId,
-                                      "Đã hủy"
-                                    );
-                                  }}
-                                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                                >
-                                  <XCircle className="w-4 h-4 mr-2" />
-                                  Hủy
+                                {/* Nếu có phản hồi, hiển thị nút Chỉnh sửa phản hồi */}
+                                {appointment.responseText != null &&
+                                appointment.responseText !== "" ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedAppointment(appointment);
+                                      setResponseText(
+                                        appointment.responseText || ""
+                                      );
+                                      setShowResponseModal(true);
+                                    }}
+                                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                  >
+                                    <Edit3 className="w-4 h-4 mr-2" />
+                                    Chỉnh sửa phản hồi
+                                  </button>
+                                ) : (
+                                  // Nếu không có phản hồi, hiển thị nút Phản hồi
+                                  <button
+                                    onClick={() => {
+                                      setSelectedAppointment(appointment);
+                                      setResponseText("");
+                                      setShowResponseModal(true);
+                                    }}
+                                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                  >
+                                    <MessageCircle className="w-4 h-4 mr-2" />
+                                    Phản hồi
+                                  </button>
+                                )}
+
+                                {/* Nút Lịch hẹn quá hạn */}
+                                <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                                  <Clock className="w-4 h-4 mr-2" />
+                                  Lịch hẹn quá hạn
                                 </button>
                               </>
-                            )}
-                            {(appointment.status === "Đã xác nhận" ||
-                              appointment.status === "Đã hủy") && (
-                              <button
-                                onClick={() => {
-                                  setSelectedAppointment(appointment);
-                                  setResponseText(
-                                    appointment.responseText || ""
-                                  );
-                                  setShowResponseModal(true);
-                                }}
-                                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                              >
-                                <Edit3 className="w-4 h-4 mr-2" />
-                                Chỉnh sửa phản hồi
-                              </button>
+                            ) : (
+                              // Nếu lịch hẹn chưa qua
+                              <>
+                                {appointment.status === "Chờ xử lý" && (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        handleStatusChange(
+                                          appointment,
+                                          appointment.bookingId,
+                                          "Đã xác nhận"
+                                        );
+                                      }}
+                                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                    >
+                                      <CheckCircle className="w-4 h-4 mr-2" />
+                                      Xác nhận
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedAppointment(appointment);
+                                        setResponseText("");
+                                        setShowResponseModal(true);
+                                      }}
+                                      className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    >
+                                      <MessageCircle className="w-4 h-4 mr-2" />
+                                      Phản hồi
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleStatusChange(
+                                          appointment,
+                                          appointment.bookingId,
+                                          "Đã hủy"
+                                        );
+                                      }}
+                                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                    >
+                                      <XCircle className="w-4 h-4 mr-2" />
+                                      Hủy
+                                    </button>
+                                  </>
+                                )}
+                                {(appointment.status === "Đã xác nhận" ||
+                                  appointment.status === "Đã hủy") && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedAppointment(appointment);
+                                      setResponseText(
+                                        appointment.responseText || ""
+                                      );
+                                      setShowResponseModal(true);
+                                    }}
+                                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                  >
+                                    <Edit3 className="w-4 h-4 mr-2" />
+                                    Chỉnh sửa phản hồi
+                                  </button>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>

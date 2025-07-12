@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { HubConnectionBuilder, HubConnection } from "@microsoft/signalr";
+import { toast } from "react-toastify";
+import { bookingService } from "../../services/bookingService";
+import { useAuth } from "../../contexts/useAuth";
 import axios from "axios";
 import styled from "styled-components";
 import {
@@ -22,6 +25,7 @@ import * as signalR from "@microsoft/signalr";
 // Replace localhost with the deployed API URL
 const API_BASE_URL =
   "https://unifinance-a2cnadc3fubje9dt.southeastasia-01.azurewebsites.net";
+// const API_BASE_URL = "https://localhost:7210";
 // API endpoints (with /api) for REST calls
 const API_ENDPOINT = `${API_BASE_URL}/api`;
 // Hub endpoint (without /api) for SignalR
@@ -301,10 +305,80 @@ const ChatPage: React.FC = () => {
   const [isSignalRConnected, setIsSignalRConnected] = useState(false);
   const messageListRef = useRef<HTMLDivElement>(null);
   const [userOffset, setUserOffset] = useState(0);
+  const [isChatEnabled, setIsChatEnabled] = useState(false);
+  const [userBooking, setUserBooking] = useState<any>(null);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const onlineStatusUpdatesRef = useRef<Map<string, boolean>>(new Map());
   let isMounted = true;
+
+  // Kiểm tra lịch hẹn
+  const checkBookingAvailability = async () => {
+    const userId = user.userID;
+
+    try {
+      const bookings = await bookingService.getAllBookings(null, userId);
+
+      const bookingsWithSlot = await Promise.all(
+        bookings.map(async (booking) => {
+          // Lấy thông tin slot
+          const slotInfor = await bookingService.getSlotById(booking.slotId);
+
+          // Tính toán thời gian kết thúc của slot (slotScheduledTime + durationMinutes)
+          const scheduledTime = new Date(slotInfor.scheduledTime);
+          const endTime = new Date(
+            scheduledTime.getTime() + slotInfor.durationMinutes * 60000
+          ); // 60000ms = 1 phút
+
+          return {
+            ...booking,
+            slotScheduledTime: scheduledTime,
+            endTime: endTime, // Lưu thời gian kết thúc vào thông tin booking
+            durationMinutes: slotInfor.durationMinutes,
+          };
+        })
+      );
+
+      // Kiểm tra xem có lịch hẹn trong khoảng thời gian hiện tại không
+      const currentBooking = bookingsWithSlot.find((booking: any) => {
+        const now = new Date();
+        const scheduledTime = booking.slotScheduledTime;
+        const endTime = booking.endTime;
+
+        // Kiểm tra xem thời gian hiện tại có nằm trong khoảng [scheduledTime, endTime] không
+        return now >= scheduledTime && now <= endTime;
+      });
+
+      if (currentBooking) {
+        setIsChatEnabled(true); // Nếu có lịch hẹn trong thời gian hiện tại, bật chat
+        const endTime = currentBooking.endTime;
+
+        // Kiểm tra nếu đã đến thời gian kết thúc
+        const interval = setInterval(() => {
+          const now = new Date();
+          if (now >= endTime) {
+            clearInterval(interval);
+            toast.info("Cuộc trò chuyện tư vấn đã kết thúc.");
+            setIsChatEnabled(false); // Tắt chức năng chat sau khi kết thúc
+          }
+        }, 1000); // Kiểm tra mỗi giây
+      } else {
+        setIsChatEnabled(false); // Nếu không có lịch hẹn, tắt chat
+      }
+    } catch (error) {
+      console.error("Failed to check booking availability:", error);
+      setIsChatEnabled(false); // Lỗi thì tắt chat
+    }
+  };
+
+  useEffect(() => {
+    checkBookingAvailability();
+
+    const interval = setInterval(checkBookingAvailability, 60000); // Kiểm tra mỗi phút
+
+    return () => clearInterval(interval);
+  }, []);
 
   const updateOnlineStatus = (userId, isOnline) => {
     const storedStatuses = JSON.parse(
@@ -661,7 +735,13 @@ const ChatPage: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!connection || !isSignalRConnected || !activeRoom || !message.trim())
+    if (
+      !connection ||
+      !isSignalRConnected ||
+      !isChatEnabled ||
+      !activeRoom ||
+      !message.trim()
+    )
       return;
 
     try {
@@ -911,11 +991,13 @@ const ChatPage: React.FC = () => {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type a message..."
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                disabled={!isSignalRConnected}
+                disabled={!isSignalRConnected || !isChatEnabled}
               />
               <Button
                 onClick={handleSendMessage}
-                disabled={!message.trim() || !isSignalRConnected}
+                disabled={
+                  !message.trim() || !isSignalRConnected || !isChatEnabled
+                }
               >
                 <FaPaperPlane />
               </Button>

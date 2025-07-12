@@ -24,6 +24,8 @@ import * as signalR from "@microsoft/signalr";
 // Replace localhost with the deployed API URL
 const API_BASE_URL =
   "https://unifinance-a2cnadc3fubje9dt.southeastasia-01.azurewebsites.net";
+// const API_BASE_URL =
+//   "https://localhost:7210";
 // API endpoints (with /api) for REST calls
 const API_ENDPOINT = `${API_BASE_URL}/api`;
 // Hub endpoint (without /api) for SignalR
@@ -35,7 +37,7 @@ const unwrapValues = <T,>(data: T[] | { $values: T[] } | undefined): T[] => {
   return data.$values || [];
 };
 
-const USERS_PER_PAGE = 2;
+const USERS_PER_PAGE = 5;
 
 // ... styled components remain the same ...
 const Container = styled.div`
