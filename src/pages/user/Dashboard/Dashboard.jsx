@@ -3,6 +3,7 @@ import { Row, Col, Card, Statistic, Progress, List, Tag, Spin, Select, DatePicke
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import DashboardLayout from '../../../components/layout/user/DashboardLayout';
 import { transactionService } from '../../../services/transactionService';
+import { budgetService } from '../../../services/budgetService';
 import { useAuth } from '../../../contexts/useAuth';
 import debtService from '../../../services/debtService';
 import dayjs from 'dayjs';
@@ -14,6 +15,11 @@ const Dashboard = () => {
     const { user } = useAuth();
     const [filterPeriod, setFilterPeriod] = useState('month');
     const [selectedDate, setSelectedDate] = useState(dayjs());
+    const [budgets, setBudgets] = useState([]);
+    const [selectedBudgetId, setSelectedBudgetId] = useState(null);
+    const [budgetCategories, setBudgetCategories] = useState([]);
+    const [selectedCategoryName, setSelectedCategoryName] = useState(null);
+    const [categorySpent, setCategorySpent] = useState(0);
 
     // Calculate totals
     const calculateTotals = () => {
@@ -42,6 +48,15 @@ const Dashboard = () => {
             // console.error('Lỗi lấy dữ liệu :');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchBudgets = async () => {
+        try {
+            const budgetData = await budgetService.getBudgets();
+            setBudgets(budgetData || []);
+        } catch (error) {
+            console.error('Failed to fetch budgets:', error);
         }
     };
 
@@ -84,6 +99,7 @@ const Dashboard = () => {
                 await Promise.all([
                     fetchTransactions(),
                     fetchDebts(),
+                    fetchBudgets(),
                 ]);
             } catch {
                 // console.error("Failed to fetch data");
@@ -93,6 +109,37 @@ const Dashboard = () => {
         };
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (selectedBudgetId) {
+            const fetchCategories = async () => {
+                try {
+                    const categoriesData = await budgetService.getBudgetDetails(selectedBudgetId);
+                    setBudgetCategories(categoriesData.categories || []);
+                    setSelectedCategoryName(null);
+                    setCategorySpent(0);
+                } catch (error) {
+                    console.error('Failed to fetch budget categories:', error);
+                }
+            };
+            fetchCategories();
+        } else {
+            setBudgetCategories([]);
+            setSelectedCategoryName(null);
+            setCategorySpent(0);
+        }
+    }, [selectedBudgetId]);
+
+    useEffect(() => {
+        if (selectedCategoryName) {
+            const selectedCategory = budgetCategories.find(c => c.categoryName === selectedCategoryName);
+            if (selectedCategory) {
+                setCategorySpent(selectedCategory.spent);
+            }
+        } else {
+            setCategorySpent(0);
+        }
+    }, [selectedCategoryName, budgetCategories]);
 
     if (loading) {
         return (
@@ -180,6 +227,7 @@ const Dashboard = () => {
                 </Row>
 
                 <Row gutter={[16, 16]}>
+                    
                     {/* các giaoa dịch gần đây */}
                     <Col xs={24} md={24} lg={12} xl={12}>
                         <Card title="Giao dịch gần đây" className="h-full">
@@ -245,6 +293,43 @@ const Dashboard = () => {
                                     />
                                 </Card>
                             </div>
+                        </Card>
+                    </Col>
+
+                    <Col xs={24} md={24} lg={12} xl={12}>
+                        <Card title="Chi tiêu theo danh mục ngân sách" className="h-full">
+                            <div className="flex justify-end mb-4 space-x-2">
+                                <Select
+                                    placeholder="Chọn ngân sách"
+                                    style={{ width: 200 }}
+                                    onChange={setSelectedBudgetId}
+                                    value={selectedBudgetId}
+                                >
+                                    {budgets.map(b => (
+                                        <Select.Option key={b.id} value={b.id}>{b.name}</Select.Option>
+                                    ))}
+                                </Select>
+                                <Select
+                                    placeholder="Chọn danh mục"
+                                    style={{ width: 200 }}
+                                    onChange={setSelectedCategoryName}
+                                    value={selectedCategoryName}
+                                    disabled={!selectedBudgetId}
+                                >
+                                    {budgetCategories.map(c => (
+                                        <Select.Option key={c.categoryName} value={c.categoryName}>{c.categoryName}</Select.Option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <Card>
+                                <Statistic
+                                    title="Số tiền đã chi"
+                                    value={categorySpent}
+                                    precision={2}
+                                    valueStyle={{ color: '#cf1322' }}
+                                    prefix="VND"
+                                />
+                            </Card>
                         </Card>
                     </Col>
                 </Row>
