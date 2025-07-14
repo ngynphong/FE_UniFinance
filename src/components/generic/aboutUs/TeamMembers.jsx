@@ -54,7 +54,7 @@ export const members = [
   },
   {
     name: "Lý Gia Kiệt",
-    role: "Marketing & Growth",
+    role: "Backend Leader",
     bio: "Đảm bảo backend chạy mượt từng request.",
     image: "/kiet.jpg",
     socials: {

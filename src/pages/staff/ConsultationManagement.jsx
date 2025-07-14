@@ -461,24 +461,26 @@ const ConsultationManagement = () => {
         <div className="flex gap-2">
           {slot.approvalStatus !== "Approved" &&
             slot.approvalStatus !== "Rejected" && (
-              <Button
-                size="small"
-                type="link"
-                onClick={() => handleSlotEdit(slot)}
-              >
-                <Edit size={16} />
-              </Button>
+              <>
+                <Button
+                  size="small"
+                  type="link"
+                  onClick={() => handleSlotEdit(slot)}
+                >
+                  <Edit size={16} />
+                </Button>
+                <Popconfirm
+                  title="Bạn chắc chắn muốn xóa?"
+                  onConfirm={() => handleDeleteSlot(slot.slotId)}
+                  okText="Xóa"
+                  cancelText="Hủy"
+                >
+                  <Button size="small" type="link" danger>
+                    <Trash2 size={16} />
+                  </Button>
+                </Popconfirm>
+              </>
             )}
-          <Popconfirm
-            title="Bạn chắc chắn muốn xóa?"
-            onConfirm={() => handleDeleteSlot(slot.slotId)}
-            okText="Xóa"
-            cancelText="Hủy"
-          >
-            <Button size="small" type="link" danger>
-              <Trash2 size={16} />
-            </Button>
-          </Popconfirm>
         </div>
       ),
     },
