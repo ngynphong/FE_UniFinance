@@ -45,5 +45,15 @@ export const goalService = {
             console.error('Delete goal error:', error);
             throw error.response?.data || { message: 'Failed to delete goal' };
         }
+    },
+
+    async getGoalById(id) {
+        try {
+            const response = await axios.get(`/Goal/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Fetch goal by ID error:', error);
+            throw error.response?.data || { message: 'Failed to fetch goal' };
+        }
     }
 };

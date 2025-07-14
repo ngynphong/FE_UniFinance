@@ -2,31 +2,34 @@ import React from 'react';
 import { Button, Popconfirm, Progress, Card } from 'antd';
 import { FaTrash, FaEdit } from "react-icons/fa";
 
-const GoalCard = ({ goal, onEdit, onDelete }) => {
+const GoalCard = ({ goal, onEdit, onDelete, onViewDetails }) => {
     const percent = goal.amount > 0
         ? Math.min(100, Math.round((goal.currentSpending / goal.amount) * 100))
         : 0;
 
     return (
         <Card
-            className="w-full hover:shadow-lg transition-shadow duration-200"
+            className="w-full hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+            onClick={() => onViewDetails(goal.id)}
             actions={[
                 <Button
                     key="edit"
                     type="text"
                     className='text-blue-500'
-                    onClick={() => onEdit(goal)}
+                    onClick={(e) => { e.stopPropagation(); onEdit(goal); }}
                     icon={<FaEdit />}
                 />,
                 <Popconfirm
                     key="delete"
                     title="Xóa mục tiêu?"
-                    onConfirm={() => onDelete(goal.id)}
+                    onConfirm={(e) => { e.stopPropagation(); onDelete(goal.id); }}
+                    onCancel={(e) => e.stopPropagation()}
                 >
                     <Button
                         type="text"
                         className='text-red-500'
                         icon={<FaTrash />}
+                        onClick={(e) => e.stopPropagation()}
                     />
                 </Popconfirm>
             ]}

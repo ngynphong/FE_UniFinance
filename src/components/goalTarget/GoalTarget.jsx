@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, message, Spin } from 'antd';
 import GoalTargetModal from './GoalTargetModal';
+import GoalDetailModal from './GoalDetailModal';
 import { goalService } from '../../services/goalService';
 import { useAuth } from '../auth/useAuthHook';
 import GoalCard from './GoalCard';
@@ -11,6 +12,8 @@ const GoalTarget = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingGoal, setEditingGoal] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [selectedGoalId, setSelectedGoalId] = useState(null);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -37,6 +40,16 @@ const GoalTarget = () => {
     const handleEdit = (goal) => {
         setEditingGoal(goal);
         setModalOpen(true);
+    };
+
+    const handleViewDetails = (goalId) => {
+        setSelectedGoalId(goalId);
+        setDetailModalOpen(true);
+    };
+
+    const handleCloseDetailModal = () => {
+        setDetailModalOpen(false);
+        setSelectedGoalId(null);
     };
 
     const handleDelete = async (id) => {
@@ -94,6 +107,7 @@ const GoalTarget = () => {
                         goal={goal}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        onViewDetails={handleViewDetails}
                     />
                 ))}
             </div>
@@ -103,6 +117,12 @@ const GoalTarget = () => {
                 goal={editingGoal}
                 onClose={() => setModalOpen(false)}
                 onSave={handleSave}
+            />
+
+            <GoalDetailModal
+                goalId={selectedGoalId}
+                visible={detailModalOpen}
+                onClose={handleCloseDetailModal}
             />
         </div>
     );
