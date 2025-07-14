@@ -106,7 +106,7 @@ export default function BlogManagement() {
             key: "blogImages",
             render: (images) =>
                 images && images.length > 0 ? (
-                    <img src={images[0].imageUrl} alt="blog" className="w-16 h-10 object-cover rounded" />
+                    <img src={images[0].imageUrl} alt="blog" className="w-32 h-32 object-contain rounded" />
                 ) : (
                     <span className="text-gray-400">Không có</span>
                 ),

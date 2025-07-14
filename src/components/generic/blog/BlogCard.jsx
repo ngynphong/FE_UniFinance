@@ -2,9 +2,10 @@ import { Card } from "antd"
 import { useState, useEffect } from "react"
 import { ArrowRight } from "lucide-react"
 
-function BlogCard({ imageUrl, title, description, delay = 0 }) {
+function BlogCard({ image, title, description, delay = 0 }) {
   const [isVisible, setIsVisible] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+console.log("ghhhhhhhhhh", title)
 
   useEffect(() => {
     const timer = setTimeout(
@@ -45,7 +46,7 @@ function BlogCard({ imageUrl, title, description, delay = 0 }) {
           </button>
         </div>
         <img
-          src={imageUrl || "/placeholder.svg"}
+          src={image || "/placeholder.svg"}
           alt=""
           className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110"
         />
