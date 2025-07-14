@@ -1,13 +1,18 @@
 "use client";
-
+import { useState } from "react";
 import { Row, Col, Card, Form, Input, Button, message } from "antd";
 import { Phone, Mail, MapPin } from "lucide-react";
-import { contactService } from '../../services/contactService/';
+import { contactService } from "../../services/contactService/";
 
 const { TextArea } = Input;
 
 const ContactSection = () => {
+  const [loading, setLoading] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+
   const onFinish = async (values) => {
+    setLoading(true);
+    setDisabled(true);
     try {
       // Gọi API tạo contact
       const response = await contactService.createContact({
@@ -15,14 +20,21 @@ const ContactSection = () => {
         Email: values.email,
         Issue: values.issue,
         Message: values.message,
-        DateSent: new Date().toISOString(),  
+        DateSent: new Date().toISOString(),
       });
-      
-      message.success("Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong 24h.");
+
+      message.success(
+        "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong 24h."
+      );
       console.log("Contact created:", response);
     } catch (error) {
       message.error(error.message || "Đã có lỗi xảy ra, vui lòng thử lại!");
       console.log("Error creating contact:", error);
+    } finally {
+      setLoading(false);
+      setTimeout(() => {
+        setDisabled(false);
+      }, 5000);
     }
   };
 
@@ -97,7 +109,9 @@ const ContactSection = () => {
                     <Form.Item
                       label="Họ và tên"
                       name="name"
-                      rules={[{ required: true, message: "Vui lòng nhập họ tên!" }]}
+                      rules={[
+                        { required: true, message: "Vui lòng nhập họ tên!" },
+                      ]}
                     >
                       <Input size="large" placeholder="Nhập họ và tên" />
                     </Form.Item>
@@ -121,7 +135,10 @@ const ContactSection = () => {
                   name="issue"
                   rules={[{ required: true, message: "Vui lòng nhập vấn đề!" }]}
                 >
-                  <TextArea rows={4} placeholder="Nhập vấn đề bạn đang gặp phải" />
+                  <TextArea
+                    rows={4}
+                    placeholder="Nhập vấn đề bạn đang gặp phải"
+                  />
                 </Form.Item>
 
                 <Form.Item
@@ -145,7 +162,13 @@ const ContactSection = () => {
                     type="primary"
                     htmlType="submit"
                     size="large"
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    loading={loading}
+                    disabled={disabled}
+                    className={`w-full ${
+                      disabled
+                        ? "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    }`}
                   >
                     Gửi tin nhắn
                   </Button>
@@ -160,4 +183,3 @@ const ContactSection = () => {
 };
 
 export default ContactSection;
-
