@@ -17,3 +17,7 @@ export const getAllUsers = async (role) => {
 //   });
 //   return response.data;
 // };
+export const getQuickStats = async () => {
+  const response = await axios.get('/Admin/quick-stats');
+  return response.data;
+};
