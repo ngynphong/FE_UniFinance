@@ -1,12 +1,23 @@
 import { Row, Col } from "antd"
 import BlogCard from "./BlogCard"
+import { useNavigate } from "react-router-dom"
 
 function BlogSection({ blogs }) {
-  const mappedBlogs = blogs.map((blog) => ({
-    imageUrl: blog.blogImages?.[0]?.imageUrl || "https://via.placeholder.com/300",
-    title: blog.title,
-    description: blog.content.slice(0, 100) + "..."
-  }))
+  const navigate = useNavigate();
+
+  const handleBlogClick = (blogId) => {
+    console.log('Click', blogId)
+    navigate(`/blog/${blogId}`);
+  };
+
+  const mappedBlogs = blogs.map((blog) => {
+    return {
+      id: blog.blogId,
+      imageUrl: blog.blogImages?.[0]?.imageUrl || "https://via.placeholder.com/300",
+      title: blog.title,
+      description: blog.content.slice(0, 100) + "..."
+    };
+  });
 
   return (
     <section id="blog" className="py-20 bg-gray-50">
@@ -27,6 +38,7 @@ function BlogSection({ blogs }) {
                 description={blog.description}
                 delay={index}
                 className="h-full w-full"
+                onClick={() => handleBlogClick(blog.id)}
               />
             </Col>
           ))}

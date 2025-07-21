@@ -2,10 +2,9 @@ import { Card } from "antd"
 import { useState, useEffect } from "react"
 import { ArrowRight } from "lucide-react"
 
-function BlogCard({ image, title, description, delay = 0 }) {
+function BlogCard({ image, title, description, delay = 0, onClick }) {
   const [isVisible, setIsVisible] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-console.log("ghhhhhhhhhh", title)
 
   useEffect(() => {
     const timer = setTimeout(
@@ -20,19 +19,19 @@ console.log("ghhhhhhhhhh", title)
 
   return (
     <Card
-      className={`h-full border-0 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-      }`}
+      className={`h-full border-0 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden cursor-pointer ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
       style={{
         transition: "all 0.5s ease",
         transform: isHovered ? "translateY(-8px)" : "translateY(0)",
-        height: "100%", 
-        display: "flex", 
-        flexDirection: "column", 
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      bodyStyle={{ padding: 0, flex: 1 }} 
+      onClick={onClick}
+      bodyStyle={{ padding: 0, flex: 1 }}
     >
       <div className="relative overflow-hidden group">
         <div
@@ -41,7 +40,10 @@ console.log("ghhhhhhhhhh", title)
             backdropFilter: "blur(2px)",
           }}
         >
-          <button className="bg-white text-blue-600 px-4 py-2 rounded-full flex items-center gap-2 font-medium transform translate-y-10 group-hover:translate-y-0 transition-transform duration-300">
+          <button
+            onClick={onClick}
+            className="bg-white text-blue-600 px-4 py-2 rounded-full flex items-center gap-2 font-medium transform translate-y-10 group-hover:translate-y-0 transition-transform duration-300"
+          >
             Xem chi tiết <ArrowRight className="w-4 h-4" />
           </button>
         </div>

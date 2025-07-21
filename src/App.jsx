@@ -32,6 +32,7 @@ import BudgetManagement from "./pages/user/BudgetManagement/BudgetManagement";
 import TransactionsPage from "./pages/user/Transactions/TransactionsPage";
 import ServicesPage from "./pages/generic/services/ServicesPage";
 import BlogPage from "./pages/generic/BlogPage";
+import BlogDetailPage from "./pages/generic/BlogDetailPage";
 import EmailVerifyPage from "./pages/generic/EmailVerifyPage";
 import PaymentSuccess from "./pages/payment/PaymentSuccess";
 
@@ -111,6 +112,7 @@ function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/term-conditions" element={<TermConditionPage />} />
               <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:id" element={<BlogDetailPage />} />
               <Route path="/services" element={<ServicesPage />} />
             </Route>
 
