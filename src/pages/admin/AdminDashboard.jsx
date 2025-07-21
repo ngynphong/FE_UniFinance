@@ -11,14 +11,14 @@ const goals = [
   {
     id: 1,
     name: 'Revenue Target',
-    target: 200000000,
+    target: 2000000,
     current: 99000, // This will be updated from API
     suffix: 'VND',
   },
   {
     id: 3,
     name: 'Active Users Target',
-    target: 2000,
+    target: 200,
     current: 3, // This will be updated from API
     suffix: 'users',
   },

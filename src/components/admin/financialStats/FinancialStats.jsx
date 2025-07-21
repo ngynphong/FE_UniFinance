@@ -1,4 +1,5 @@
 
+import React, { useState, useEffect } from 'react';
 import {
   Layout,
   Card,
@@ -7,6 +8,8 @@ import {
   Tag,
   Row,
   Col,
+  Spin,
+  message
 } from 'antd';
 import {
   LineChart,
@@ -19,83 +22,34 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import {
-  TrendingUp,
-  DollarSign,
-  Activity,
-  ArrowUpRight,
-  Eye,
-} from 'lucide-react';
+import { Eye } from 'lucide-react';
 import AdminLayout from '../../layout/admin/AdminLayout';
+import { getFinanceDashboardData } from '../../../services/adminService';
 
 const { Header, Content } = Layout;
 
 const FinancialDashboard = () => {
-  const monthlyGrowthData = [
-    { month: 'T1', revenue: 1800, transactions: 820 },
-    { month: 'T2', revenue: 2100, transactions: 950 },
-    { month: 'T3', revenue: 2350, transactions: 1100 },
-    { month: 'T4', revenue: 2200, transactions: 980 },
-    { month: 'T5', revenue: 2650, transactions: 1200 },
-    { month: 'T6', revenue: 2850, transactions: 1247 },
-  ];
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [recentTransactions, setRecentTransactions] = useState([]);
 
-  const transactionData = [
-    {
-      key: '1',
-      code: '#TXN001',
-      customer: 'Nguyễn Văn An',
-      service: 'Gói tư vấn Premium',
-      amount: 2500000,
-      date: '29/06/2025',
-      status: 'success',
-    },
-    {
-      key: '2',
-      code: '#TXN002',
-      customer: 'Trần Thị Bình',
-      service: 'Khóa học đầu tư',
-      amount: 1800000,
-      date: '28/06/2025',
-      status: 'success',
-    },
-    {
-      key: '3',
-      code: '#TXN003',
-      customer: 'Lê Minh Cường',
-      service: 'Tư vấn cá nhân',
-      amount: 500000,
-      date: '28/06/2025',
-      status: 'pending',
-    },
-    {
-      key: '4',
-      code: '#TXN004',
-      customer: 'Phạm Thu Hà',
-      service: 'Gói tư vấn Basic',
-      amount: 1200000,
-      date: '27/06/2025',
-      status: 'success',
-    },
-    {
-      key: '5',
-      code: '#TXN005',
-      customer: 'Hoàng Đức Minh',
-      service: 'Khóa học nâng cao',
-      amount: 3000000,
-      date: '27/06/2025',
-      status: 'success',
-    },
-    {
-      key: '6',
-      code: '#TXN006',
-      customer: 'Đỗ Thị Lan',
-      service: 'Tư vấn nhóm',
-      amount: -150000,
-      date: '26/06/2025',
-      status: 'failed',
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await getFinanceDashboardData();
+        setData(response);
+        setRecentTransactions(response.recentSubscriptions || []);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu thống kê tài chính:', error);
+        message.error('Không thể tải dữ liệu thống kê tài chính');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -104,36 +58,34 @@ const FinancialDashboard = () => {
     }).format(amount);
   };
 
-  const getStatusTag = (status) => {
-    const statusConfig = {
-      success: { color: 'green', text: 'Thành công' },
-      pending: { color: 'orange', text: 'Đang xử lý' },
-      failed: { color: 'red', text: 'Hoàn tiền' },
-    };
-    const config = statusConfig[status];
-    return <Tag color={config.color}>{config.text}</Tag>;
-  };
+  // const getStatusTag = (status) => {
+  //   const statusConfig = {
+  //     success: { color: 'green', text: 'Thành công' },
+  //     pending: { color: 'orange', text: 'Đang xử lý' },
+  //     failed: { color: 'red', text: 'Hoàn tiền' },
+  //   };
+  //   const config = statusConfig[status];
+  //   if (!config) {
+  //     return <Tag color="default">Không xác định</Tag>;
+  //   }
+  //   return <Tag color={config.color}>{config.text}</Tag>;
+  // };
 
   const columns = [
     {
-      title: 'Mã giao dịch',
-      dataIndex: 'code',
-      key: 'code',
-    },
-    {
       title: 'Khách hàng',
-      dataIndex: 'customer',
-      key: 'customer',
+      dataIndex: 'userName',
+      key: 'userName',
     },
     {
       title: 'Dịch vụ',
-      dataIndex: 'service',
-      key: 'service',
+      dataIndex: 'packageName',
+      key: 'packageName',
     },
     {
       title: 'Số tiền',
-      dataIndex: 'amount',
-      key: 'amount',
+      dataIndex: 'price',
+      key: 'price',
       render: (amount) => (
         <span className={`font-semibold ${amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
           {amount > 0 ? '+' : ''}
@@ -143,14 +95,9 @@ const FinancialDashboard = () => {
     },
     {
       title: 'Ngày giao dịch',
-      dataIndex: 'date',
-      key: 'date',
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => getStatusTag(status),
+      dataIndex: 'subscribedAt',
+      key: 'subscribedAt',
+      render: (text) => (text ? new Date(text).toLocaleDateString('vi-VN') : ''),
     },
     {
       title: 'Hành động',
@@ -161,82 +108,117 @@ const FinancialDashboard = () => {
     },
   ];
 
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center h-screen">
+          <Spin size="large" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  const {
+    totalRevenue = 0,
+    totalTransactions = 0,
+    monthlyGrowthRate: monthlyGrowth = 0,
+    // monthlyRevenueData = [],
+    // monthlyTransactionData = [],
+  } = data || {};
+
   return (
-     <AdminLayout>
-    <Layout>
-      <Header className="bg-white shadow px-6">
-        <h1 className="text-2xl font-semibold text-gray-800 leading-[64px]">Thống kê tài chính</h1>
-      </Header>
+    <AdminLayout>
+      <Layout>
+        <Header className="bg-white shadow px-6">
+          <h1 className="text-2xl font-semibold text-gray-800 leading-[64px]">
+            Thống kê tài chính
+          </h1>
+        </Header>
 
-      <Content className="p-6 bg-gray-50">
-        <Row gutter={[24, 24]} className="mb-6">
-          <Col xs={24} sm={8}>
-            <Card bordered={false}>
-              <Statistic
-                title="Tổng doanh thu"
-                value={2847550000}
-                formatter={(value) => formatCurrency(value)}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
+        <Content className="p-6 bg-gray-50">
+          <Row gutter={[24, 24]} className="mb-6">
+            <Col xs={24} sm={8}>
+              <Card bordered={false}>
+                <Statistic
+                  title="Tổng doanh thu"
+                  value={totalRevenue}
+                  formatter={(value) => formatCurrency(value)}
+                  valueStyle={{ color: '#52c41a' }}
+                />
+              </Card>
+            </Col>
 
-          <Col xs={24} sm={8}>
-            <Card bordered={false}>
-              <Statistic title="Tổng số giao dịch" value={1247} valueStyle={{ color: '#1890ff' }} />
-            </Card>
-          </Col>
+            <Col xs={24} sm={8}>
+              <Card bordered={false}>
+                <Statistic
+                  title="Tổng số giao dịch"
+                  value={totalTransactions}
+                  valueStyle={{ color: '#1890ff' }}
+                />
+              </Card>
+            </Col>
 
-          <Col xs={24} sm={8}>
-            <Card bordered={false}>
-              <Statistic title="Tăng trưởng theo tháng" value={23.5} suffix="%" valueStyle={{ color: '#fa8c16' }} />
-            </Card>
-          </Col>
-        </Row>
+            <Col xs={24} sm={8}>
+              <Card bordered={false}>
+                <Statistic
+                  title="Tăng trưởng theo tháng"
+                  value={monthlyGrowth}
+                  suffix="%"
+                  valueStyle={{ color: '#fa8c16' }}
+                />
+              </Card>
+            </Col>
+          </Row>
 
-        <Row gutter={[24, 24]} className="mb-6">
-          <Col xs={24} lg={12}>
-            <Card title="Doanh thu theo tháng">
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={monthlyGrowthData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="revenue" stroke="#52c41a" strokeWidth={3} />
-                </LineChart>
-              </ResponsiveContainer>
-            </Card>
-          </Col>
+          {/* <Row gutter={[24, 24]} className="mb-6">
+            <Col xs={24} lg={12}>
+              <Card title="Doanh thu theo tháng">
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={monthlyRevenueData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#52c41a"
+                      strokeWidth={3}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
 
-          <Col xs={24} lg={12}>
-            <Card title="Số lượng giao dịch theo tháng">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyGrowthData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="transactions" fill="#1890ff" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
-          </Col>
-        </Row>
+            <Col xs={24} lg={12}>
+              <Card title="Số lượng giao dịch theo tháng">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={monthlyTransactionData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="transactions" fill="#1890ff" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
+          </Row> */}
 
-        <Card title="Giao dịch gần đây">
-          <Table
-            columns={columns}
-            dataSource={transactionData}
-            pagination={{
-              pageSize: 10,
-              showTotal: (total) => `Hiển thị ${total} giao dịch gần nhất`,
-            }}
-            className="overflow-x-auto"
-          />
-        </Card>
-      </Content>
-    </Layout>
+          <Card title="Giao dịch gần đây">
+            <Table
+              columns={columns}
+              dataSource={recentTransactions}
+              loading={loading}
+              pagination={{
+                pageSize: 10,
+                showTotal: (total) => `Hiển thị ${total} giao dịch gần nhất`,
+              }}
+              className="overflow-x-auto"
+            />
+          </Card>
+        </Content>
+      </Layout>
     </AdminLayout>
   );
 };

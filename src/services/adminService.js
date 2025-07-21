@@ -21,3 +21,13 @@ export const getQuickStats = async () => {
   const response = await axios.get('/Admin/quick-stats');
   return response.data;
 };
+
+export const getFinanceDashboardData = async () => {
+  const response = await axios.get('/Admin/finance-dashboard');
+  return response.data;
+};
+
+export const getRecentSubscriptions = async () => {
+    const response = await axios.get('/Admin/recent-subscriptions');
+    return response.data;
+};
