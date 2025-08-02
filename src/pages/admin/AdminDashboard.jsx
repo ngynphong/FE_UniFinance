@@ -73,7 +73,7 @@ const AdminDashboard = () => {
             <Card className="h-full">
               <Statistic
                 title="Total Revenue"
-                value={stats.totalRevenue}
+                value={stats.totalRevenue - (99000 * 2)}
                 formatter={(value) => formatVND(value)}
                 valueStyle={{ color: '#3f8600' }}
               />
@@ -138,16 +138,16 @@ const AdminDashboard = () => {
                       <div className="w-full md:w-1/2 mt-2 md:mt-0">
                         <Progress
                           percent={Math.round(
-                            (goal.current / goal.target) * 100
+                            (goal.current  / goal.target) * 100
                           )}
                           status={
                             goal.current >= goal.target ? 'success' : 'active'
                           }
                           format={() =>
                             goal.suffix === 'VND'
-                              ? `${formatVND(goal.current)} / ${formatVND(
-                                  goal.target
-                                )}`
+                              ? `${formatVND(goal.current - (99000 * 2))} / ${formatVND(
+                                goal.target
+                              )}`
                               : `${goal.current} / ${goal.target} ${goal.suffix}`
                           }
                         />

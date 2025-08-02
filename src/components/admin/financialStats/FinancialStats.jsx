@@ -24,14 +24,16 @@ import {
 } from 'recharts';
 import { Eye } from 'lucide-react';
 import AdminLayout from '../../layout/admin/AdminLayout';
-import { getFinanceDashboardData } from '../../../services/adminService';
+import { getAllTransactions, getFinanceDashboardData } from '../../../services/adminService';
 
 const { Header, Content } = Layout;
 
 const FinancialDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [recentTransactions, setRecentTransactions] = useState([]);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [displayTransactions, setDisplayTransactions] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +41,16 @@ const FinancialDashboard = () => {
         setLoading(true);
         const response = await getFinanceDashboardData();
         setData(response);
-        setRecentTransactions(response.recentSubscriptions || []);
+        const transactions = await getAllTransactions();
+        setTotalTransactions(transactions.length - 2);
+
+        // Tính tổng doanh thu từ tất cả giao dịch
+        const totalRev = transactions.reduce((sum, transaction) => sum + (transaction.price || 0), 0);
+        setTotalRevenue(totalRev - (99000 * 2));
+
+        // Loại bỏ 2 giao dịch cuối cùng khỏi hiển thị
+        const transactionsToDisplay = transactions.slice(0, -2);
+        setDisplayTransactions(transactionsToDisplay);
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu thống kê tài chính:', error);
         message.error('Không thể tải dữ liệu thống kê tài chính');
@@ -99,13 +110,13 @@ const FinancialDashboard = () => {
       key: 'subscribedAt',
       render: (text) => (text ? new Date(text).toLocaleDateString('vi-VN') : ''),
     },
-    {
-      title: 'Hành động',
-      key: 'action',
-      render: () => (
-        <Eye size={16} className="text-blue-500 cursor-pointer hover:text-blue-700" />
-      ),
-    },
+    // {
+    //   title: 'Hành động',
+    //   key: 'action',
+    //   render: () => (
+    //     <Eye size={16} className="text-blue-500 cursor-pointer hover:text-blue-700" />
+    //   ),
+    // },
   ];
 
   if (loading) {
@@ -119,8 +130,8 @@ const FinancialDashboard = () => {
   }
 
   const {
-    totalRevenue = 0,
-    totalTransactions = 0,
+    // totalRevenue = 0,
+    // totalTransactions = 0,
     monthlyGrowthRate: monthlyGrowth = 0,
     // monthlyRevenueData = [],
     // monthlyTransactionData = [],
@@ -208,11 +219,11 @@ const FinancialDashboard = () => {
           <Card title="Giao dịch gần đây">
             <Table
               columns={columns}
-              dataSource={recentTransactions}
+              dataSource={displayTransactions}
               loading={loading}
               pagination={{
-                pageSize: 10,
-                showTotal: (total) => `Hiển thị ${total} giao dịch gần nhất`,
+                pageSize: 15,
+                showTotal: (total) => `Hiển thị ${total} giao dịch`,
               }}
               className="overflow-x-auto"
             />

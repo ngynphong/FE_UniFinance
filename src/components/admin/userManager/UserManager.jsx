@@ -34,51 +34,51 @@ const UserManagement = () => {
     }
   };
 
-const columns = [
-  {
-    title: 'Tên',
-    dataIndex: 'name',
-    key: 'name',
-    sorter: (a, b) => a.name.localeCompare(b.name),
-  },
-  {
-    title: 'Email',
-    dataIndex: 'email',
-    key: 'email',
-  },
-  {
-    title: 'Số điện thoại',
-    dataIndex: 'phoneNumber',
-    key: 'phoneNumber',
-    render: (phone) => phone || <span className="text-gray-400 italic">Không có</span>,
-  },
-  {
-    title: 'Địa chỉ',
-    dataIndex: 'address',
-    key: 'address',
-    render: (address) => address || <span className="text-gray-400 italic">Không có</span>,
-  },
-  {
-    title: 'Vai trò',
-    dataIndex: 'role',
-    key: 'role',
-    render: (role) => (
-      <Tag color={role === 'Admin' ? 'blue' : role === 'Consultant' ? 'cyan' : 'default'}>
-        {role}
-      </Tag>
-    ),
-  },
-  {
-    title: 'Hành động',
-    key: 'action',
-    render: () => (
-      <Space size="middle">
-        <EditOutlined className="text-blue-500" />
-        <DeleteOutlined className="text-red-500" />
-      </Space>
-    ),
-  },
-];
+  const columns = [
+    {
+      title: 'Tên',
+      dataIndex: 'name',
+      key: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Số điện thoại',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
+      render: (phone) => phone || <span className="text-gray-400 italic">Không có</span>,
+    },
+    {
+      title: 'Địa chỉ',
+      dataIndex: 'address',
+      key: 'address',
+      render: (address) => address || <span className="text-gray-400 italic">Không có</span>,
+    },
+    {
+      title: 'Vai trò',
+      dataIndex: 'role',
+      key: 'role',
+      render: (role) => (
+        <Tag color={role === 'Admin' ? 'blue' : role === 'Consultant' ? 'cyan' : 'default'}>
+          {role}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Hành động',
+      key: 'action',
+      render: () => (
+        <Space size="middle">
+          <EditOutlined className="text-blue-500" />
+          <DeleteOutlined className="text-red-500" />
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <AdminLayout>
@@ -96,7 +96,7 @@ const columns = [
             rowKey="id"
             pagination={{
               total: users.length,
-              pageSize: 10,
+              pageSize: 15,
               showTotal: (total) => `Tổng ${total} người dùng`,
             }}
           />

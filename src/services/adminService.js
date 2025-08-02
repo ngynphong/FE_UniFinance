@@ -28,6 +28,11 @@ export const getFinanceDashboardData = async () => {
 };
 
 export const getRecentSubscriptions = async () => {
-    const response = await axios.get('/Admin/recent-subscriptions');
-    return response.data;
+  const response = await axios.get('/Admin/recent-subscriptions');
+  return response.data;
+};
+
+export const getAllTransactions = async () => {
+  const response = await axios.get('/Admin/all-subscriptions');
+  return response.data;
 };

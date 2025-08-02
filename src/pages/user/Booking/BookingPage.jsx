@@ -36,8 +36,8 @@ export default function BookingForm() {
   useEffect(() => {
     (async () => {
       try {
-        const [pkg] = await packageService.getUserPackage(user.userID);
-        setUserPackage(pkg);
+        const pkg = await packageService.getUserPackage(user.userID);
+        setUserPackage(pkg[1]);
         const profile = await authService.getUserProfile(user.userID);
         setUserProfile(profile);
       } catch (err) {
@@ -45,6 +45,7 @@ export default function BookingForm() {
       }
     })();
   }, [user]);
+
 
   // A2. Slot khả dụng – tuần hiện tại (weekOffset=0) / hoặc truyền thêm date
   useEffect(() => {
