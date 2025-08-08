@@ -14,7 +14,7 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState({ name: "", email: "", password: "", confirmPassword: "" });
-
+    const [isLoading, setIsLoading] = useState(false);
     const validate = () => {
         let valid = true;
         let newError = { name: "", email: "", password: "", confirmPassword: "" };
@@ -59,10 +59,11 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
+        setIsLoading(true);
         const res = await register(name, email, password, confirmPassword);
         if (res.success) {
             setError({ name: "", email: "", password: "", confirmPassword: "" });
-            toast.success('Đăng ký thành công! Vui lòng đăng nhập', {
+            toast.success(`Đăng ký thành công! Vui lòng xác thực email của bạn tại ${email}`, {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -82,6 +83,7 @@ const Register = () => {
                 setError({ name: "", email: "", password: "", confirmPassword: res.message || "Đăng ký thất bại" });
             }
         }
+        setIsLoading(false);
     };
 
     return (
@@ -167,7 +169,9 @@ const Register = () => {
                         type="submit"
                         className="w-full py-2 rounded-xl font-semibold text-lg text-white bg-gradient-to-r from-blue-600 to-cyan-400 shadow-lg hover:from-blue-700 hover:to-cyan-500 transition hover:scale-[1.02] active:scale-100 focus:outline-none focus:ring-2 focus:ring-blue-400 hover:cursor-pointer"
                     >
-                        Đăng ký
+                        {isLoading ? <div className="flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        </div> : "Đăng ký"}
                     </button>
                 </form>
                 <div className="flex items-center my-6">

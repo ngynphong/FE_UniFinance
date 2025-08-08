@@ -11,6 +11,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState({ email: "", password: "" });
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const validate = () => {
         let valid = true;
@@ -37,6 +38,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
+        setIsLoading(true);
         const res = await login(email, password);
         if (res.success) {
             setError({ email: "", password: "" });
@@ -51,9 +53,11 @@ const Login = () => {
         } else {
             setError({ email: "", password: res.message || "Sai email hoặc mật khẩu" });
         }
+        setIsLoading(false);
     };
 
     const onGoogleSuccess = async (credentialResponse) => {
+        setIsLoading(true);
         try {
             if (!credentialResponse?.credential) {
                 throw new Error('No credentials received from Google');
@@ -80,6 +84,8 @@ const Login = () => {
                 email: "",
                 password: error.message || "Failed to process Google login"
             });
+        } finally {
+            setIsLoading(false);
         }
     };
     const onGoogleError = () => {
@@ -138,7 +144,9 @@ const Login = () => {
                         type="submit"
                         className="w-full py-2 rounded-xl font-semibold text-lg text-white bg-gradient-to-r from-blue-600 to-cyan-400 shadow-lg hover:from-blue-700 hover:to-cyan-500 transition hover:scale-[1.02] active:scale-100 focus:outline-none focus:ring-2 focus:ring-blue-400 hover:cursor-pointer"
                     >
-                        Đăng nhập
+                        {isLoading ? <div className="flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        </div> : "Đăng nhập"}
                     </button>
                 </form>
 
