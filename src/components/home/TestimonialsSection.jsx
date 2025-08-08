@@ -46,9 +46,8 @@ const TestimonialsSection = () => {
       const userPackageData = await packageService.getUserPackage(user.userID);
       if (userPackageData && userPackageData.length > 0) {
         const packageId = userPackageData[0].packageId;
-
-        if (packageId !== 1) setHasUserPackage(true);
-
+        const userPackageStatusId = userPackageData[0].userPackageStatusId;
+        if (packageId == 1 && userPackageStatusId == 3) setHasUserPackage(true);
         setReviewData((prevData) => ({
           ...prevData,
           userID: user.userID,
