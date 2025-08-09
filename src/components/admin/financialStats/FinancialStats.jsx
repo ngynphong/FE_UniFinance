@@ -42,14 +42,14 @@ const FinancialDashboard = () => {
         const response = await getFinanceDashboardData();
         setData(response);
         const transactions = await getAllTransactions();
-        setTotalTransactions(transactions.length - 2);
-
+        setTotalTransactions(transactions.filter(transaction => transaction.email !== 'bachdxse182030@fpt.edu.vn').length - 2);
+        
         // Tính tổng doanh thu từ tất cả giao dịch
         const totalRev = transactions.reduce((sum, transaction) => sum + (transaction.price || 0), 0);
-        setTotalRevenue(totalRev - (99000 * 2));
+        setTotalRevenue(totalRev - (99000 * 3));
 
         // Loại bỏ 2 giao dịch cuối cùng khỏi hiển thị
-        const transactionsToDisplay = transactions.slice(0, -2);
+        const transactionsToDisplay = transactions.filter(transaction => transaction.email !== 'bachdxse182030@fpt.edu.vn').slice(0, -2);
         setDisplayTransactions(transactionsToDisplay);
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu thống kê tài chính:', error);
@@ -87,6 +87,18 @@ const FinancialDashboard = () => {
       title: 'Khách hàng',
       dataIndex: 'userName',
       key: 'userName',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      render: (email) => email || <span className="text-gray-400 italic">Không có</span>,
+    },
+    {
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
+      key: 'phone',
+      render: (phone) => phone || <span className="text-gray-400 italic">Không có</span>,
     },
     {
       title: 'Dịch vụ',
@@ -139,14 +151,14 @@ const FinancialDashboard = () => {
 
   return (
     <AdminLayout>
-      <Layout>
-        <Header className="bg-white shadow px-6">
+      <>
+        <Header className="bg-white rounded-xl px-6">
           <h1 className="text-2xl font-semibold text-gray-800 leading-[64px]">
             Thống kê tài chính
           </h1>
         </Header>
 
-        <Content className="p-6 bg-gray-50">
+        <Content className="p-6  mt-4">
           <Row gutter={[24, 24]} className="mb-6">
             <Col xs={24} sm={8}>
               <Card bordered={false}>
@@ -169,7 +181,7 @@ const FinancialDashboard = () => {
               </Card>
             </Col>
 
-            <Col xs={24} sm={8}>
+            {/* <Col xs={24} sm={8}>
               <Card bordered={false}>
                 <Statistic
                   title="Tăng trưởng theo tháng"
@@ -178,7 +190,7 @@ const FinancialDashboard = () => {
                   valueStyle={{ color: '#fa8c16' }}
                 />
               </Card>
-            </Col>
+            </Col> */}
           </Row>
 
           {/* <Row gutter={[24, 24]} className="mb-6">
@@ -229,7 +241,7 @@ const FinancialDashboard = () => {
             />
           </Card>
         </Content>
-      </Layout>
+      </>
     </AdminLayout>
   );
 };

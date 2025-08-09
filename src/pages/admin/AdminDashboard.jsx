@@ -73,7 +73,7 @@ const AdminDashboard = () => {
             <Card className="h-full">
               <Statistic
                 title="Total Revenue"
-                value={stats.totalRevenue - (99000 * 2)}
+                value={stats.totalRevenue - (99000 * 3)}
                 formatter={(value) => formatVND(value)}
                 valueStyle={{ color: '#3f8600' }}
               />
