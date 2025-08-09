@@ -43,7 +43,7 @@ const FinancialDashboard = () => {
         setData(response);
         const transactions = await getAllTransactions();
         setTotalTransactions(transactions.filter(transaction => transaction.email !== 'bachdxse182030@fpt.edu.vn').length - 2);
-        
+
         // Tính tổng doanh thu từ tất cả giao dịch
         const totalRev = transactions.reduce((sum, transaction) => sum + (transaction.price || 0), 0);
         setTotalRevenue(totalRev - (99000 * 3));
@@ -51,6 +51,7 @@ const FinancialDashboard = () => {
         // Loại bỏ 2 giao dịch cuối cùng khỏi hiển thị
         const transactionsToDisplay = transactions.filter(transaction => transaction.email !== 'bachdxse182030@fpt.edu.vn').slice(0, -2);
         setDisplayTransactions(transactionsToDisplay);
+        console.log('Tran', transactionsToDisplay)
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu thống kê tài chính:', error);
         message.error('Không thể tải dữ liệu thống kê tài chính');
@@ -96,9 +97,9 @@ const FinancialDashboard = () => {
     },
     {
       title: 'Số điện thoại',
-      dataIndex: 'phone',
-      key: 'phone',
-      render: (phone) => phone || <span className="text-gray-400 italic">Không có</span>,
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
+      render: (phoneNumber) => phoneNumber || <span className="text-gray-400 italic">Không có</span>,
     },
     {
       title: 'Dịch vụ',
