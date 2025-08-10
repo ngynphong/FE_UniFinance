@@ -42,14 +42,14 @@ const FinancialDashboard = () => {
         const response = await getFinanceDashboardData();
         setData(response);
         const transactions = await getAllTransactions();
-        setTotalTransactions(transactions.filter(transaction => transaction.email !== 'bachdxse182030@fpt.edu.vn').length - 2);
+        setTotalTransactions(transactions.filter(transaction => transaction.email !== 'bachdxse182030@fpt.edu.vn' && transaction.email !== 'd69579386@gmail.com').length - 2);
 
         // Tính tổng doanh thu từ tất cả giao dịch
         const totalRev = transactions.reduce((sum, transaction) => sum + (transaction.price || 0), 0);
-        setTotalRevenue(totalRev - (99000 * 3));
+        setTotalRevenue(totalRev - (99000 * 4));
 
         // Loại bỏ 2 giao dịch cuối cùng khỏi hiển thị
-        const transactionsToDisplay = transactions.filter(transaction => transaction.email !== 'bachdxse182030@fpt.edu.vn').slice(0, -2);
+        const transactionsToDisplay = transactions.filter(transaction => transaction.email !== 'bachdxse182030@fpt.edu.vn' && transaction.email !== 'd69579386@gmail.com').slice(0, -2);
         setDisplayTransactions(transactionsToDisplay);
         console.log('Tran', transactionsToDisplay)
       } catch (error) {
